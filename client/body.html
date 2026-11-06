@@ -1,0 +1,82 @@
+<div class="bg-blobs" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+
+<!-- LOGIN -->
+<section class="screen" id="authScreen" hidden>
+  <div class="auth">
+    <div class="logo">cpk</div>
+    <p class="tag">23 tiny party games · 2–8 friends · under a minute each</p>
+    <div class="card">
+      <div class="seg" id="authSeg"><button data-m="login" aria-pressed="true">Log in</button><button data-m="signup" aria-pressed="false">Sign up</button></div>
+      <label>Username<input id="aName" maxlength="16" autocomplete="username" placeholder="e.g. beanking"></label>
+      <label>Password<input id="aPass" type="password" maxlength="64" autocomplete="current-password" placeholder="4+ characters"></label>
+      <button class="btn big pink" id="aGo">Log in</button>
+      <p class="err" id="aErr"></p>
+    </div>
+  </div>
+</section>
+
+<!-- HOME -->
+<section class="screen" id="homeScreen" hidden>
+  <header class="top"><div class="logo sm">cpk</div><div class="coins" id="hCoins">🪙 0</div><button class="icon" id="hSettings" aria-label="Settings">⚙️</button></header>
+  <div class="home">
+    <div class="card me-card" id="meCard"></div>
+    <div class="play-btns">
+      <button class="btn big pink" id="hCreate">🎉 Create a room</button>
+      <form class="join" id="hJoinForm"><input id="hCode" maxlength="4" placeholder="CODE" autocomplete="off" aria-label="Room code"><button class="btn big blue">Join</button></form>
+    </div>
+    <div class="tiles4">
+      <button class="tile t1" id="hPublic"><span>🌍</span>Public rooms</button>
+      <button class="tile t2" id="hWardrobe"><span>👕</span>Wardrobe</button>
+      <button class="tile t3" id="hFriends"><span>👯</span>Friends<em id="hReq" hidden></em></button>
+      <button class="tile t4" id="hStats"><span>📊</span>Stats</button>
+    </div>
+    <div class="card" id="hFriendsMini"></div>
+  </div>
+</section>
+
+<!-- ROOM / LOBBY -->
+<section class="screen" id="roomScreen" hidden>
+  <header class="top"><button class="icon" id="rLeave" aria-label="Leave room">←</button><div class="room-code" id="rCode">----</div><button class="btn small yellow" id="rShare">🔗 Invite</button></header>
+  <div class="room">
+    <div class="card"><div class="players" id="rPlayers"></div><div class="host-row" id="rHostRow"></div></div>
+    <div class="card host-only" id="rSettings"></div>
+    <div class="start-row"><button class="btn big green" id="rStart">▶ Start the party</button><p class="muted" id="rWait">Waiting for the host to start…</p></div>
+  </div>
+</section>
+
+<!-- MATCH -->
+<section class="screen match" id="matchScreen" hidden>
+  <div class="m-top"><span id="mRound"></span><span class="m-time" id="mTime"></span><button class="icon sm" id="mBoard" aria-label="Scores">🏆</button></div>
+  <div class="stage" id="stage"></div>
+  <div class="ovl" id="ovl" hidden></div>
+  <div class="controls" id="controls" hidden><div class="pad" id="ctlPad"><div class="knob" id="ctlKnob"></div></div><button class="act" id="ctlAct">DIVE</button></div>
+</section>
+
+<!-- chat + emotes, always available in a room -->
+<div class="chat" id="chat" hidden>
+  <div class="chat-row"><div class="emotes" id="emotes" hidden></div><button class="chat-btn emo-btn" id="emoBtn" aria-label="Emotes">😀</button><button class="chat-btn" id="chatBtn" aria-label="Chat">💬<em id="chatN" hidden></em></button></div>
+  <div class="chat-panel" id="chatPanel" hidden><div class="chat-msgs" id="chatMsgs"></div><form id="chatForm"><input id="chatIn" maxlength="200" placeholder="Say something…" autocomplete="off"><button class="btn small pink">Send</button></form></div>
+</div>
+<div class="emo-pops" id="emoPops"></div>
+
+<!-- modals -->
+<div class="modal" id="publicModal" hidden><div class="panel"><div class="ph"><h2>🌍 Public rooms</h2><button class="icon sm" data-close>✕</button></div><div id="pubList" class="pub-list"></div><button class="btn blue" id="pubRefresh">↻ Refresh</button></div></div>
+<div class="modal" id="createModal" hidden><div class="panel"><div class="ph"><h2>🎉 New room</h2><button class="icon sm" data-close>✕</button></div>
+  <button class="opt" data-pub="0"><b>🔒 Private</b><span>Only people with the code or link can join</span></button>
+  <button class="opt" data-pub="1"><b>🌍 Public</b><span>Anyone can find it in Public rooms</span></button></div></div>
+<div class="modal" id="wardModal" hidden><div class="panel wide"><div class="ph"><h2>👕 Wardrobe</h2><span class="coins" id="wCoins"></span><button class="icon sm" data-close>✕</button></div>
+  <div class="ward"><div class="ward-prev" id="wPrev"></div><div class="ward-shop"><div class="seg" id="wTabs"><button data-s="col" aria-pressed="true">Colour</button><button data-s="hat" aria-pressed="false">Hats</button><button data-s="face" aria-pressed="false">Face</button><button data-s="neck" aria-pressed="false">Extras</button></div><div class="ward-grid" id="wGrid"></div></div></div></div></div>
+<div class="modal" id="friendsModal" hidden><div class="panel"><div class="ph"><h2>👯 Friends</h2><button class="icon sm" data-close>✕</button></div>
+  <form class="add-friend" id="fAdd"><input id="fName" maxlength="16" placeholder="Their username" autocomplete="off"><button class="btn small pink">Add</button></form>
+  <div id="fReqs"></div><div id="fList" class="f-list"></div></div></div>
+<div class="modal" id="statsModal" hidden><div class="panel wide"><div class="ph"><h2>📊 Stats</h2><button class="icon sm" data-close>✕</button></div><div id="statsBody"></div></div></div>
+<div class="modal" id="setModal" hidden><div class="panel"><div class="ph"><h2>⚙️ Settings</h2><button class="icon sm" data-close>✕</button></div>
+  <div class="set"><span>Music</span><button class="sw" id="sMusic"></button></div>
+  <div class="set"><span>Sound effects</span><button class="sw" id="sSound"></button></div>
+  <div class="set"><span>Announcer voice</span><button class="sw" id="sVoice"></button></div>
+  <div class="set"><span>Volume</span><input type="range" id="sVol" min="0" max="100"></div>
+  <button class="btn red" id="sLogout">Log out</button></div></div>
+<div class="modal" id="pMenu" hidden><div class="panel"><div id="pMenuBody"></div></div></div>
+
+<div class="toast" id="toast" hidden></div>
+<div class="confetti" id="confetti"></div>
