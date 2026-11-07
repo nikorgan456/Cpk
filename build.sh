@@ -11,7 +11,7 @@ cd "$(dirname "$0")/client"
   echo '<style>'; cat style.css; echo '</style></head><body>'
   cat body.html
   echo '<script>(()=>{"use strict";'
-  for f in core.js audio.js bean.js net.js controls.js arena3d.js match.js games_phys.js games_phys2.js games_race.js games_party.js games_party2.js games_quick.js games_drop2.js games_drop3.js ui.js; do cat "$f"; echo; done
+  for f in core.js audio.js bean.js net.js controls.js arena3d.js match.js games_phys.js games_phys2.js games_race.js games_party.js games_party2.js games_quick.js games_drop2.js games_drop3.js games_drop4.js games_drop5.js ui.js; do cat "$f"; echo; done
   [ "$TEST" = "1" ] && echo 'window.__cpk = { NET, CM, get HM(){ return HM; }, GAMES, STORE, ME:() => ME, CTL, myInput, hIntro, hVote, startMatch };'
   echo '})();</script></body></html>'
 } > ../public/index.html
