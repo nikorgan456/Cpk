@@ -1,6 +1,7 @@
 // ===================== controls: joystick + action button on touch, WASD/arrows + space on keyboard =====================
+const PC = matchMedia("(pointer:fine)").matches;
 const CTL = { x:0, y:0, a:0, kind:null, sent:"", last:0, keys:{}, stick:null, label:"DIVE" };
-function ctlShow(kind, label){ CTL.kind = kind; CTL.label = label || "DIVE"; const c = $("#controls"); c.hidden = kind !== "stick"; if(kind === "stick") $("#ctlAct").textContent = CTL.label; CTL.x = CTL.y = CTL.a = 0; CTL.sent = ""; }
+function ctlShow(kind, label){ CTL.kind = kind; CTL.label = label || "DIVE"; const c = $("#controls"); c.hidden = kind !== "stick"; if(kind === "stick") $("#ctlAct").innerHTML = esc(CTL.label) + (PC ? `<kbd>E</kbd>` : ""); CTL.x = CTL.y = CTL.a = 0; CTL.sent = ""; CTL.map = null; }
 (() => {
   const pad = $("#ctlPad"), knob = $("#ctlKnob"), act = $("#ctlAct"); let pid = null, cx = 0, cy = 0;
   const R = () => pad.getBoundingClientRect().width / 2;
@@ -19,7 +20,11 @@ function ctlTick(){
   if(CTL.kind !== "stick") return; const k = CTL.keys;
   let kx = (k.KeyD || k.ArrowRight ? 1 : 0) - (k.KeyA || k.ArrowLeft ? 1 : 0), ky = (k.KeyS || k.ArrowDown ? 1 : 0) - (k.KeyW || k.ArrowUp ? 1 : 0);
   if(kx && ky){ kx *= .707; ky *= .707; }
-  CTL.x = kx || CTL.tx || 0; CTL.y = ky || CTL.ty || 0; CTL.a = (k.Space || k.KeyJ || k.Enter || CTL.ta) ? 1 : 0;
-  const t = now(), sig = `${CTL.x.toFixed(2)},${CTL.y.toFixed(2)},${CTL.a}`;
-  if(CM.phase === "play" && (sig !== CTL.sent && t - CTL.last > .066 || t - CTL.last > .5)){ CTL.sent = sig; CTL.last = t; myInput({ c:{ x:+CTL.x.toFixed(2), y:+CTL.y.toFixed(2), a:CTL.a } }); }
+  CTL.x = kx || CTL.tx || 0; CTL.y = ky || CTL.ty || 0; CTL.a = (k.KeyE || k.Space || k.KeyJ || k.Enter || CTL.ta) ? 1 : 0;
+  let sx = CTL.x, sy = CTL.y; if(CTL.map) [sx, sy] = CTL.map(sx, sy); // a turned camera turns the stick too
+  const t = now(), sig = `${sx.toFixed(2)},${sy.toFixed(2)},${CTL.a}`;
+  if(CM.phase === "play" && (sig !== CTL.sent && t - CTL.last > .066 || t - CTL.last > .5)){ CTL.sent = sig; CTL.last = t; myInput({ c:{ x:+sx.toFixed(2), y:+sy.toFixed(2), a:CTL.a } }); }
 }
+
+// key that counts as the action button in tap/mash games (E for PC, Space/Enter also work)
+const actKey = e => (e.code === "KeyE" || e.code === "Space" || e.code === "Enter") && !(e.target && e.target.closest && e.target.closest("input,textarea"));

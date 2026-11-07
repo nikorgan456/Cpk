@@ -8,6 +8,33 @@ const WORDS = ("apple banana pizza burger donut cake cookie icecream sandwich ta
   "sword shield bow arrow bomb magnet ladder rope bucket candle balloon kite present gift snowflake fire ice heart skull eye nose ear hand foot tooth brain " +
   "pencil book scissors paperclip toothbrush soap mirror door window fence chimney anchor treasure map compass diamond ring money").split(" ");
 
+// ---------- shared drawing pad: one pen, an eraser and a clear button ----------
+// strokes travel as { s:strokeId, p:[x,y,x,y…] (0-1000), m:0 pen / 1 eraser }; { clr:1 } wipes the board
+function makePad(can, o = {}){
+  const x = can.getContext("2d"), P = { last:{}, mode:0 }; x.lineCap = x.lineJoin = "round";
+  P.clear = () => { x.fillStyle = "#fff"; x.fillRect(0, 0, 1000, 1000); P.last = {}; };
+  P.seg = (s, p, m, col) => { x.lineWidth = m ? 46 : 9; x.strokeStyle = m ? "#fff" : col || "#1a1a2a"; const last = P.last[s]; x.beginPath();
+    if(last) x.moveTo(last[0], last[1]); else if(p.length >= 2){ x.moveTo(p[0], p[1]); if(p.length === 2) x.lineTo(p[0] + .1, p[1]); }
+    for(let i = 0; i < p.length; i += 2) x.lineTo(p[i], p[i + 1]); x.stroke(); if(p.length >= 2) P.last[s] = [p[p.length - 2], p[p.length - 1]]; };
+  P.clear();
+  P.redraw = list => { P.clear(); list.forEach(st => st.clr ? P.clear() : P.seg("x" + (st.o || "") + "_" + st.s, st.p, st.m, st.c)); P.last = {}; };
+  if(o.edit){ let sid = 0, buf = [], down = false, lastSend = 0; const tag = o.tag || "";
+    const pt = e => { const r = can.getBoundingClientRect(); return [clamp(Math.round((e.clientX - r.left) / r.width * 1000), 0, 1000), clamp(Math.round((e.clientY - r.top) / r.height * 1000), 0, 1000)]; };
+    const flush = () => { if(!buf.length) return; o.send({ e:"pts", s:sid, p:buf, m:P.mode }); buf = []; };
+    can.addEventListener("pointerdown", e => { if(!o.can()) return; down = true; sid++; can.setPointerCapture(e.pointerId); const p = pt(e); buf.push(...p); P.seg(tag + sid, p, P.mode, o.col); if(o.onStart) o.onStart(); e.preventDefault(); });
+    can.addEventListener("pointermove", e => { if(!down) return; const p = pt(e); buf.push(...p); P.seg(tag + sid, p, P.mode, o.col); if(Date.now() - lastSend > 70){ lastSend = Date.now(); flush(); } });
+    const up = () => { if(!down) return; down = false; flush(); if(o.onEnd) o.onEnd(); }; can.addEventListener("pointerup", up); can.addEventListener("pointercancel", up);
+    P.tools = el => { el.innerHTML = `<button class="pt on" data-m="0">✏️ Pen</button><button class="pt" data-m="1">🧽 Eraser</button>${o.noClear ? "" : `<button class="pt" data-clr>🗑️ Clear</button>`}`;
+      el.onclick = e => { const b = e.target.closest("button"); if(!b || !o.can()) return; sfx.click();
+        if(b.dataset.clr != null){ P.clear(); o.send({ e:"pts", clr:1 }); return; }
+        P.mode = +b.dataset.m; el.querySelectorAll("[data-m]").forEach(k => k.classList.toggle("on", k === b)); can.classList.toggle("erasing", P.mode === 1); }; };
+  }
+  return P;
+}
+// host side: check a stroke message and keep it
+function padIn(list, d, max = 4000){ if(d.clr) { list.length = 0; return { clr:1 }; } if(!Array.isArray(d.p) || list.length >= max) return null;
+  const p = d.p.slice(0, 120).map(v => clamp(Math.round(+v || 0), 0, 1000)), st = { s:d.s | 0, p, m:d.m ? 1 : 0 }; list.push(st); return st; }
+
 // ---------- QUICK DRAW & GUESS ----------
 const normW = s => String(s || "").toLowerCase().replace(/[^a-z]/g, "");
 function nearWord(a, b){ if(Math.abs(a.length - b.length) > 1) return false; let i = 0, j = 0, e = 0; while(i < a.length && j < b.length){ if(a[i] === b[j]){ i++; j++; continue; } if(++e > 1) return false; if(a.length > b.length) i++; else if(b.length > a.length) j++; else { i++; j++; } } return e + (a.length - i) + (b.length - j) <= 1; }
@@ -22,7 +49,7 @@ GAMES.draw = {
     if(!G.sent){ G.sent = true; H.to(G.drawer, { t:"word", w:G.word }); }
     const want = G.ids.filter(id => id !== G.drawer && playerOf(id)); if(want.length && want.every(id => G.guessed[id] != null)){ G.reveal = true; H.end(this.rankOf(G)); } },
   onEvent(G, id, d, H){
-    if(d.e === "pts" && id === G.drawer && Array.isArray(d.p) && G.strokes.length < 4000){ const p = d.p.slice(0, 120).map(v => clamp(Math.round(+v || 0), 0, 1000)); G.strokes.push([d.s | 0, p]); H.ev({ t:"pts", s:d.s | 0, p }); }
+    if(d.e === "pts" && id === G.drawer){ const st = padIn(G.strokes, d); if(st) H.ev(Object.assign({ t:"pts" }, st)); }
     if(d.e === "guess" && id !== G.drawer && G.guessed[id] == null){ const g = normW(d.text); if(!g) return;
       if(g === normW(G.word)){ G.guessed[id] = G.t; G.feed.push({ id, ok:1 }); H.ev({ t:"ok", id }); }
       else { G.feed.push({ id, text:String(d.text).slice(0, 30) }); if(nearWord(g, normW(G.word))) H.to(id, { t:"close" }); }
@@ -38,20 +65,12 @@ GAMES.draw = {
   snap(G){ return { d:G.drawer, n:G.word.length, w:G.reveal ? G.word : null, h:G.t > 22 ? G.word.length : 0, h1:G.t > 32 ? G.word[0] : "", g:G.guessed, feed:G.feed, t:+G.t.toFixed(1) }; },
   view(root, ctx){
     ctlShow(null); const meDraw = ctx.info.drawer === ctx.me, v = { word:null, strokes:{}, cur:null };
-    root.innerHTML = `<div class="dg"><div class="dg-top" id="dgTop"></div><div class="dg-board"><canvas id="dgCan" width="1000" height="1000"></canvas>${meDraw ? `<div class="dg-pen">✏️ Draw here</div>` : ""}</div>
+    root.innerHTML = `<div class="dg"><div class="dg-top" id="dgTop"></div><div class="dg-board"><canvas id="dgCan" width="1000" height="1000"></canvas>${meDraw ? `<div class="dg-pen">✏️ Draw here</div><div class="pad-tools" id="dgTools"></div>` : ""}</div>
       <div class="dg-side"><div class="dg-feed" id="dgFeed"></div>${meDraw ? "" : `<form class="dg-in" id="dgForm"><input id="dgGuess" placeholder="Type your guess…" autocomplete="off" maxlength="30"><button class="btn small">Guess</button></form>`}</div></div>`;
-    const can = $("#dgCan"), x = can.getContext("2d"); x.lineCap = x.lineJoin = "round"; x.lineWidth = 9; x.strokeStyle = "#1a1a2a"; x.fillStyle = "#fff"; x.fillRect(0, 0, 1000, 1000);
-    const drawSeg = (s, p) => { const last = v.strokes[s]; x.beginPath(); let i = 0; if(last){ x.moveTo(last[0], last[1]); } else if(p.length >= 2){ x.moveTo(p[0], p[1]); if(p.length === 2){ x.lineTo(p[0] + .1, p[1]); } }
-      for(;i < p.length; i += 2) x.lineTo(p[i], p[i + 1]); x.stroke(); if(p.length >= 2) v.strokes[s] = [p[p.length - 2], p[p.length - 1]]; };
-    if(meDraw){ let sid = 0, buf = [], down = false, lastSend = 0;
-      const pt = e => { const r = can.getBoundingClientRect(); return [Math.round((e.clientX - r.left) / r.width * 1000), Math.round((e.clientY - r.top) / r.height * 1000)]; };
-      const flush = () => { if(!buf.length) return; ctx.input({ e:"pts", s:sid, p:buf }); buf = []; };
-      can.addEventListener("pointerdown", e => { if(CM.phase !== "play") return; down = true; sid++; can.setPointerCapture(e.pointerId); const p = pt(e); buf.push(...p); drawSeg(sid, p); $(".dg-pen") && $(".dg-pen").remove(); e.preventDefault(); });
-      can.addEventListener("pointermove", e => { if(!down) return; const p = pt(e); buf.push(...p); drawSeg(sid, p); if(Date.now() - lastSend > 70){ lastSend = Date.now(); flush(); } });
-      const up = () => { if(!down) return; down = false; flush(); }; can.addEventListener("pointerup", up); can.addEventListener("pointercancel", up);
-      v.mine = sid; v.own = true; }
+    const can = $("#dgCan"), pad = makePad(can, { edit:meDraw, send:ctx.input, can:() => CM.phase === "play", onStart:() => { const p = $(".dg-pen"); if(p) p.remove(); } });
+    if(meDraw) pad.tools($("#dgTools"));
     else { $("#dgForm").onsubmit = e => { e.preventDefault(); const i = $("#dgGuess"), t = i.value.trim(); if(!t || CM.phase !== "play") return; ctx.input({ e:"guess", text:t }); i.value = ""; }; }
-    v.ev = e => { if(e.t === "pts" && !meDraw) drawSeg("r" + e.s, e.p); if(e.t === "word"){ v.word = e.w; sfx.ding(); } if(e.t === "ok"){ sfx.ding(); if(e.id === ctx.me){ sfx.win(); } } if(e.t === "close") toast("So close! 🔥"); };
+    v.ev = e => { if(e.t === "pts" && !meDraw){ if(e.clr) pad.clear(); else pad.seg("r" + e.s, e.p, e.m); } if(e.t === "word"){ v.word = e.w; sfx.ding(); } if(e.t === "ok"){ sfx.ding(); if(e.id === ctx.me){ sfx.win(); } } if(e.t === "close") toast("So close! 🔥"); };
     v.update = s => {
       const top = $("#dgTop"); if(!top) return;
       const hint = s.w ? `The word was <b>${esc(s.w)}</b>` : meDraw ? (v.word ? `Draw: <b class="dg-word">${esc(v.word)}</b>` : "Get ready…") :
@@ -67,7 +86,7 @@ GAMES.draw = {
 // ---------- TUG OF WAR ----------
 GAMES.tug = {
   name:"Tug of War", icon:"🪢", cat:"mash", desc:"Mash as a team to pull the rope", dur:25, rate:12,
-  how:["You're split into two teams","Tap <b>PULL!</b> as fast as you can (or mash Space)","Drag the flag over your line to win"],
+  how:["You're split into two teams","Tap <b>PULL!</b> as fast as you can (or mash <b>E</b>)","Drag the flag over your line to win"],
   init(ids){ const s = shuffle(ids), A = s.filter((_, i) => i % 2 === 0), B = s.filter((_, i) => i % 2 === 1), big = Math.max(A.length, B.length);
     return { A, B, p:0, taps:{}, mA:big / A.length, mB:big / B.length, info:{ A, B }, acc:{} }; },
   introNote(info, me){ return info.A.includes(me) ? "You're on the <b style='color:#ff4a8a'>PINK</b> team (left)" : info.B.includes(me) ? "You're on the <b style='color:#3a9aff'>BLUE</b> team (right)" : ""; },
@@ -87,7 +106,7 @@ GAMES.tug = {
     const imgOf = id => { if(v.imgs[id]) return v.imgs[id]; const im = new Image(); im.src = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(beanSVG(playerOf(id)?.bean, 64).replace('<svg ', '<svg xmlns="http://www.w3.org/2000/svg" ')); return v.imgs[id] = im; };
     const tap = () => { if(CM.phase !== "play") return; v.taps++; v.pend++; sfx.mash(); const b = $("#tugBtn"); if(b){ b.classList.remove("hit"); void b.offsetWidth; b.classList.add("hit"); } $("#tugCount").textContent = `${v.taps} taps`; };
     if(myTeam){ $("#tugBtn").addEventListener("pointerdown", e => { e.preventDefault(); tap(); }); }
-    const key = e => { if(e.code === "Space" || e.code === "Enter"){ e.preventDefault(); if(!e.repeat) tap(); } }; addEventListener("keydown", key);
+    const key = e => { if(actKey(e)){ e.preventDefault(); if(!e.repeat) tap(); } }; addEventListener("keydown", key);
     v.update = (s, dt, t) => {
       if(v.pend && Date.now() - v.lastSend > 90){ ctx.input({ e:"tap", n:v.pend }); v.pend = 0; v.lastSend = Date.now(); }
       newFx(v, s.fx, (type, w) => { if(type === "w"){ (w === myTeam) ? sfx.win() : sfx.lose(); } });

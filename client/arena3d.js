@@ -14,7 +14,7 @@ function makeStage(root, o = {}){
   const cam = new THREE.PerspectiveCamera(48, 1, .1, 200);
   scene.add(new THREE.HemisphereLight("#ffffff", "#ffb8e0", .75));
   const sun = new THREE.DirectionalLight("#fff6e8", .85); sun.position.set(8, 20, 10); sun.castShadow = true; sun.shadow.mapSize.set(1024, 1024);
-  const sc = sun.shadow.camera; sc.left = sc.bottom = -16; sc.right = sc.top = 16; sc.near = 1; sc.far = 50; scene.add(sun);
+  const sc = sun.shadow.camera; sc.left = sc.bottom = -16; sc.right = sc.top = 16; sc.near = 1; sc.far = 50; scene.add(sun); scene.add(sun.target);
   // candy goo below everything
   const gooM = new THREE.MeshStandardMaterial({ color:o.goo || "#ff7ad8", roughness:.25, metalness:.1, emissive:o.goo || "#ff7ad8", emissiveIntensity:.15 });
   const goo = new THREE.Mesh(new THREE.PlaneGeometry(200, 200, 40, 40), gooM); goo.rotation.x = -Math.PI/2; goo.position.y = -4; scene.add(goo);
@@ -27,7 +27,12 @@ function makeStage(root, o = {}){
   const labels = document.createElement("div"); labels.className = "labels3d"; root.appendChild(labels);
   const S = { scene, cam, renderer, root, beans:new Map(), labels, deco, goo, gooM, tags:new Map(), emotes:new Map(), camPos:o.cam || [0, 17, 15], look:o.look || [0, 0, 1] };
   S.resize = () => { const w = root.clientWidth, h = root.clientHeight; renderer.setSize(w, h, false); renderer.domElement.style.width = w + "px"; renderer.domElement.style.height = h + "px"; cam.aspect = w / h;
-    const a = w / h, k = clamp(.85 / a, 1, 1.75); cam.fov = a < 1 ? 56 : 48; cam.position.set(S.camPos[0] * k, S.camPos[1] * k, S.camPos[2] * k); cam.lookAt(...S.look); cam.updateProjectionMatrix(); };
+    const a = w / h, P = a < 1 && o.portrait; S.camPos = P ? P.cam : o.cam || [0, 17, 15]; S.look = P ? P.look : o.look || [0, 0, 1];
+    S.k = P ? clamp((P.a || .6) / a, .8, 1.6) : clamp(.85 / a, 1, 1.75) * (S.zoom || 1); cam.fov = a < 1 ? 56 : 48; scene.fog.near = 30 * Math.max(1, S.k) + (o.fogAdd || 0); scene.fog.far = 75 * Math.max(1, S.k) + (o.fogAdd || 0); S.place(); cam.updateProjectionMatrix(); };
+  S.fx = 0; S.fz = 0; S.k = 1;
+  // camera sits at camPos (scaled for tall screens) relative to a followed point; the sun follows too so shadows stay sharp
+  S.place = () => { const k = S.k; cam.position.set(S.camPos[0] * k + S.fx, S.camPos[1] * k, S.camPos[2] * k + S.fz); cam.lookAt(S.look[0] + S.fx, S.look[1], S.look[2] + S.fz); sun.position.set(8 + S.fx, 20, 10 + S.fz); sun.target.position.set(S.fx, 0, S.fz); sun.target.updateMatrixWorld(); };
+  S.follow = (x, z, k = .1) => { S.fx = lerp(S.fx, x, k); S.fz = lerp(S.fz, z, k); S.place(); };
   S.resize(); S.ro = new ResizeObserver(S.resize); S.ro.observe(root);
   S.bean = id => { let b = S.beans.get(id); if(!b){ const p = playerOf(id); b = beanMesh(p ? p.bean : null, id); scene.add(b); S.beans.set(id, b);
       const tag = document.createElement("div"); tag.className = "tag3d" + (id === NET.me ? " me" : ""); tag.textContent = id; labels.appendChild(tag); S.tags.set(id, tag); } return b; };
@@ -56,23 +61,25 @@ function physStep(G, dt, inputs, o){
       const sp = speed * (b.boost || 1) * (b.dash > 0 ? 1.7 : 1);
       if(b.dash <= 0){ b.vx += (ix*sp - b.vx) * Math.min(1, acc/sp*dt*(m > .1 ? 1 : 1.5)); b.vz += (iz*sp - b.vz) * Math.min(1, acc/sp*dt*(m > .1 ? 1 : 1.5)); }
       if(m > .2) b.f = Math.atan2(ix, iz);
-      if(inp.a && !b.held && b.cd <= 0){ b.dash = .28; b.cd = 1.1; const d = o.dash || 13; b.vx = Math.sin(b.f)*d; b.vz = Math.cos(b.f)*d; fxp(G, "d", id); }
+      if(inp.a && !b.held && o.act) o.act(id, b);
+      else if(inp.a && !b.held && b.cd <= 0 && !o.noDash){ b.dash = o.dashT || .28; b.cd = 1.1; const d = o.dash || 13; b.vx = Math.sin(b.f)*d; b.vz = Math.cos(b.f)*d; fxp(G, "d", id); }
       b.held = inp.a ? 1 : 0;
     }
     b.x += b.vx*dt; b.z += b.vz*dt;
     if(o.wall){ const w = o.wall; if(w.r){ const d = Math.hypot(b.x, b.z); if(d > w.r - BR){ const nx = b.x/d, nz = b.z/d; b.x = nx*(w.r - BR); b.z = nz*(w.r - BR); const vn = b.vx*nx + b.vz*nz; if(vn > 0){ b.vx -= 1.8*vn*nx; b.vz -= 1.8*vn*nz; } } }
       else { const hx = w.w/2 - BR, hz = w.h/2 - BR; if(b.x < -hx){ b.x = -hx; b.vx = Math.abs(b.vx)*.8; } if(b.x > hx){ b.x = hx; b.vx = -Math.abs(b.vx)*.8; } if(b.z < -hz){ b.z = -hz; b.vz = Math.abs(b.vz)*.8; } if(b.z > hz){ b.z = hz; b.vz = -Math.abs(b.vz)*.8; } } }
     if(!b.fall && o.ground && !o.ground(b.x, b.z, b, id)){ b.fall = true; b.vy = 0; fxp(G, "f", id); }
-    if(b.fall){ b.vy -= 30*dt; b.y += b.vy*dt; b.vx *= .98; b.vz *= .98; if(b.y < -7){ b.alive = false; (G.outs = G.outs || []).push(id); if(o.onOut) o.onOut(id); } }
+    if(b.fall){ b.vy -= 30*dt; b.y += b.vy*dt; b.vx *= .98; b.vz *= .98; if(b.y < (o.outY || -7)){ b.alive = false; (G.outs = G.outs || []).push(id); if(o.onOut) o.onOut(id); } }
   });
   // bumping
   for(let i=0;i<ids.length;i++) for(let j=i+1;j<ids.length;j++){
-    const a = B[ids[i]], c = B[ids[j]]; if(!a.alive || !c.alive || a.fall || c.fall) continue;
+    const a = B[ids[i]], c = B[ids[j]]; if(!a.alive || !c.alive || a.fall || c.fall || Math.abs(a.y - c.y) > 1) continue;
     const dx = c.x - a.x, dz = c.z - a.z, d = Math.hypot(dx, dz); if(d >= BR*2 || d < 1e-4) continue;
     const nx = dx/d, nz = dz/d, ov = BR*2 - d; a.x -= nx*ov/2; a.z -= nz*ov/2; c.x += nx*ov/2; c.z += nz*ov/2;
     const rv = (c.vx - a.vx)*nx + (c.vz - a.vz)*nz; if(rv > 0) continue;
-    const pa = a.dash > 0 ? 2.4 : 1, pc = c.dash > 0 ? 2.4 : 1, imp = -rv * 1.25;
+    const pa = a.dash > 0 ? 2.4 : 1, pc = c.dash > 0 ? 2.4 : 1, imp = -rv * (o.imp || 1.25);
     a.vx -= nx*imp*.5*pc; a.vz -= nz*imp*.5*pc; c.vx += nx*imp*.5*pa; c.vz += nz*imp*.5*pa;
+    if(o.maxV) [a, c].forEach(q => { const sp = Math.hypot(q.vx, q.vz); if(sp > o.maxV){ q.vx *= o.maxV/sp; q.vz *= o.maxV/sp; } });
     if(a.dash > 0 || c.dash > 0){ a.dash = c.dash = 0; } a.hit = c.hit = .3; fxp(G, "b", ids[i], ids[j]);
     if(o.onTouch) o.onTouch(ids[i], ids[j]);
   }

@@ -10,7 +10,7 @@ const icingTex = (base, dots) => cTex(512, 512, (x, w) => { x.fillStyle = base; 
 // ---------- SUMO RING ----------
 GAMES.sumo = {
   name:"Sumo Ring", icon:"🍩", cat:"phys", desc:"Bump everyone off the shrinking donut", dur:50,
-  how:["Move with the joystick, or WASD / arrow keys","Tap <b>DIVE</b> (or Space) to slam into someone","Last bean on the donut wins. It keeps shrinking!"],
+  how:["Move with the joystick, or WASD / arrow keys","Tap <b>DIVE</b> (or press <b>E</b>) to slam into someone","Last bean on the donut wins. It keeps shrinking!"],
   init(ids){ return { R:9.5, B:physInit(ids, (i, n) => { const a = i / n * Math.PI * 2; return [Math.cos(a)*5.5, Math.sin(a)*5.5]; }), outs:[] }; },
   tick(G, dt, inp, H){ if(G.t > 4) G.R = Math.max(3.4, 9.5 - (G.t - 4) * .13);
     physStep(G, dt, inp, { ground:(x, z) => Math.hypot(x, z) < G.R });
@@ -28,36 +28,49 @@ GAMES.sumo = {
 };
 
 // ---------- FALLING TILES ----------
-const TN = 9, TS = 2;
-const tileAt = (x, z) => { const i = Math.round(x / TS + (TN - 1)/2), j = Math.round(z / TS + (TN - 1)/2); if(i < 0 || j < 0 || i >= TN || j >= TN) return -1; if(Math.abs(x - (i - (TN-1)/2)*TS) > .98 || Math.abs(z - (j - (TN-1)/2)*TS) > .98) return -2; return j*TN + i; };
+// two floors: drop through the top one and you land on the one below. Fall off the bottom and you're out
+const TN = 9, TS = 2, NN = TN*TN, LY = [0, -5];
+// the tile under a point (the thin seams between tiles count as the nearest tile, so you never drop through a crack)
+const tileAt = (x, z) => { const i = Math.round(x / TS + (TN - 1)/2), j = Math.round(z / TS + (TN - 1)/2); if(i < 0 || j < 0 || i >= TN || j >= TN) return -1; return j*TN + i; };
+const tileX = k => (k % TN - (TN-1)/2)*TS, tileZ = k => (Math.floor(k / TN) - (TN-1)/2)*TS;
+const solidAt = (G, L, x, z) => { const s1 = (px, pz) => { const k = tileAt(px, pz); return k >= 0 && G.T[L*NN + k] !== -1; }; return s1(x, z) || s1(x + .25, z) || s1(x - .25, z) || s1(x, z + .25) || s1(x, z - .25); };
 GAMES.tiles = {
-  name:"Falling Tiles", icon:"🧇", cat:"phys", desc:"Tiles drop after you step on them", dur:50,
-  how:["Every tile you touch wobbles, then falls","Keep moving and don't get trapped","Last bean standing wins. You can DIVE across gaps!"],
-  init(ids){ return { T:Array(TN*TN).fill(0), B:physInit(ids, (i, n) => { const a = i / n * Math.PI * 2; return [Math.cos(a)*5.2, Math.sin(a)*5.2]; }), outs:[], rt:0 }; },
+  name:"Falling Tiles", icon:"🧇", cat:"phys", desc:"Tiles drop after you step on them", dur:55,
+  how:["Every tile you touch wobbles, then falls. Keep moving!","Fall through and you land on the floor below: a second chance","Fall off the bottom floor and you're out. Last bean standing wins. <b>DIVE</b> (or <b>E</b>) across gaps!"],
+  init(ids){ const B = physInit(ids, (i, n) => { const a = i / n * Math.PI * 2; return [Math.cos(a)*5.2, Math.sin(a)*5.2]; }); ids.forEach(id => B[id].layer = 0); return { T:Array(NN*2).fill(0), B, outs:[], rt:0 }; },
   tick(G, dt, inp, H){
-    G.ids.forEach(id => { const b = G.B[id]; if(!b.alive || b.fall || b.dash > 0) return; const k = tileAt(b.x, b.z); if(k >= 0 && G.T[k] === 0){ G.T[k] = .6; G.dirty = true; } });
+    G.ids.forEach(id => { const b = G.B[id]; if(!b.alive || b.fall || b.dash > 0) return; const k = tileAt(b.x, b.z), i = b.layer*NN + k; if(k >= 0 && G.T[i] === 0 && G.t > .8){ G.T[i] = 1; G.dirty = true; } });
     for(let k=0;k<G.T.length;k++) if(G.T[k] > 0){ G.T[k] -= dt; if(G.T[k] <= 0){ G.T[k] = -1; G.dirty = true; } }
-    if(G.t > 14){ G.rt -= dt; if(G.rt <= 0){ G.rt = Math.max(.25, 1.3 - (G.t - 14) * .03); const solid = G.T.map((v, k) => v === 0 ? k : -1).filter(k => k >= 0); if(solid.length) G.T[pick(solid)] = .9; } }
-    physStep(G, dt, inp, { ground:(x, z, b) => { if(b.dash > 0) return true; const k = tileAt(x, z); return k >= 0 && G.T[k] !== -1; }, speed:6.5 });
+    if(G.t > 18){ G.rt -= dt; if(G.rt <= 0){ G.rt = Math.max(.3, 1.4 - (G.t - 18) * .03); const solid = G.T.map((v, k) => v === 0 ? k : -1).filter(k => k >= 0); if(solid.length) G.T[pick(solid)] = 1.1; } }
+    physStep(G, dt, inp, { ground:(x, z, b) => b.dash > 0 || solidAt(G, b.layer, x, z), speed:6.3, outY:-13 });
+    G.ids.forEach(id => { const b = G.B[id]; if(b.alive && b.fall && b.layer === 0 && b.y <= LY[1] && b.y > LY[1] - 1.2 && solidAt(G, 1, b.x, b.z)){ b.fall = false; b.y = LY[1]; b.vy = 0; b.layer = 1; b.vx *= .3; b.vz *= .3; fxp(G, "l", id); } });
     if(G.ids.filter(id => G.B[id].alive).length <= 1 && G.t > 1) H.end(outRank(G)); },
-  timeout:outRank, drop(G, id){ if(G.B[id] && G.B[id].alive){ G.B[id].alive = false; G.outs.push(id); } },
-  bot(G, id){ const b = G.B[id]; if(!b || !b.alive || b.fall) return null;
-    // look around for the nearest solid tile not under anyone else and head there
-    if(!b.goal || G.T[b.goal] !== 0 || rand() < .02){ let best = -1, bd = 1e9; for(let k=0;k<G.T.length;k++){ if(G.T[k] !== 0) continue; const x = (k % TN - (TN-1)/2)*TS, z = (Math.floor(k / TN) - (TN-1)/2)*TS, d = Math.hypot(x - b.x, z - b.z) + rand()*3; if(d > 1.2 && d < bd){ bd = d; best = k; } } b.goal = best; }
-    if(b.goal < 0) return { x:0, y:0 }; const x = (b.goal % TN - (TN-1)/2)*TS, z = (Math.floor(b.goal / TN) - (TN-1)/2)*TS, dx = x - b.x, dz = z - b.z, m = Math.hypot(dx, dz) || 1;
-    return { x:dx/m*.85, y:dz/m*.85, a: m > 2.6 && m < 3.6 && rand() < .04 ? 1 : 0 }; },
+  timeout(G){ const alive = G.ids.filter(id => G.B[id].alive), top = alive.filter(id => G.B[id].layer === 0), bot = alive.filter(id => G.B[id].layer === 1); return [top, bot].filter(g => g.length).concat(G.outs.slice().reverse().map(id => [id])); },
+  drop(G, id){ if(G.B[id] && G.B[id].alive){ G.B[id].alive = false; G.outs.push(id); } },
+  bot(G, id){ const b = G.B[id]; if(!b || !b.alive || b.fall) return null; const L = b.layer;
+    const ok = k => k >= 0 && G.T[L*NN + k] === 0, gone = k => k < 0 || G.T[L*NN + k] === -1 || G.T[L*NN + k] > 0 && G.T[L*NN + k] < .5;
+    const clear = (x0, z0, x1, z1) => { for(let i=2;i<=8;i++) if(gone(tileAt(lerp(x0, x1, i/8), lerp(z0, z1, i/8)))) return false; return true; };
+    // pick a solid tile a short walk away with no holes on the way; prefer the middle and tiles nobody else is near
+    if(b.goal == null || !ok(b.goal) || rand() < .015 || Math.hypot(tileX(b.goal) - b.x, tileZ(b.goal) - b.z) < .6){ let best = -1, bs = 1e9, jump = -1;
+      for(let k=0;k<NN;k++){ if(!ok(k)) continue; const x = tileX(k), z = tileZ(k), d = Math.hypot(x - b.x, z - b.z); if(d < 1.5 || d > 6) continue;
+        const crowd = G.ids.some(o => o !== id && G.B[o].alive && G.B[o].layer === L && Math.hypot(G.B[o].x - x, G.B[o].z - z) < 1.5) ? 3 : 0, sc = d*.4 + Math.hypot(x, z)*.35 + crowd + rand()*1.5;
+        if(clear(b.x, b.z, x, z)){ if(sc < bs){ bs = sc; best = k; } } else if(d < 3.4 && jump < 0) jump = k; }
+      b.goal = best >= 0 ? best : jump; b.jump = best < 0 && jump >= 0; }
+    if(b.goal < 0) return { x:0, y:0 }; const dx = tileX(b.goal) - b.x, dz = tileZ(b.goal) - b.z, m = Math.hypot(dx, dz) || 1;
+    return { x:dx/m*.9, y:dz/m*.9, a: b.jump && m < 3 && m > 1.6 && rand() < .2 ? 1 : 0 }; },
   snap(G){ return { B:physSnap(G.B), T:G.T.map(v => v === -1 ? "x" : v > 0 ? "s" : "o").join(""), fx:G.fx }; },
-  view(root, ctx){ return physView(root, ctx, { sky:"#9ae8ff", sky2:"#fff0c8", goo:"#7ad8ff", fog:"#fff0c8", cam:[0, 19, 16] }, (S, v) => {
-    const cols = ["#ff7ab8", "#ffd23a", "#7ae0ff", "#9aff8a", "#c79aff"], tiles = [];
+  view(root, ctx){ return physView(root, ctx, { sky:"#9ae8ff", sky2:"#fff0c8", goo:"#7ad8ff", fog:"#fff0c8", cam:[0, 20, 16], look:[0, -1.5, 1] }, (S, v) => {
+    S.goo.position.y = -14; const cols = [["#ff7ab8", "#ffd23a", "#7ae0ff", "#9aff8a", "#c79aff"], ["#c03a7a", "#d08a20", "#2a7ab0", "#3a9a5a", "#7a4ac0"]], tiles = [];
     const geo = new THREE.BoxGeometry(1.86, .5, 1.86);
-    for(let k=0;k<TN*TN;k++){ const i = k % TN, j = Math.floor(k / TN), m = new THREE.Mesh(geo, new THREE.MeshStandardMaterial({ color:cols[(i + j*2) % cols.length], roughness:.35 }));
-      m.position.set((i - (TN-1)/2)*TS, -.25, (j - (TN-1)/2)*TS); m.receiveShadow = true; m.castShadow = true; S.scene.add(m); tiles.push({ m, st:"o", vy:0, base:m.material.color.clone() }); }
+    for(let k=0;k<NN*2;k++){ const L = Math.floor(k / NN), kk = k % NN, i = kk % TN, j = Math.floor(kk / TN), m = new THREE.Mesh(geo, new THREE.MeshStandardMaterial({ color:cols[L][(i + j*2) % 5], roughness:.35 }));
+      m.position.set(tileX(kk), LY[L] - .25, tileZ(kk)); m.receiveShadow = true; m.castShadow = L === 0; S.scene.add(m); tiles.push({ m, st:"o", vy:0, base:m.material.color.clone(), x:tileX(kk) }); }
     v.tick = (s, dt) => { for(let k=0;k<tiles.length;k++){ const T = tiles[k], st = s.T[k];
-      if(st === "s"){ T.m.position.x = ((k % TN) - (TN-1)/2)*TS + (rand() - .5)*.12; T.m.material.color.copy(T.base).lerp(new THREE.Color("#ffffff"), .45); }
+      if(st === "s"){ T.m.position.x = T.x + (rand() - .5)*.12; T.m.material.color.copy(T.base).lerp(new THREE.Color("#ffffff"), .45); }
       if(st === "x" && T.st !== "x"){ T.vy = 0; if(rand() < .3) sfx.pop(); }
-      if(st === "x"){ T.vy -= 25*dt; T.m.position.y += T.vy*dt; T.m.rotation.x += dt*1.5; T.m.visible = T.m.position.y > -20; }
-      if(st === "o"){ T.m.position.x = ((k % TN) - (TN-1)/2)*TS; }
+      if(st === "x" && T.m.visible){ T.vy -= 25*dt; T.m.position.y += T.vy*dt; T.m.rotation.x += dt*1.5; if(T.m.position.y < -16) T.m.visible = false; }
+      if(st === "o"){ T.m.position.x = T.x; }
       T.st = st; } };
+    v.onFx = (type, a) => { if(type === "l"){ sfx.bump(); if(a === ctx.me) toast("Phew! Bottom floor, last chance 😬", 1600); } else physFx(type, a); };
   }); }
 };
 

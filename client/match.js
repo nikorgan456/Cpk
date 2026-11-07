@@ -20,7 +20,9 @@ function hVote(){
   if(!HM) return; if(HM.round >= HM.total) return hFinal();
   const ids = players().map(p => p.id); ids.forEach(id => { if(HM.scores[id] == null){ HM.scores[id] = 0; HM.records[id] = []; HM.wins[id] = 0; } });
   let pool = enabledGames().filter(id => canPlay(id, ids)); if(!pool.length) pool = Object.keys(GAMES).filter(id => canPlay(id, ids));
-  const fresh = pool.filter(id => !HM.played.slice(-Math.min(pool.length - 3, 8)).includes(id)), opts = shuffle(fresh.length >= 3 ? fresh : pool).slice(0, 3);
+  // never offer a game already played this match; also skip what was just on the last vote if there's enough left
+  let fresh = pool.filter(id => !HM.played.includes(id)); if(fresh.length < 3) fresh = pool.filter(id => !HM.played.slice(-Math.max(0, pool.length - 3)).includes(id));
+  const notLast = fresh.filter(id => !(HM.lastOpts || []).includes(id)), opts = shuffle(notLast.length >= 3 ? notLast : fresh.length >= 3 ? fresh : pool).slice(0, 3); HM.lastOpts = opts;
   HM.phase = "vote"; HM.vote = { opts, votes:{} }; HM.round++;
   hsend("vote", { opts, round:HM.round, total:HM.total, secs:10, scores:HM.scores });
   players().filter(p => p.bot).forEach(p => setTimeout(() => hInput(p.id, { e:"vote", g:pick(opts) }), 1200 + rand()*4500));
@@ -32,9 +34,9 @@ function hVoteEnd(){
 }
 function hIntro(id){
   const ids = players().map(p => p.id), game = GAMES[id]; HM.phase = "intro"; HM.game = id; HM.played.push(id); HM.inputs = {};
-  HM.G = game.init(ids, { seed:randInt(1e9), drawn:HM.drawn, bots:ids.filter(x => playerOf(x)?.bot) }); HM.G.ids = ids; HM.G.t = 0; HM.G.dur = game.dur;
+  HM.G = game.init(ids, { seed:randInt(1e9), drawn:HM.drawn, bots:ids.filter(x => playerOf(x)?.bot) }); HM.G.ids = ids; HM.G.t = 0; HM.G.dur = HM.G.dur || game.dur;
   HM.sent = 0; hsend("intro", { game:id, info:HM.G.info || null, secs:5 }); send("s", { d:snapOf(HM.G) });
-  setTimeout(() => { if(!HM || HM.game !== id || HM.phase !== "intro") return; HM.phase = "play"; HM.last = now(); hsend("play", { dur:game.dur }); }, 5200);
+  setTimeout(() => { if(!HM || HM.game !== id || HM.phase !== "intro") return; HM.phase = "play"; HM.last = now(); hsend("play", { dur:HM.G.dur }); }, 5200);
 }
 function snapOf(G){ const g = GAMES[HM.game]; return g.snap ? g.snap(G) : G; }
 const HAPI = {
@@ -48,7 +50,7 @@ function hTick(){
   while(rem > 1e-4 && HM.phase === "play"){ const dt = Math.min(.034, rem); rem -= dt; G.t += dt;
     players().filter(p => p.bot && G.ids.includes(p.id)).forEach(p => { if(game.bot){ const inp = game.bot(G, p.id, dt, HAPI); if(inp) HM.inputs[p.id] = Object.assign(HM.inputs[p.id] || {}, inp); } });
     game.tick(G, dt, HM.inputs, HAPI); if(HM.phase !== "play") return;
-    if(G.t >= game.dur){ hResult(game.timeout ? game.timeout(G) : [G.ids]); return; } }
+    if(G.t >= G.dur){ hResult(game.timeout ? game.timeout(G) : [G.ids]); return; } }
   const rate = game.rate || 15; if(t - HM.sent >= 1 / rate || G.dirty){ HM.sent = t; G.dirty = false; send("s", { d:snapOf(G) }); }
 }
 function hInput(id, d){
@@ -151,7 +153,7 @@ function frame(){
   if(isHost()) hTick();
   if(CM.view && CM.view.update){ const S = isHost() && HM && HM.G && HM.game === CM.game ? snapOf(HM.G) : CM.S; if(S) CM.view.update(S, dt, t); }
   if(CM.phase === "vote"){ const v = $("#voteT"); if(v){ const s = Math.max(0, Math.ceil(CM.ends - t)); if(v.textContent != s){ v.textContent = s; if(s <= 3 && s > 0) sfx.tick(); } } }
-  if(CM.phase === "play" && CM.dur){ const left = Math.max(0, CM.dur - (t - CM.playT)); $("#mTime").textContent = left < 100 ? Math.ceil(left) + "s" : ""; } else $("#mTime").textContent = "";
+  if(CM.phase === "play" && CM.dur && !(GAMES[CM.game] || {}).noClock){ const left = Math.max(0, CM.dur - (t - CM.playT)); $("#mTime").textContent = left < 100 ? Math.ceil(left) + "s" : ""; } else $("#mTime").textContent = "";
   ctlTick();
 }
 requestAnimationFrame(frame);

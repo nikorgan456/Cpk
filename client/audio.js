@@ -22,6 +22,9 @@ const SND = (() => {
     coin(){ tone(988, .08, "square", .1); tone(1319, .25, "square", .1, .07); }, whistle(){ tone(2200, .35, "sine", .2, 0, 2600); tone(2600, .2, "sine", .15, .3); },
     mash(){ tone(300 + Math.random()*200, .05, "square", .07); }, beep(){ tone(880, .1, "square", .1); }, go(){ tone(1320, .4, "square", .15); tone(660, .4, "square", .1); },
     pass(){ tone(600, .1, "sawtooth", .12, 0, 1200); }, draw(){ noise(.03, .04, 3000); }, chat(){ tone(1200, .06, "sine", .08); tone(1600, .06, "sine", .06, .05); },
+    whoosh(){ noise(.2, .25, 1800, 0, "highpass"); }, whack(){ tone(160, .1, "square", .25, 0, 70); noise(.08, .3, 900); },
+    pump(){ noise(.12, .22, 500, 0, "lowpass"); tone(140, .1, "sine", .12, 0, 220); }, bang(){ noise(.35, .8, 1200, 0, "lowpass"); tone(160, .2, "square", .25, 0, 50); },
+    boing(){ tone(220, .3, "sine", .25, 0, 700); }, step(){ tone(140 + Math.random()*40, .05, "triangle", .12); }, slip(){ tone(500, .3, "sawtooth", .1, 0, 150); },
     vote(){ tone(700, .08, "triangle", .14); tone(1050, .1, "triangle", .1, .06); }, crown(){ [784, 988, 1175, 1568].forEach((f, i) => tone(f, .4, "sine", .16, i*.09)); }
   };
   // ---------- music: lobby = chill bounce, game = fast candy pop ----------
