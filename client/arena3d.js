@@ -43,8 +43,8 @@ function makeStage(root, o = {}){
     gooM.emissiveIntensity = .15 + Math.sin(t*1.5) * .05;
     renderer.render(scene, cam);
     const w = root.clientWidth, h = root.clientHeight;
-    S.beans.forEach((b, id) => { const tag = S.tags.get(id); if(!tag) return; v.set(b.position.x, b.position.y + 1.9, b.position.z).project(cam); tag.style.transform = `translate(${(v.x*.5+.5)*w}px,${(-v.y*.5+.5)*h}px) translate(-50%,-100%)`; tag.style.opacity = b.visible ? 1 : 0; });
-    S.emotes.forEach((o, em) => { const b = S.beans.get(o.id); if(!b) return; v.set(b.position.x, b.position.y + 2.5, b.position.z).project(cam); em.style.transform = `translate(${(v.x*.5+.5)*w}px,${(-v.y*.5+.5)*h - (now() - o.t)*30}px) translate(-50%,-100%)`; });
+    S.beans.forEach((b, id) => { const tag = S.tags.get(id); if(!tag) return; v.set(b.position.x, b.position.y + 1.9 * b.scale.y, b.position.z).project(cam); tag.style.transform = `translate(${(v.x*.5+.5)*w}px,${(-v.y*.5+.5)*h}px) translate(-50%,-100%)`; tag.style.opacity = b.visible ? 1 : 0; });
+    S.emotes.forEach((o, em) => { const b = S.beans.get(o.id); if(!b) return; v.set(b.position.x, b.position.y + 2.5 * b.scale.y, b.position.z).project(cam); em.style.transform = `translate(${(v.x*.5+.5)*w}px,${(-v.y*.5+.5)*h - (now() - o.t)*30}px) translate(-50%,-100%)`; });
   };
   S.destroy = () => { S.ro.disconnect(); if(S.unEmote) S.unEmote(); scene.traverse(o => { if(o.geometry && o.geometry !== BEAN3D.geo && o.geometry !== BEAN3D.foot) o.geometry.dispose(); if(o.material){ (Array.isArray(o.material) ? o.material : [o.material]).forEach(m => { if(m.map) m.map.dispose(); m.dispose(); }); } }); labels.remove(); renderer.domElement.remove(); };
   S.unEmote = on("emote", m => S.emote(m.id, m.e));
@@ -54,12 +54,13 @@ function makeStage(root, o = {}){
 const BR = .5;
 function physInit(ids, spawn){ const B = {}; ids.forEach((id, i) => { const [x, z] = spawn(i, ids.length); B[id] = { x, z, vx:0, vz:0, y:0, vy:0, f:Math.atan2(-x, -z), alive:true, fall:false, dash:0, cd:0, held:0, hit:0 }; }); return B; }
 function physStep(G, dt, inputs, o){
-  const B = G.B, ids = Object.keys(B), speed = o.speed || 7, acc = o.acc || 38;
+  const B = G.B, ids = Object.keys(B), speed = o.speed || 7, acc = o.acc || 90, BR = o.r || .5;
   ids.forEach(id => { const b = B[id]; if(!b.alive) return; const inp = inputs[id] || {}; b.cd -= dt; b.dash -= dt; b.hit -= dt;
     if(!b.fall){
       let ix = clamp(inp.x || 0, -1, 1), iz = clamp(inp.y || 0, -1, 1); const m = Math.hypot(ix, iz); if(m > 1){ ix /= m; iz /= m; }
       const sp = speed * (b.boost || 1) * (b.dash > 0 ? 1.7 : 1);
-      if(b.dash <= 0){ b.vx += (ix*sp - b.vx) * Math.min(1, acc/sp*dt*(m > .1 ? 1 : 1.5)); b.vz += (iz*sp - b.vz) * Math.min(1, acc/sp*dt*(m > .1 ? 1 : 1.5)); }
+      b.stun = (b.stun || 0) - dt; const grip = b.stun > 0 ? .06 : 1; // knocked flying: barely any control for a moment
+      if(b.dash <= 0){ b.vx += (ix*sp - b.vx) * Math.min(1, acc/sp*dt*(m > .1 ? 1 : 2)*grip); b.vz += (iz*sp - b.vz) * Math.min(1, acc/sp*dt*(m > .1 ? 1 : 2)*grip); }
       if(m > .2) b.f = Math.atan2(ix, iz);
       if(inp.a && !b.held && o.act) o.act(id, b);
       else if(inp.a && !b.held && b.cd <= 0 && !o.noDash){ b.dash = o.dashT || .28; b.cd = 1.1; const d = o.dash || 13; b.vx = Math.sin(b.f)*d; b.vz = Math.cos(b.f)*d; fxp(G, "d", id); }
@@ -80,16 +81,32 @@ function physStep(G, dt, inputs, o){
     const pa = a.dash > 0 ? 2.4 : 1, pc = c.dash > 0 ? 2.4 : 1, imp = -rv * (o.imp || 1.25);
     a.vx -= nx*imp*.5*pc; a.vz -= nz*imp*.5*pc; c.vx += nx*imp*.5*pa; c.vz += nz*imp*.5*pa;
     if(o.maxV) [a, c].forEach(q => { const sp = Math.hypot(q.vx, q.vz); if(sp > o.maxV){ q.vx *= o.maxV/sp; q.vz *= o.maxV/sp; } });
+    if(pc > 1) a.stun = Math.max(a.stun || 0, .3); if(pa > 1) c.stun = Math.max(c.stun || 0, .3); // dived into = knocked back properly
     if(a.dash > 0 || c.dash > 0){ a.dash = c.dash = 0; } a.hit = c.hit = .3; fxp(G, "b", ids[i], ids[j]);
     if(o.onTouch) o.onTouch(ids[i], ids[j]);
   }
 }
-function physSnap(B){ const o = {}; for(const id in B){ const b = B[id]; o[id] = [+b.x.toFixed(2), +b.z.toFixed(2), +b.y.toFixed(2), +b.f.toFixed(2), b.alive ? 1 : 0, b.dash > 0 ? 1 : 0]; } return o; }
+function physSnap(B){ const o = {}; for(const id in B){ const b = B[id]; o[id] = [+b.x.toFixed(2), +b.z.toFixed(2), +b.y.toFixed(2), +b.f.toFixed(2), b.alive ? 1 : 0, b.dash > 0 ? 1 : 0, +b.vx.toFixed(1), +b.vz.toFixed(1)]; } return o; }
 // smooth beans toward the latest positions; returns true if a bean is moving
-function physDraw(S, snapB, dt, t, extra){
+// your own bean is moved on your screen straight away from your stick (no waiting for the host), then gently pulled to where the host says it is
+function predStep(P, s, dt){
+  if(!s[4] || s[2] < -.05){ P.on = false; return null; }
+  if(!P.on){ Object.assign(P, { on:true, x:s[0], z:s[1], vx:s[6] || 0, vz:s[7] || 0, f:s[3] }); }
+  let ix = CTL.x, iz = CTL.y; if(CTL.map) [ix, iz] = CTL.map(ix, iz); const m = Math.hypot(ix, iz); if(m > 1){ ix /= m; iz /= m; }
+  const sp = P.speed * (s[5] ? 1.7 : 1), k = Math.min(1, P.acc / sp * dt * (m > .1 ? 1 : 2));
+  if(!s[5]){ P.vx += (ix*sp - P.vx) * k; P.vz += (iz*sp - P.vz) * k; } else { P.vx = lerp(P.vx, s[6], .3); P.vz = lerp(P.vz, s[7], .3); }
+  if(m > .2) P.f = Math.atan2(ix, iz);
+  P.x += P.vx*dt; P.z += P.vz*dt;
+  // where the host has us, pushed forward a little for network delay
+  const tx = s[0] + (s[6] || 0) * .08, tz = s[1] + (s[7] || 0) * .08, e = Math.hypot(tx - P.x, tz - P.z);
+  if(e > 3){ P.x = tx; P.z = tz; P.vx = s[6]; P.vz = s[7]; }
+  else { const g = Math.min(1, dt * (e > 1.2 ? 9 : 3.5)); P.x += (tx - P.x) * g; P.z += (tz - P.z) * g; const gv = Math.min(1, dt * (e > .8 ? 6 : 1.5)); P.vx += ((s[6] || 0) - P.vx) * gv; P.vz += ((s[7] || 0) - P.vz) * gv; }
+  return P; }
+function physDraw(S, snapB, dt, t, extra, pred){
   for(const id in snapB){ const s = snapB[id], b = S.bean(id), k = Math.min(1, dt * 16);
-    const px = b.position.x, pz = b.position.z; b.position.x = lerp(b.position.x, s[0], k); b.position.z = lerp(b.position.z, s[1], k); b.position.y = lerp(b.position.y, s[2], Math.min(1, dt*20));
-    let df = s[3] - b.rotation.y; df = Math.atan2(Math.sin(df), Math.cos(df)); b.rotation.y += df * Math.min(1, dt*12);
+    const px = b.position.x, pz = b.position.z, P = pred && id === NET.me ? predStep(pred, s, dt) : null;
+    if(P){ b.position.x = P.x; b.position.z = P.z; } else { b.position.x = lerp(b.position.x, s[0], k); b.position.z = lerp(b.position.z, s[1], k); } b.position.y = lerp(b.position.y, s[2], Math.min(1, dt*20));
+    let df = (P ? P.f : s[3]) - b.rotation.y; df = Math.atan2(Math.sin(df), Math.cos(df)); b.rotation.y += df * Math.min(1, dt*(P ? 20 : 12));
     b.rotation.x = s[5] ? .7 : lerp(b.rotation.x, 0, Math.min(1, dt*10)); b.visible = !!s[4] || b.position.y > -6.5;
     const sp = Math.hypot(b.position.x - px, b.position.z - pz) / Math.max(dt, 1e-3); animBean(b, sp, t);
     if(extra) extra(id, b, s);
@@ -108,6 +125,6 @@ function physBot(G, id, o = {}){
   if(o.flee && best && bd < 5){ tx = b.x - (best.x - b.x); tz = b.z - (best.z - b.z); }
   b.bt = (b.bt || 0) - .016; if(b.bt <= 0){ b.jx = (rand() - .5) * .8; b.jz = (rand() - .5) * .8; b.bt = .4 + rand()*.6; }
   let dx = tx - b.x + b.jx, dz = tz - b.z + b.jz; const m = Math.hypot(dx, dz) || 1; dx /= m; dz /= m;
-  const aim = best && bd < 2.6 && !o.flee && rand() < .05 ? 1 : 0;
+  const aim = best && bd < (o.reach || 2.6) && !o.flee && rand() < (o.aimP || .05) ? 1 : 0;
   return { x:dx, y:dz, a:aim };
 }

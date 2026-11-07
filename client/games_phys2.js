@@ -10,7 +10,7 @@ GAMES.bumper = {
   how:["Steer with the joystick (or WASD). Cars drift, and the rink shrinks!","Tap <b>BOOST</b> (or press <b>E</b>) to ram at full speed","Knock beans off the rink. Last car driving wins, knockouts break ties"],
   init(ids){ return { B:physInit(ids, (i, n) => { const a = i / n * Math.PI * 2; return [Math.cos(a)*5.5, Math.sin(a)*3.6]; }), outs:[], ko:{}, last:{}, k:1 }; },
   tick(G, dt, inp, H){ G.k = G.t < 18 ? 1 : Math.max(.55, 1 - (G.t - 18) * .016);
-    physStep(G, dt, inp, { ground:(x, z) => Math.abs(x) < 10.2*G.k && Math.abs(z) < 7.2*G.k, speed:8.2, acc:14, dash:15, imp:1.6, maxV:15,
+    physStep(G, dt, inp, { ground:(x, z) => Math.abs(x) < 10.2*G.k && Math.abs(z) < 7.2*G.k, speed:8.2, acc:20, dash:15, imp:1.6, maxV:15,
       onTouch:(a, b) => { G.last[a] = [b, G.t]; G.last[b] = [a, G.t]; },
       onOut:id => { const l = G.last[id]; if(l && G.t - l[1] < 3.5){ G.ko[l[0]] = (G.ko[l[0]] || 0) + 1; fxp(G, "k", l[0], id); } } });
     if(G.ids.filter(id => G.B[id].alive).length <= 1 && G.t > 1) H.end(this.timeout(G)); },
@@ -19,7 +19,7 @@ GAMES.bumper = {
   bot(G, id){ const b = G.B[id]; if(!b || !b.alive || b.fall) return null; const r = physBot(G, id, { safe:4 }); if(!r) return r;
     const ex = Math.abs(b.x + b.vx*.3) > 10.2*G.k - 2, ez = Math.abs(b.z + b.vz*.3) > 7.2*G.k - 1.9; if((ex || ez) && rand() < .8){ r.x = ex ? -Math.sign(b.x) : r.x*.3; r.y = ez ? -Math.sign(b.z) : r.y*.3; r.a = 0; } return r; },
   snap(G){ return { B:physSnap(G.B), ko:G.ko, k:+G.k.toFixed(3), fx:G.fx }; },
-  view(root, ctx){ return physView(root, ctx, { sky:"#7ad0ff", sky2:"#d8f4ff", goo:"#3a8aff", fog:"#d8f4ff", cam:[0, 18, 15], btn:"BOOST" }, (S, v) => {
+  view(root, ctx){ return physView(root, ctx, { sky:"#7ad0ff", sky2:"#d8f4ff", goo:"#3a8aff", fog:"#d8f4ff", cam:[0, 18, 15], btn:"BOOST", pred:{ speed:8.2, acc:20 } }, (S, v) => {
     const fl = cTex(512, 384, (x, w, h) => { x.fillStyle = "#2a2a4a"; x.fillRect(0, 0, w, h); x.strokeStyle = "rgba(255,255,255,.08)"; x.lineWidth = 2; for(let i=0;i<w;i+=32){ x.beginPath(); x.moveTo(i, 0); x.lineTo(i, h); x.stroke(); } for(let j=0;j<h;j+=32){ x.beginPath(); x.moveTo(0, j); x.lineTo(w, j); x.stroke(); }
       x.fillStyle = "rgba(255,210,58,.9)"; x.font = "bold 70px sans-serif"; x.textAlign = "center"; x.globalAlpha = .18; x.fillText("BUMP!", w/2, h/2 + 25); });
     const floor = new THREE.Mesh(new THREE.BoxGeometry(20.4, .6, 14.4), new THREE.MeshStandardMaterial({ map:fl, roughness:.4, metalness:.2 })); floor.position.y = -.3; floor.receiveShadow = true; S.scene.add(floor);
@@ -57,7 +57,7 @@ GAMES.dodge = {
       const hx = DW/2 - .3, hz = DH/2 - .3; if(Math.abs(bl.x) > hx){ bl.x = Math.sign(bl.x)*hx; bl.vx *= -.6; bl.fly = 0; } if(Math.abs(bl.z) > hz){ bl.z = Math.sign(bl.z)*hz; bl.vz *= -.6; bl.fly = 0; }
       if(bl.fly && Math.hypot(bl.vx, bl.vz) < 7) bl.fly = 0;
       if(bl.fly){ for(const id of G.ids){ const b = G.B[id]; if(id === bl.own || !b.alive || b.fall || (b.inv || 0) > G.t) continue; if(Math.hypot(b.x - bl.x, b.z - bl.z) < .85){ b.inv = G.t + 1.2;
-            G.hp[id]--; b.vx += bl.vx*.45; b.vz += bl.vz*.45; b.hit = .5; bl.vx *= -.25; bl.vz *= -.25; bl.fly = 0; fxp(G, "h", id, bl.own); G.dirty = true;
+            G.hp[id]--; b.vx += bl.vx*.45; b.vz += bl.vz*.45; b.hit = .5; b.stun = .3; bl.vx *= -.25; bl.vz *= -.25; bl.fly = 0; fxp(G, "h", id, bl.own); G.dirty = true;
             if(G.hp[id] <= 0){ b.alive = false; G.outs.push(id); fxp(G, "o", id); if(G.hold[id] != null){ const hb = G.balls[G.hold[id]]; hb.by = null; delete G.hold[id]; } } break; } } }
       else { for(const id of G.ids){ const b = G.B[id]; if(!b.alive || G.hold[id] != null || b.hit > 0) continue; if(Math.hypot(b.x - bl.x, b.z - bl.z) < .9){ bl.by = id; bl.own = null; bl.vx = bl.vz = 0; G.hold[id] = k; fxp(G, "g", id); break; } } }
     });
@@ -75,7 +75,7 @@ GAMES.dodge = {
     if(tgt){ const dx = tgt.x - b.x, dz = tgt.z - b.z, m = Math.hypot(dx, dz) || 1; return { x:dx/m, y:dz/m }; }
     return physBot(G, id, { flee:true, chase:false }); },
   snap(G){ return { B:physSnap(G.B), bl:G.balls.map(b => [+b.x.toFixed(2), +b.z.toFixed(2), b.by ? 2 : b.fly ? 1 : 0]), hp:G.hp, fx:G.fx }; },
-  view(root, ctx){ return physView(root, ctx, { sky:"#ffb86a", sky2:"#ffe8c8", goo:"#ff8a3a", fog:"#ffe8c8", cam:[0, 18, 13], btn:"THROW" }, (S, v) => {
+  view(root, ctx){ return physView(root, ctx, { sky:"#ffb86a", sky2:"#ffe8c8", goo:"#ff8a3a", fog:"#ffe8c8", cam:[0, 18, 13], btn:"THROW", pred:{ speed:6.8 } }, (S, v) => {
     const fl = cTex(512, 352, (x, w, h) => { x.fillStyle = "#f4c890"; x.fillRect(0, 0, w, h); for(let i=0;i<w;i+=24){ x.fillStyle = i % 48 ? "rgba(160,90,30,.08)" : "rgba(160,90,30,.14)"; x.fillRect(i, 0, 24, h); }
       x.strokeStyle = "#fff"; x.lineWidth = 6; x.strokeRect(12, 12, w - 24, h - 24); x.beginPath(); x.moveTo(w/2, 12); x.lineTo(w/2, h - 12); x.stroke(); x.beginPath(); x.arc(w/2, h/2, 46, 0, 7); x.stroke(); });
     const floor = new THREE.Mesh(new THREE.BoxGeometry(DW, .6, DH), new THREE.MeshStandardMaterial({ map:fl, roughness:.5 })); floor.position.y = -.3; floor.receiveShadow = true; S.scene.add(floor);
@@ -140,7 +140,7 @@ GAMES.wreck = {
     G.W.forEach((W, k) => { if(G.t < W.at) return; const t = G.t - W.at, [x, z] = wreckPos(W, t), [x2, z2] = wreckPos(W, t + .02), vx = (x2 - x) / .02, vz = (z2 - z) / .02;
       if(!W.on){ W.on = 1; fxp(G, "n", k); }
       G.ids.forEach(id => { const b = G.B[id]; if(!b.alive || b.fall) return; const dx = b.x - x, dz = b.z - z, d = Math.hypot(dx, dz); if(d < 1.9 && (b.wh || 0) < G.t){
-        const nx = dx / (d || 1), nz = dz / (d || 1); b.x = x + nx*1.9; b.z = z + nz*1.9; b.vx = nx*13 + vx*.55; b.vz = nz*13 + vz*.55; b.dash = 0; b.hit = .6; b.wh = G.t + .35; fxp(G, "w", id); } }); });
+        const nx = dx / (d || 1), nz = dz / (d || 1); b.x = x + nx*1.9; b.z = z + nz*1.9; b.vx = nx*13 + vx*.55; b.vz = nz*13 + vz*.55; b.dash = 0; b.hit = .6; b.stun = .5; b.wh = G.t + .35; fxp(G, "w", id); } }); });
     if(G.ids.filter(id => G.B[id].alive).length <= 1 && G.t > 1) H.end(outRank(G)); },
   timeout:outRank, drop(G, id){ killOut(G)(id); },
   bot(G, id){ const b = G.B[id]; if(!b || !b.alive || b.fall) return null; let fx = -b.x*.12, fz = -b.z*.12, dash = 0;
@@ -175,12 +175,12 @@ GAMES.seesaw = {
     G.tx += (ttx - G.tx) * Math.min(1, dt*1.6); G.tz += (ttz - G.tz) * Math.min(1, dt*1.6);
     live.forEach(id => { const b = G.B[id]; b.vx += G.tx * 17 * dt; b.vz += G.tz * 17 * dt; });
     G.R = G.t < 15 ? 8.5 : Math.max(4.2, 8.5 - (G.t - 15) * .14);
-    physStep(G, dt, inp, { ground:(x, z) => Math.hypot(x, z) < G.R, acc:16, speed:6.2 });
+    physStep(G, dt, inp, { ground:(x, z) => Math.hypot(x, z) < G.R, acc:30, speed:6.2 });
     if(G.ids.filter(id => G.B[id].alive).length <= 1 && G.t > 1) H.end(outRank(G)); },
   timeout:outRank, drop(G, id){ killOut(G)(id); },
   bot(G, id){ const b = G.B[id]; if(!b || !b.alive || b.fall) return null; const r = physBot(G, id, { cx:-G.tx*9, cz:-G.tz*9, safe:1.5 }); if(r && Math.hypot(b.x, b.z) > G.R - 2){ r.x = -b.x; r.y = -b.z; const m = Math.hypot(r.x, r.y) || 1; r.x /= m; r.y /= m; } return r; },
   snap(G){ return { B:physSnap(G.B), tx:+G.tx.toFixed(3), tz:+G.tz.toFixed(3), R:+G.R.toFixed(2), fx:G.fx }; },
-  view(root, ctx){ return physView(root, ctx, { sky:"#7ae0c8", sky2:"#fff4c8", goo:"#2ac8a8", fog:"#fff4c8", cam:[0, 18, 15] }, (S, v) => {
+  view(root, ctx){ return physView(root, ctx, { sky:"#7ae0c8", sky2:"#fff4c8", goo:"#2ac8a8", fog:"#fff4c8", cam:[0, 18, 15], pred:{ speed:6.2, acc:30 } }, (S, v) => {
     const plate = new THREE.Group(); S.scene.add(plate);
     const top = new THREE.MeshStandardMaterial({ map:cTex(512, 512, (x, w) => { const g = x.createRadialGradient(w/2, w/2, 10, w/2, w/2, w/2); g.addColorStop(0, "#fff"); g.addColorStop(1, "#ffd6ec"); x.fillStyle = g; x.fillRect(0, 0, w, w);
       x.strokeStyle = "#ff7ab8"; x.lineWidth = 10; for(let r=60;r<w/2;r+=60){ x.beginPath(); x.arc(w/2, w/2, r, 0, 7); x.stroke(); } x.fillStyle = "#ff4a8a"; x.beginPath(); x.arc(w/2, w/2, 22, 0, 7); x.fill(); }), roughness:.4 });

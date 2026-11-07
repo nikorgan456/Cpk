@@ -31,11 +31,11 @@ GAMES.obst = {
     for(const id of G.ids){ const b = G.B[id]; if(!b.alive || b.fall) continue;
       G.L.forEach(o => { if(Math.abs(b.z - o.z) > 5.5) return;
         if(o.k === "bar"){ const a = barAng(o, t), dx = Math.cos(a), dz = Math.sin(a), rx = b.x, rz = b.z - o.z, along = clamp(rx*dx + rz*dz, -4.7, 4.7), px = rx - dx*along, pz = rz - dz*along, d = Math.hypot(px, pz);
-          if(d < .72){ const nx = px/(d || 1), nz = pz/(d || 1), sp = Math.abs(o.w*along) + 4; b.x += nx*(.72 - d); b.z += nz*(.72 - d); const sg = Math.sign(o.w*along*(-dz*nx + dx*nz)) || 1; b.vx = nx*sp*1.4*sg*sg; b.vz = nz*sp*1.4; b.hit = .4; if((b.bh || 0) < t){ b.bh = t + .4; fxp(G, "b", id); } } }
+          if(d < .72){ const nx = px/(d || 1), nz = pz/(d || 1), sp = Math.abs(o.w*along) + 4; b.x += nx*(.72 - d); b.z += nz*(.72 - d); const sg = Math.sign(o.w*along*(-dz*nx + dx*nz)) || 1; b.vx = nx*sp*.95; b.vz = nz*sp*.95; b.hit = .4; b.stun = .18; if((b.bh || 0) < t){ b.bh = t + .4; fxp(G, "b", id); } } }
         if(o.k === "wall"){ const xs = o.n === 2 ? [wallX(o, t) * .55 - 2.2, -wallX(o, t) * .55 + 2.2] : [wallX(o, t)]; xs.forEach(wx => { const hx = 1.6 + .5, hz = .5 + .5, dx = b.x - wx, dz = b.z - o.z;
             if(Math.abs(dx) < hx && Math.abs(dz) < hz){ if(hx - Math.abs(dx) < hz - Math.abs(dz)){ b.x = wx + Math.sign(dx)*hx; b.vx = Math.sign(dx)*9; } else { b.z = o.z + Math.sign(dz)*hz; b.vz = Math.sign(dz)*7; } b.hit = .3; if((b.bh || 0) < t){ b.bh = t + .4; fxp(G, "b", id); } } }); }
         if(o.k === "pins") o.xs.forEach(px => { const dx = b.x - px, dz = b.z - o.z, d = Math.hypot(dx, dz); if(d < 1.05){ b.x = px + dx/(d || 1)*1.05; b.z = o.z + dz/(d || 1)*1.05; } });
-        if(o.k === "bump") o.xs.forEach((px, i) => { const pz = o.z + o.zs[i], dx = b.x - px, dz = b.z - pz, d = Math.hypot(dx, dz); if(d < 1.25){ b.x = px + dx/(d || 1)*1.25; b.z = pz + dz/(d || 1)*1.25; b.vx = dx/(d || 1)*14; b.vz = dz/(d || 1)*14; b.hit = .4; fxp(G, "p", id); } });
+        if(o.k === "bump") o.xs.forEach((px, i) => { const pz = o.z + o.zs[i], dx = b.x - px, dz = b.z - pz, d = Math.hypot(dx, dz); if(d < 1.25){ b.x = px + dx/(d || 1)*1.25; b.z = pz + dz/(d || 1)*1.25; b.vx = dx/(d || 1)*10; b.vz = dz/(d || 1)*10; b.hit = .4; b.stun = .2; fxp(G, "p", id); } });
       });
       const passed = G.L.filter(o => o.z > b.z + 1.5).pop(); G.cp[id] = passed ? passed.z - (passed.k === "gap" ? passed.d/2 + 1 : 2) : 2;
       if(b.z < -OL && !G.fin.includes(id)){ G.fin.push(id); fxp(G, "fin", id); G.dirty = true; }
@@ -56,7 +56,7 @@ GAMES.obst = {
     const dx = clamp((tx - b.x) * .6, -1, 1); return { x:dx, y:go, a:dash }; },
   snap(G){ return { B:physSnap(G.B), fin:G.fin, fx:G.fx }; },
   view(root, ctx){ const L = obstLayout(ctx.info.seed);
-    return physView(root, ctx, { sky:"#7ad0ff", sky2:"#ffe8f6", goo:"#ff7ad8", fog:"#ffe8f6", cam:[0, 11, 10], look:[0, 0, -3] }, (S, v) => {
+    return physView(root, ctx, { sky:"#7ad0ff", sky2:"#ffe8f6", goo:"#ff7ad8", fog:"#ffe8f6", cam:[0, 11, 10], look:[0, 0, -3], pred:{ speed:7.4 } }, (S, v) => {
     const trT = cTex(256, 256, (x, w) => { x.fillStyle = "#8ae0ff"; x.fillRect(0, 0, w, w); x.fillStyle = "#6ad0f4"; for(let i=0;i<w;i+=64) x.fillRect(0, i, w, 32); x.fillStyle = "#fff"; x.fillRect(0, 0, 10, w); x.fillRect(w - 10, 0, 10, w); }, [1, OL/8]);
     // track pieces between the gaps
     const cuts = L.filter(o => o.k === "gap").map(o => [o.z + o.d/2, o.z - o.d/2]); let z0 = 5; const segs = [];
@@ -96,7 +96,7 @@ GAMES.kart = {
   how:["Point the joystick where you want to drive (or WASD)","Tap <b>BOOST</b> (or press <b>E</b>) on the straights. Bump others into the walls!","First to finish 3 laps wins"],
   init(ids){ const B = physInit(ids, (i) => [-2 - Math.floor(i/2)*1.8, -KR + (i % 2 ? 1.1 : -1.1)]); ids.forEach(id => B[id].f = Math.PI/2); const G = { B, fin:[], tot:{}, ls:{}, outs:[] }; ids.forEach(id => { G.tot[id] = 0; G.ls[id] = kartS(B[id].x, B[id].z); }); return G; },
   tick(G, dt, inp, H){
-    physStep(G, dt, inp, { speed:10.5, acc:13, dash:17, imp:1.5 });
+    physStep(G, dt, inp, { speed:10.5, acc:22, dash:17, imp:1.5 });
     for(const id of G.ids){ const b = G.B[id], cx = clamp(b.x, -KS, KS), dx = b.x - cx, dz = b.z, d = Math.hypot(dx, dz) || 1e-3, nx = dx/d, nz = dz/d;
       if(d > KR + 2.45){ b.x = cx + nx*(KR + 2.45); b.z = nz*(KR + 2.45); const vn = b.vx*nx + b.vz*nz; if(vn > 0){ b.vx -= 1.6*vn*nx; b.vz -= 1.6*vn*nz; } }
       if(d < KR - 2.45){ b.x = cx + nx*(KR - 2.45); b.z = nz*(KR - 2.45); const vn = b.vx*nx + b.vz*nz; if(vn < 0){ b.vx -= 1.6*vn*nx; b.vz -= 1.6*vn*nz; } }
@@ -110,7 +110,7 @@ GAMES.kart = {
     const s = kartS(b.x, b.z), [tx, tz] = kartPt(s + 4.5, b.off), dx = tx - b.x, dz = tz - b.z, m = Math.hypot(dx, dz) || 1;
     const straight = (s > 2 && s < 2*KS - 4) || (s > 2*KS + Math.PI*KR + 2 && s < 4*KS + Math.PI*KR - 4); return { x:dx/m, y:dz/m, a:straight && rand() < .03 ? 1 : 0 }; },
   snap(G){ const p = {}; for(const id in G.tot) p[id] = +G.tot[id].toFixed(1); return { B:physSnap(G.B), p, fin:G.fin, fx:G.fx }; },
-  view(root, ctx){ return physView(root, ctx, { sky:"#ffb8e0", sky2:"#fff0d8", goo:"#5ae07a", fog:"#fff0d8", cam:[0, 27, 17], look:[0, 0, 1], portrait:{ cam:[-19, 25, 0], look:[1.5, 0, 0], a:.62 }, btn:"BOOST" }, (S, v) => {
+  view(root, ctx){ return physView(root, ctx, { sky:"#ffb8e0", sky2:"#fff0d8", goo:"#5ae07a", fog:"#fff0d8", cam:[0, 27, 17], look:[0, 0, 1], portrait:{ cam:[-19, 25, 0], look:[1.5, 0, 0], a:.62 }, btn:"BOOST", pred:{ speed:10.5, acc:22 } }, (S, v) => {
     const shape = new THREE.Shape(), hole = new THREE.Path(), N = 40;
     const ring = (r, p) => { for(let i=0;i<=N*2+1;i++){ const k = i / N; let x, z; if(i <= N){ const a = -Math.PI/2 + k*Math.PI; x = KS + Math.cos(a)*r; z = Math.sin(a)*r; } else { const a = Math.PI/2 + (k - 1)*Math.PI; x = -KS + Math.cos(a)*r; z = Math.sin(a)*r; } i ? p.lineTo(x, z) : p.moveTo(x, z); } };
     ring(KR + 2.6, shape); ring(KR - 2.6, hole); shape.holes.push(hole);
