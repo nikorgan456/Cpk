@@ -370,3 +370,17 @@ input,textarea,.chat-msgs,.chat-msgs *{-webkit-user-select:text;user-select:text
 .im-words{background:#fff;color:var(--ink);border-radius:18px;padding:8px 18px}.im-words p{margin:4px 0;font-weight:800}
 .im-win{font-family:var(--display);font-size:1.8rem;margin:0;color:#ffe23a}
 #mRound:empty{display:none}
+
+/* jump button sits up-left of the action button */
+.acts{position:relative;display:flex;align-items:flex-end;pointer-events:none}
+.act.jump{position:absolute;right:76px;bottom:112px;width:84px;height:84px;background:var(--blue);box-shadow:0 6px 0 #1a6ad0;font-size:1.05rem}
+.act.jump.on{transform:translateY(5px);box-shadow:0 1px 0 #1a6ad0}
+.act.jump kbd{font-size:.55rem}
+/* ===== team games ===== */
+.team-hud{position:absolute;top:56px;left:50%;transform:translateX(-50%);z-index:5;display:flex;align-items:center;gap:8px;background:rgba(42,26,74,.5);color:#fff;border-radius:16px;padding:4px 12px;font-weight:900;white-space:nowrap;pointer-events:none;font-size:.9rem}
+.team-hud b{font-family:var(--display);font-weight:400;font-size:1.5rem;vertical-align:middle}.team-hud .th-p b{color:#ff8ac4}.team-hud .th-b b{color:#8ac8ff}.team-hud i{font-style:normal;font-size:.75rem;opacity:.9}
+.th-bar{display:flex;width:90px;height:10px;background:rgba(255,255,255,.3);border-radius:5px;overflow:hidden}.th-bar i{display:block;height:100%}
+.goal-pop{position:absolute;top:34%;left:0;right:0;text-align:center;font-family:var(--display);font-size:4.5rem;text-shadow:0 5px 0 rgba(0,0,0,.25);pointer-events:none;opacity:0;z-index:6}.goal-pop small{display:block;font-size:1.2rem;color:#fff}
+.goal-pop.on{animation:goalpop 1.8s ease-out}@keyframes goalpop{0%{opacity:0;transform:scale(.4)}15%{opacity:1;transform:scale(1.15)}30%{transform:scale(1)}80%{opacity:1}100%{opacity:0}}
+.chairs-hud{position:absolute;top:58px;left:50%;transform:translateX(-50%);z-index:5;background:#5ae07a;color:#fff;font-family:var(--display);font-size:1.5rem;border-radius:16px;padding:4px 16px;white-space:nowrap;pointer-events:none;box-shadow:0 4px 0 rgba(0,0,0,.2)}
+.chairs-hud.stop{background:#ff2a4a;animation:shake .3s infinite}

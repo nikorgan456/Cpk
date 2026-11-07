@@ -1,7 +1,7 @@
 // ===================== physics games: Sumo Ring, Falling Tiles, Hot Potato Bomb =====================
 function outRank(G){ const alive = G.ids.filter(id => G.B[id] && G.B[id].alive); return [alive].concat((G.outs || []).slice().reverse().map(id => [id])); }
 function physView(root, ctx, opts, build){
-  const S = makeStage(root, opts), view = { S, fxSeen:0, destroy:() => S.destroy() }; ctlShow("stick", opts.btn || "DIVE"); build(S, view);
+  const S = makeStage(root, opts), view = { S, fxSeen:0, destroy:() => S.destroy() }; ctlShow("stick", opts.btn || "DIVE", { jump:opts.jump }); build(S, view);
   const pred = ctx.host || opts.pred === false ? null : Object.assign({ speed:7, acc:90 }, opts.pred || {});
   view.update = (snap, dt, t) => { if(view.tick) view.tick(snap, dt, t); physDraw(S, snap.B, dt, t, view.extra, pred); newFx(view, snap.fx, (a, b, c) => view.onFx ? view.onFx(a, b, c) : physFx(a, b)); S.render(t); };
   return view;

@@ -31,8 +31,8 @@ function makeStage(root, o = {}){
     S.k = P ? clamp((P.a || .6) / a, .8, 1.6) : clamp(.85 / a, 1, 1.75) * (S.zoom || 1); cam.fov = a < 1 ? 56 : 48; scene.fog.near = 30 * Math.max(1, S.k) + (o.fogAdd || 0); scene.fog.far = 75 * Math.max(1, S.k) + (o.fogAdd || 0); S.place(); cam.updateProjectionMatrix(); };
   S.fx = 0; S.fz = 0; S.k = 1;
   // camera sits at camPos (scaled for tall screens) relative to a followed point; the sun follows too so shadows stay sharp
-  S.place = () => { const k = S.k; cam.position.set(S.camPos[0] * k + S.fx, S.camPos[1] * k, S.camPos[2] * k + S.fz); cam.lookAt(S.look[0] + S.fx, S.look[1], S.look[2] + S.fz); sun.position.set(8 + S.fx, 20, 10 + S.fz); sun.target.position.set(S.fx, 0, S.fz); sun.target.updateMatrixWorld(); };
-  S.follow = (x, z, k = .1) => { S.fx = lerp(S.fx, x, k); S.fz = lerp(S.fz, z, k); S.place(); };
+  S.place = () => { const k = S.k, fy = S.fy || 0; cam.position.set(S.camPos[0] * k + S.fx, S.camPos[1] * k + fy, S.camPos[2] * k + S.fz); cam.lookAt(S.look[0] + S.fx, S.look[1] + fy, S.look[2] + S.fz); sun.position.set(8 + S.fx, 20, 10 + S.fz); sun.target.position.set(S.fx, 0, S.fz); sun.target.updateMatrixWorld(); };
+  S.follow = (x, z, k = .1, y) => { S.fx = lerp(S.fx, x, k); S.fz = lerp(S.fz, z, k); if(y != null) S.fy = lerp(S.fy || 0, y, k); S.place(); };
   S.resize(); S.ro = new ResizeObserver(S.resize); S.ro.observe(root);
   S.bean = id => { let b = S.beans.get(id); if(!b){ const p = playerOf(id); b = beanMesh(p ? p.bean : null, id); scene.add(b); S.beans.set(id, b);
       const tag = document.createElement("div"); tag.className = "tag3d" + (id === NET.me ? " me" : ""); tag.textContent = id; labels.appendChild(tag); S.tags.set(id, tag); } return b; };
@@ -63,12 +63,22 @@ function physStep(G, dt, inputs, o){
       if(b.dash <= 0){ b.vx += (ix*sp - b.vx) * Math.min(1, acc/sp*dt*(m > .1 ? 1 : 2)*grip); b.vz += (iz*sp - b.vz) * Math.min(1, acc/sp*dt*(m > .1 ? 1 : 2)*grip); }
       if(m > .2) b.f = Math.atan2(ix, iz);
       if(inp.a && !b.held && o.act) o.act(id, b);
-      else if(inp.a && !b.held && b.cd <= 0 && !o.noDash){ b.dash = o.dashT || .28; b.cd = 1.1; const d = o.dash || 13; b.vx = Math.sin(b.f)*d; b.vz = Math.cos(b.f)*d; fxp(G, "d", id); }
+      else if(inp.a && !b.held && b.cd <= 0 && !o.noDash){ b.dash = o.dashT || .28; b.cd = o.dashCd || 1.1; const d = o.dash || 13; b.vx = Math.sin(b.f)*d; b.vz = Math.cos(b.f)*d; fxp(G, "d", id); }
       b.held = inp.a ? 1 : 0;
     }
     b.x += b.vx*dt; b.z += b.vz*dt;
     if(o.wall){ const w = o.wall; if(w.r){ const d = Math.hypot(b.x, b.z); if(d > w.r - BR){ const nx = b.x/d, nz = b.z/d; b.x = nx*(w.r - BR); b.z = nz*(w.r - BR); const vn = b.vx*nx + b.vz*nz; if(vn > 0){ b.vx -= 1.8*vn*nx; b.vz -= 1.8*vn*nz; } } }
       else { const hx = w.w/2 - BR, hz = w.h/2 - BR; if(b.x < -hx){ b.x = -hx; b.vx = Math.abs(b.vx)*.8; } if(b.x > hx){ b.x = hx; b.vx = -Math.abs(b.vx)*.8; } if(b.z < -hz){ b.z = -hz; b.vz = Math.abs(b.vz)*.8; } if(b.z > hz){ b.z = hz; b.vz = -Math.abs(b.vz)*.8; } } }
+    // platform games: floors have heights and beans can jump (floorH gives the floor height under a point, or null for a drop)
+    if(o.floorH && !b.fall){ const inp = inputs[id] || {}; let fh = o.floorH(b.x, b.z, b, id);
+      if(!b.air && fh != null && fh > b.y + .45){ b.x -= b.vx*dt; b.z -= b.vz*dt; b.vx *= -.2; b.vz *= -.2; fh = o.floorH(b.x, b.z, b, id); }
+      if(inp.j && !b.jheld && !b.air && (b.stun || 0) <= 0){ b.vy = o.jumpV || 10; b.air = true; fxp(G, "j", id); }
+      b.jheld = inp.j ? 1 : 0;
+      if(!b.air){ if(fh == null || fh < b.y - .3){ b.air = true; b.vy = 0; } else b.y = fh; }
+      if(b.air){ b.vy -= 30*dt; b.y += b.vy*dt;
+        if(fh != null && b.vy <= 0 && b.y <= fh && b.y > fh - .8){ b.y = fh; b.vy = 0; b.air = false; }
+        else if(fh != null && b.y < fh - .8){ b.x -= b.vx*dt; b.z -= b.vz*dt; b.vx *= -.3; b.vz *= -.3; } }
+      if(b.y < (o.outY || -7)){ b.alive = false; (G.outs = G.outs || []).push(id); if(o.onOut) o.onOut(id); } }
     if(!b.fall && o.ground && !o.ground(b.x, b.z, b, id)){ b.fall = true; b.vy = 0; fxp(G, "f", id); }
     if(b.fall){ b.vy -= 30*dt; b.y += b.vy*dt; b.vx *= .98; b.vz *= .98; if(b.y < (o.outY || -7)){ b.alive = false; (G.outs = G.outs || []).push(id); if(o.onOut) o.onOut(id); } }
   });
