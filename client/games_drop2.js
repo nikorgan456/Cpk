@@ -40,7 +40,7 @@ GAMES.tailtag = {
     const [k, d] = nearest(G, id, (k) => G.T[k] !== G.T[id] && !G.tail[k]); if(!k || d > 6.5) return { x:-b.x*.08 + (rand() - .5)*.5, y:-b.z*.08 + (rand() - .5)*.5 };
     const c = G.B[k]; let r = toward(b, b.x - (c.x - b.x), b.z - (c.z - b.z)); if(Math.abs(b.x) > 8.5) r.x = -Math.sign(b.x); if(Math.abs(b.z) > 5.5) r.y = -Math.sign(b.z); r.j = d < 1.8 && rand() < .12 ? 1 : 0; return r; },
   snap(G){ return { B:physSnap(G.B), tail:G.ids.filter(id => G.tail[id]), fx:G.fx }; },
-  view(root, ctx){ const T = ctx.info.T; return physView(root, ctx, { sky:"#9ae0ff", sky2:"#fff4d8", goo:"#7ad86a", fog:"#fff4d8", cam:[0, 19, 15], btn:"GRAB", jump:true, pred:{ speed:7.2 } }, (S, v) => {
+  view(root, ctx){ const T = ctx.info.T; return physView(root, ctx, { rot:true, sky:"#9ae0ff", sky2:"#fff4d8", goo:"#7ad86a", fog:"#fff4d8", cam:[0, 19, 15], btn:"GRAB", jump:true, pred:{ speed:7.2 } }, (S, v) => {
     floorBox(S, 22, 16, new THREE.MeshStandardMaterial({ map:stripeTex("#8ae07a", "#7ad06a", 8, [1, 1]), roughness:.8 })); wallRing(S, 22, 16, "#ffd23a");
     const tails = {}, tm = new THREE.MeshStandardMaterial({ color:"#ffb03a", roughness:.9 }), tw = new THREE.MeshStandardMaterial({ color:"#fff", roughness:.9 }), hud = scoreHud(root);
     const mkTail = () => { const g = new THREE.Group(); [[0, 0, 0, .26, tm], [0, .12, -.25, .22, tm], [0, .28, -.42, .16, tw]].forEach(([x, y, z, r, m]) => { const s = new THREE.Mesh(new THREE.SphereGeometry(r, 10, 8), m); s.position.set(x, y, z); s.castShadow = true; g.add(s); }); g.position.set(0, .45, -.55); return g; };
@@ -188,7 +188,7 @@ GAMES.infect = {
       let sc = Math.min(...Z.map(c => Math.hypot(c.x + c.vx*.5 - px, c.z + c.vz*.5 - pz))); sc -= Math.max(0, Math.abs(px) - 11.5)*3 + Math.max(0, Math.abs(pz) - 7.5)*3; sc -= INF_PILLARS.some(([x, z]) => Math.hypot(x - px, z - pz) < 1.6) ? 2 : 0; if(sc > bs){ bs = sc; best = a; } }
     const [, d] = nearest(G, id, k => G.z[k] != null); if(d > 9) return { x:(rand() - .5)*.3, y:(rand() - .5)*.3 }; return { x:Math.cos(best), y:Math.sin(best), j:d < 1.6 && rand() < .1 ? 1 : 0 }; },
   snap(G){ return { B:physSnap(G.B), z:Object.keys(G.z), fx:G.fx }; },
-  view(root, ctx){ return physView(root, ctx, { sky:"#4a3a6a", sky2:"#b8e0a0", goo:"#5ac85a", fog:"#a8c8a0", cam:[0, 20, 15], jump:true, btn:"LUNGE", pred:{ speed:7 } }, (S, v) => {
+  view(root, ctx){ return physView(root, ctx, { rot:true, sky:"#4a3a6a", sky2:"#b8e0a0", goo:"#5ac85a", fog:"#a8c8a0", cam:[0, 20, 15], jump:true, btn:"LUNGE", pred:{ speed:7 } }, (S, v) => {
     floorBox(S, 26, 18, new THREE.MeshStandardMaterial({ map:cTex(256, 256, (x, w) => { x.fillStyle = "#9ad08a"; x.fillRect(0, 0, w, w); for(let i=0;i<300;i++){ x.fillStyle = pick(["#8ac07a", "#aae09a", "#7ab06a"]); x.fillRect(rand()*w, rand()*w, 4, 10); } }, [3, 2]), roughness:.9 })); wallRing(S, 26, 18, "#6a5a8a");
     INF_PILLARS.forEach(([x, z], i) => { const m = new THREE.Mesh(new THREE.CylinderGeometry(1, 1.1, 2.6, 18), new THREE.MeshStandardMaterial({ map:stripeTex(["#ff7ab8", "#7ad8ff", "#ffd23a"][i % 3], "#fff", 10, [2, 1]) })); m.position.set(x, 1.3, z); m.castShadow = true; S.scene.add(m); });
     const hud = raceHud(root), zMat = new THREE.MeshStandardMaterial({ color:"#7ad83a", roughness:.6, emissive:"#2a6a0a", emissiveIntensity:.35 });
@@ -225,7 +225,7 @@ GAMES.football = {
     if(dP > 1.1 && dB > 1.6 || (b.x - bl.x)*Math.sign(gx) > 0){ const side = (b.x - bl.x)*Math.sign(gx) > 0 ? (b.z > bl.z ? 1.6 : -1.6) : 0; return toward(b, px, pz + side); }
     const r = toward(b, bl.x, bl.z); r.a = dB < 1.8 && rand() < .12 ? 1 : 0; return r; },
   snap(G){ return { B:physSnap(G.B), b:[+G.ball.x.toFixed(2), +G.ball.z.toFixed(2)], g:G.goals, fx:G.fx }; },
-  view(root, ctx){ const T = ctx.info.T; return physView(root, ctx, { sky:"#7ac8ff", sky2:"#e8f8ff", goo:"#3a9a4a", fog:"#e0f0ff", cam:[0, 21, 15], btn:"KICK", portrait:{ cam:[-20, 24, 0], look:[1.5, 0, 0], a:.62 }, pred:{ speed:7.2 } }, (S, v) => {
+  view(root, ctx){ const T = ctx.info.T; return physView(root, ctx, { sky:"#7ac8ff", sky2:"#e8f8ff", goo:"#3a9a4a", fog:"#e0f0ff", cam:[0, 21, 15], btn:"KICK", rot:true, portrait:{ cam:[-20, 24, 0], look:[1.5, 0, 0], a:.62 }, pred:{ speed:7.2 } }, (S, v) => {
     floorBox(S, FW + 3, FH, new THREE.MeshStandardMaterial({ map:cTex(512, 320, (x, w, h) => { for(let i=0;i<10;i++){ x.fillStyle = i % 2 ? "#5ac85a" : "#4ab84a"; x.fillRect(i*w/10, 0, w/10, h); } x.strokeStyle = "#fff"; x.lineWidth = 4; const m = 12; x.strokeRect(m, 4, w - 2*m, h - 8); x.beginPath(); x.moveTo(w/2, 4); x.lineTo(w/2, h - 4); x.stroke(); x.beginPath(); x.arc(w/2, h/2, 36, 0, 7); x.stroke(); x.strokeRect(m, h/2 - 60, 40, 120); x.strokeRect(w - m - 40, h/2 - 60, 40, 120); }), roughness:.85 }));
     const wm = new THREE.MeshStandardMaterial({ color:"#fff", roughness:.4 }); [[0, FH/2 + .2, FW + .8, .4], [0, -FH/2 - .2, FW + .8, .4]].forEach(([x, z, a, d]) => { const m = new THREE.Mesh(new THREE.BoxGeometry(a, .9, d), wm); m.position.set(x, .45, z); S.scene.add(m); });
     [-1, 1].forEach(sd => { const len = FH/2 - GOAL; [1, -1].forEach(zs => { const m = new THREE.Mesh(new THREE.BoxGeometry(.4, .9, len), wm); m.position.set(sd*(FW/2 + .2), .45, zs*(GOAL + len/2)); S.scene.add(m); });
@@ -237,7 +237,7 @@ GAMES.football = {
     const hud = scoreHud(root), big = document.createElement("div"); big.className = "goal-pop"; root.appendChild(big); let lx = 0, lz = 0;
     v.extra = (id, b) => teamMark(S, id, b, T[id]);
     v.tick = (s, dt) => { const k = Math.min(1, dt*14); ball.position.x = lerp(ball.position.x, s.b[0], k); ball.position.z = lerp(ball.position.z, s.b[1], k); const dx = ball.position.x - lx, dz = ball.position.z - lz; lx = ball.position.x; lz = ball.position.z; ball.rotation.z -= dx / .8; ball.rotation.x += dz / .8;
-      hud.innerHTML = teamScoreHTML(s.g[0], s.g[1]); CTL.map = root.clientWidth < root.clientHeight ? (x, y) => [-y, x] : null; };
+      hud.innerHTML = teamScoreHTML(s.g[0], s.g[1]); };
     v.onFx = (type, a, b) => { if(type === "kick"){ sfx.whack(); } else if(type === "goal"){ sfx.crown(); SND.say("Goal!"); big.innerHTML = `GOAL!<small>${TEAM_NAME[a]}${b ? " · " + esc(b) : ""}</small>`; big.style.color = TEAM_COL[a]; big.classList.remove("on"); void big.offsetWidth; big.classList.add("on"); } else physFx(type, a); };
     const d0 = v.destroy; v.destroy = () => { hud.remove(); big.remove(); d0(); };
   }); }
@@ -301,7 +301,7 @@ GAMES.snowball = {
     const c = G.B[en], lead = de / 18, ax = c.x + c.vx*lead + (rand() - .5)*1.4 - b.x, az = c.z + c.vz*lead + (rand() - .5)*1.4 - b.z, am = Math.hypot(ax, az) || 1;
     if(de > 9) return { x:ax/am, y:az/am }; if(de < 5) return { x:-ax/am*.6 + az/am*.4, y:-az/am*.6 - ax/am*.4 }; return { x:ax/am*.25, y:az/am*.25, a:b.cd <= 0 && rand() < .1 ? 1 : 0 }; },
   snap(G){ const fr = G.ids.filter(id => (G.fr[id] || 0) > G.t); return { B:physSnap(G.B), s:G.balls.map(s => [+s.x.toFixed(1), +s.z.toFixed(1)]), fr, h:G.hits, fx:G.fx }; },
-  view(root, ctx){ const T = ctx.info.T; return physView(root, ctx, { sky:"#a8d8ff", sky2:"#ffffff", goo:"#bfe8ff", fog:"#eaf6ff", cam:[0, 21, 15], btn:"THROW", pred:{ speed:7 } }, (S, v) => {
+  view(root, ctx){ const T = ctx.info.T; return physView(root, ctx, { rot:true, sky:"#a8d8ff", sky2:"#ffffff", goo:"#bfe8ff", fog:"#eaf6ff", cam:[0, 21, 15], btn:"THROW", pred:{ speed:7 } }, (S, v) => {
     floorBox(S, SNW, SNH, new THREE.MeshStandardMaterial({ map:cTex(256, 256, (x, w) => { x.fillStyle = "#f6fbff"; x.fillRect(0, 0, w, w); for(let i=0;i<200;i++){ x.fillStyle = pick(["#e4f0fa", "#ffffff", "#dbe9f6"]); x.beginPath(); x.arc(rand()*w, rand()*w, 3 + rand()*8, 0, 7); x.fill(); } }, [3, 2]), roughness:.95 })); wallRing(S, SNW, SNH, "#dceeff");
     const sm = new THREE.MeshStandardMaterial({ color:"#ffffff", roughness:.9 }); SNOW_WALLS.forEach(([x, z, w, d]) => { const m = new THREE.Mesh(new THREE.BoxGeometry(w*2, 1.1, d*2), sm); m.position.set(x, .55, z); m.castShadow = true; m.receiveShadow = true; S.scene.add(m); });
     const ballG = new THREE.SphereGeometry(.22, 10, 8), balls = [], ice = {}, iceM = new THREE.MeshStandardMaterial({ color:"#9ad8ff", transparent:true, opacity:.55, roughness:.05, metalness:.2 }), hud = scoreHud(root);

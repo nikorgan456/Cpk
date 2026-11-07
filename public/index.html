@@ -217,7 +217,7 @@ canvas.erasing{cursor:cell}
 .mash.pink{background:var(--pink);box-shadow:0 8px 0 #c8206a}.mash.blue{background:var(--blue);box-shadow:0 8px 0 #1a6ad0}
 .mash.hit{animation:mhit .12s}@keyframes mhit{50%{transform:translateY(6px) scale(.97);box-shadow:0 2px 0 rgba(0,0,0,.2)}}
 /* red */
-.red{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:60px 14px 14px}
+.redg{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:60px 14px 14px}
 .red-top{display:flex;gap:20px;font-family:var(--display);font-size:2rem;color:#fff;text-shadow:0 3px 0 rgba(90,30,140,.4)}
 .red-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;width:min(420px,88vw,60dvh)}
 .rb{aspect-ratio:1;border-radius:24px;background:#fff;box-shadow:0 7px 0 rgba(90,30,140,.25);transition:background .08s,transform .08s;touch-action:manipulation}
@@ -390,6 +390,118 @@ input,textarea,.chat-msgs,.chat-msgs *{-webkit-user-select:text;user-select:text
 .goal-pop.on{animation:goalpop 1.8s ease-out}@keyframes goalpop{0%{opacity:0;transform:scale(.4)}15%{opacity:1;transform:scale(1.15)}30%{transform:scale(1)}80%{opacity:1}100%{opacity:0}}
 .chairs-hud{position:absolute;top:58px;left:50%;transform:translateX(-50%);z-index:5;background:#5ae07a;color:#fff;font-family:var(--display);font-size:1.5rem;border-radius:16px;padding:4px 16px;white-space:nowrap;pointer-events:none;box-shadow:0 4px 0 rgba(0,0,0,.2)}
 .chairs-hud.stop{background:#ff2a4a;animation:shake .3s infinite}
+/* ===== drop 3 ===== */
+.mash.on{transform:translateY(6px);box-shadow:0 2px 0 rgba(0,0,0,.2)}
+.tw,.dt,.fs{position:absolute;inset:0}.tw canvas,.dt canvas,.fs canvas{width:100%;height:100%;display:block}
+.tw-ui,.dt-ui,.fs-ui{position:absolute;left:0;right:0;bottom:max(16px,env(safe-area-inset-bottom));display:flex;flex-direction:column;align-items:center;gap:8px;padding:0 12px}
+.tw-turn,.dt-left,.fs-msg{background:rgba(255,255,255,.92);border-radius:14px;padding:5px 14px;font-weight:900;text-align:center}
+.dt .red-board,.fs .red-board{position:absolute;top:56px;left:0;right:0;margin:0 auto;padding:0 10px}
+.dt-ui .mash{font-size:1.5rem;width:min(300px,80vw)}
+.fs-bar{position:relative;width:min(320px,82vw);height:22px;background:rgba(255,255,255,.85);border-radius:11px;overflow:hidden}
+.fs-bar i{position:absolute;left:0;top:0;bottom:0;border-radius:11px;transition:background .2s}.fs-bar b{position:absolute;top:-2px;bottom:-2px;width:8px;margin-left:-4px;background:var(--ink);border-radius:4px}
+.pk{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:96px 12px 14px;background:linear-gradient(#7ac8ff 0 40%,#5ac85a 40%)}
+.pk-who{background:#fff;border-radius:14px;padding:6px 14px;font-weight:900;text-align:center}.pk-who small{color:var(--muted);margin-left:6px}
+.pk-goal{position:relative;width:min(520px,94vw);aspect-ratio:2.3;border:8px solid #fff;border-bottom:none;border-radius:6px 6px 0 0;display:grid;grid-template-columns:repeat(3,1fr);overflow:hidden}
+.pk-net{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.35) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.35) 1px,transparent 1px);background-size:14px 14px;pointer-events:none}
+.pk-z{position:relative;z-index:1;border-right:2px dashed rgba(255,255,255,.4)}.pk-z:last-of-type{border-right:none}
+.pk-goal.can .pk-z{background:rgba(255,255,255,.12);cursor:pointer}.pk-goal.can .pk-z:hover{background:rgba(255,255,255,.3)}.pk-z.mine{background:rgba(255,226,58,.55)!important}
+.pk-keeper{position:absolute;bottom:0;left:50%;transform:translateX(-50%);transition:left .45s cubic-bezier(.3,.6,.4,1),transform .45s;z-index:2;pointer-events:none}
+.pk-keeper.z0{left:17%;transform:translateX(-50%) rotate(-50deg)}.pk-keeper.z2{left:83%;transform:translateX(-50%) rotate(50deg)}.pk-keeper.z1{transform:translateX(-50%) translateY(-30%)}
+.pk-ball{position:absolute;bottom:-60px;left:50%;transform:translateX(-50%);font-size:2rem;transition:all .5s cubic-bezier(.2,.7,.4,1);z-index:3;pointer-events:none}
+.pk-ball.z0{left:17%;bottom:40%}.pk-ball.z1{left:50%;bottom:55%}.pk-ball.z2{left:83%;bottom:40%}
+.pk-msg{background:rgba(255,255,255,.92);border-radius:14px;padding:8px 16px;font-weight:800;text-align:center;min-height:1.5em}.pk-g{color:#1a9a4a;font-family:var(--display);font-weight:400;font-size:1.6rem}.pk-s{color:#d02a4a;font-family:var(--display);font-weight:400;font-size:1.6rem}
+.pk-dots{display:flex;gap:14px;font-weight:900;background:rgba(255,255,255,.85);border-radius:12px;padding:4px 12px}
+.charge-meter{position:absolute;left:50%;bottom:calc(150px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);width:min(220px,60vw);height:18px;background:rgba(0,0,0,.35);border-radius:9px;overflow:hidden;z-index:6;pointer-events:none}
+.charge-meter i{display:block;height:100%;background:linear-gradient(90deg,#ffe23a,#ff8a1a,#ff2a4a)}.charge-meter span{position:absolute;inset:0;text-align:center;font:900 .7rem var(--body);color:#fff;line-height:18px;letter-spacing:.1em}
+.charge-meter.full{animation:shake .25s infinite}
+
+/* ===== dark mode (Settings → Dark mode) ===== */
+body.dark{--ink:#f1eaff;--muted:#b0a2cc;--line:#3c3356;--card:#251f3c;--shadow:0 6px 0 rgba(0,0,0,.35);background:linear-gradient(160deg,#2a1638 0%,#1a1636 50%,#0f2236 100%);background-attachment:fixed;color:var(--ink)}
+body.dark .bg-blobs i{opacity:.18}
+body.dark input{color:var(--ink)}
+body.dark .btn.yellow,body.dark .tile em,body.dark .chat-btn em{color:#2a1a4a}
+body.dark .card{background:#251f3c;border-color:#3c3356}
+body.dark .icon{background:#251f3c;border-color:#3c3356}
+body.dark .seg{background:#251f3c;border-color:#3c3356}
+body.dark .seg button[aria-pressed=true]{background:#251f3c;border-color:#3c3356}
+body.dark .auth input,body.dark .join input,body.dark .add-friend input,body.dark #chatIn,body.dark .dg-in input{background:#251f3c;border-color:#3c3356}
+body.dark .coins{background:#251f3c;border-color:#3c3356}
+body.dark .xpbar{background:#251f3c;border-color:#3c3356}
+body.dark .tile{background:#251f3c;border-color:#3c3356}
+body.dark .t1{background:linear-gradient(160deg,#2a2342,#342a4a);border-color:#3c3356}
+body.dark .t2{background:linear-gradient(160deg,#2a2342,#342a4a);border-color:#3c3356}
+body.dark .t3{background:linear-gradient(160deg,#2a2342,#342a4a);border-color:#3c3356}
+body.dark .t4{background:linear-gradient(160deg,#2a2342,#342a4a);border-color:#3c3356}
+body.dark .pl{background:#251f3c;border-color:#3c3356}
+body.dark .pl.me{background:#3d2440;border-color:#3c3356}
+body.dark .gt{background:#251f3c;border-color:#3c3356}
+body.dark .gt:not(.off){background:#251f3c;border-color:#3c3356}
+body.dark .panel{background:#251f3c;border-color:#3c3356}
+body.dark .opt{background:#251f3c;border-color:#3c3356}
+body.dark .pub{background:#251f3c;border-color:#3c3356}
+body.dark .wi{background:#251f3c;border-color:#3c3356}
+body.dark .wi.on{background:#1f3d2c;border-color:#3c3356}
+body.dark .wi.locked{background:#251f3c;border-color:#3c3356}
+body.dark .wi[data-sure="1"]{background:#3e3520;border-color:#3c3356}
+body.dark .freq{background:#3e3520;border-color:#3c3356}
+body.dark .stat-grid div{background:#251f3c;border-color:#3c3356}
+body.dark .g-stats div{background:#251f3c;border-color:#3c3356}
+body.dark .h-row{background:#251f3c;border-color:#3c3356}
+body.dark .emotes{background:#251f3c;border-color:#3c3356}
+body.dark .emotes button:active{background:#3d2440;border-color:#3c3356}
+body.dark .chat-panel{background:#251f3c;border-color:#3c3356}
+body.dark #mRound{background:#251f3c;border-color:#3c3356}
+body.dark .vote-t{background:#251f3c;border-color:#3c3356}
+body.dark .vote-card{background:#251f3c;border-color:#3c3356}
+body.dark .mini-board{background:#251f3c;border-color:#3c3356}
+body.dark .mb-row.me{background:#3e3520;border-color:#3c3356}
+body.dark .intro{background:#251f3c;border-color:#3c3356}
+body.dark .intro li{background:#251f3c;border-color:#3c3356}
+body.dark .in-note{background:#3e3520;border-color:#3c3356}
+body.dark .rr-list{background:#251f3c;border-color:#3c3356}
+body.dark .rr.me{background:#3e3520;border-color:#3c3356}
+body.dark .pod-step{background:#251f3c;border-color:#3c3356}
+body.dark .fin-me{background:#251f3c;border-color:#3c3356}
+body.dark .dg-top{background:#251f3c;border-color:#3c3356}
+body.dark .dg-side{background:#251f3c;border-color:#3c3356}
+body.dark .dgf.ok{background:#1f3d2c;border-color:#3c3356}
+body.dark .tug-count{background:#251f3c;border-color:#3c3356}
+body.dark .red-board span{background:#251f3c;border-color:#3c3356}
+body.dark .red-board span.me{background:#3e3520;border-color:#3c3356}
+body.dark .pg-top{background:#251f3c;border-color:#3c3356}
+body.dark .pg-locked{background:#251f3c;border-color:#3c3356}
+body.dark .pg-wait{background:#251f3c;border-color:#3c3356}
+body.dark .fa-leg span{background:#251f3c;border-color:#3c3356}
+body.dark .fa-vb{background:#251f3c;border-color:#3c3356}
+body.dark .fa-reveal{background:#251f3c;border-color:#3c3356}
+body.dark .fa-tally span{background:#251f3c;border-color:#3c3356}
+body.dark .lk-q{background:#251f3c;border-color:#3c3356}
+body.dark .lk-b{background:#251f3c;border-color:#3c3356}
+body.dark .lk-b.win{background:#3e3520;border-color:#3c3356}
+body.dark .bl-mini.me{background:#3e3520;border-color:#3c3356}
+body.dark .st-try{background:#251f3c;border-color:#3c3356}
+body.dark /* ===== season pass ===== */
+.wi.ex{background:linear-gradient(160deg,#2a2342,#342a4a);border-color:#3c3356}
+body.dark .gp{background:#251f3c;border-color:#3c3356}
+body.dark .gp.on{background:#3d2440;border-color:#3c3356}
+body.dark .gp.solo{background:linear-gradient(160deg,#2a2342,#342a4a);border-color:#3c3356}
+body.dark .im-word{background:#251f3c;border-color:#3c3356}
+body.dark .im-p{background:#251f3c;border-color:#3c3356}
+body.dark .im-p.self{background:#3e3520;border-color:#3c3356}
+body.dark .im-words{background:#251f3c;border-color:#3c3356}
+body.dark .tw-turn,body.dark .dt-left,body.dark .fs-msg{background:#251f3c;border-color:#3c3356}
+body.dark .bg-blobs i:nth-child(1),body.dark .emo-btn,body.dark .chat-btn em,body.dark .p1 .pod-step,body.dark .pg-t{color:#2a1a4a}
+body.dark .tag3d{background:rgba(37,31,60,.9);color:#f1eaff}body.dark .tag3d.me{background:var(--yellow);color:#2a1a4a}
+body.dark .vote-card small,body.dark .muted{color:var(--muted)}
+body.dark .xpbar{background:#3c3356}
+body.dark .pk{filter:brightness(.85)}
+body.dark .btn.ghost{--c:#352d50;--d:#1a1530;color:var(--ink)}
+body.dark .vote-ovl,body.dark .result-ovl,body.dark .final-ovl{background:linear-gradient(160deg,rgba(42,22,56,.97),rgba(26,22,54,.97) 50%,rgba(15,34,54,.97))}
+body.dark .ward-prev{background:radial-gradient(circle at 50% 40%,#3a3058,#1e1934)}
+body.dark .ps-buy{background:linear-gradient(90deg,#3e3520,#3d2440)}body.dark .ps-buy small{color:var(--muted)}
+body.dark .ps-r{background:#2e2748}body.dark .ps-r.prem{background:linear-gradient(170deg,#3e3520,#3d2440)}body.dark .ps-r.item{border-color:#4a3e6a}
+body.dark .seg{background:#1e1934}body.dark .seg button[aria-pressed=true]{background:#3a3058;color:var(--ink)}
+body.dark .modal{background:rgba(5,3,12,.6)}
 </style></head><body>
 <div class="bg-blobs" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
 
@@ -466,6 +578,7 @@ input,textarea,.chat-msgs,.chat-msgs *{-webkit-user-select:text;user-select:text
   <div id="fReqs"></div><div id="fList" class="f-list"></div></div></div>
 <div class="modal" id="statsModal" hidden><div class="panel wide"><div class="ph"><h2>📊 Stats</h2><button class="icon sm" data-close>✕</button></div><div id="statsBody"></div></div></div>
 <div class="modal" id="setModal" hidden><div class="panel"><div class="ph"><h2>⚙️ Settings</h2><button class="icon sm" data-close>✕</button></div>
+  <div class="set"><span>🌙 Dark mode</span><button class="sw" id="sDark"></button></div>
   <div class="set"><span>Music</span><button class="sw" id="sMusic"></button></div>
   <div class="set"><span>Sound effects</span><button class="sw" id="sSound"></button></div>
   <div class="set"><span>Announcer voice</span><button class="sw" id="sVoice"></button></div>
@@ -491,6 +604,10 @@ function seeded(seed){ let a = seed >>> 0; return () => { a |= 0; a = a + 0x6D2B
 
 const STORE = (() => { let s = {}; try{ s = JSON.parse(localStorage.getItem("cpk") || "{}"); }catch(e){} return s; })();
 function saveStore(){ try{ localStorage.setItem("cpk", JSON.stringify(STORE)); }catch(e){} }
+// dark mode: your choice in Settings, or your device's setting until you pick
+const isDark = () => STORE.dark != null ? !!STORE.dark : !!(window.matchMedia && matchMedia("(prefers-color-scheme: dark)").matches);
+function applyDark(){ document.body.classList.toggle("dark", isDark()); const m = document.querySelector('meta[name=theme-color]'); if(m) m.content = isDark() ? "#1a1636" : "#ff8ac4"; }
+applyDark(); try{ matchMedia("(prefers-color-scheme: dark)").addEventListener("change", applyDark); }catch(e){}
 if(STORE.music === undefined) STORE.music = true; if(STORE.sound === undefined) STORE.sound = true; if(STORE.voice === undefined) STORE.voice = true; if(STORE.vol === undefined) STORE.vol = .7;
 
 let ME = null, FRIENDS = [], SHOP = {}, FREE_COLS = [], PASSI = null, SPINL = [];
@@ -503,7 +620,7 @@ async function api(op, body = {}){
 async function refreshMe(away){ const j = await api("me", away ? { away:true } : {}); if(j.me){ ME = j.me; FRIENDS = j.friends || []; SHOP = j.shop || SHOP; FREE_COLS = j.free || FREE_COLS; PASSI = j.passInfo || PASSI; SPINL = j.spin || SPINL; renderHome(); } return j; }
 
 function toast(msg, ms = 2600){ const t = $("#toast"); t.textContent = msg; t.hidden = false; t.classList.remove("show"); void t.offsetWidth; t.classList.add("show"); clearTimeout(toast._t); toast._t = setTimeout(() => { t.hidden = true; }, ms); }
-function show(id){ $$(".screen").forEach(s => s.hidden = s.id !== id); window.scrollTo(0, 0); }
+function show(id){ const was = $("#" + id) && !$("#" + id).hidden; $$(".screen").forEach(s => s.hidden = s.id !== id); if(!was) window.scrollTo(0, 0); } // only jump to the top when actually changing screen
 function modal(id, on = true){ $(id).hidden = !on; }
 document.addEventListener("click", e => { const m = e.target.closest(".modal"); if(m && (e.target === m || e.target.closest("[data-close]"))) m.hidden = true; });
 function copyText(t){ try{ navigator.clipboard.writeText(t).then(() => toast("Copied!"), () => toast(t)); }catch(e){ toast(t); } }
@@ -1076,9 +1193,11 @@ function confetti(){ const c = $("#confetti"); c.innerHTML = Array.from({ length
 // ===================== physics games: Sumo Ring, Falling Tiles, Hot Potato Bomb =====================
 function outRank(G){ const alive = G.ids.filter(id => G.B[id] && G.B[id].alive); return [alive].concat((G.outs || []).slice().reverse().map(id => [id])); }
 function physView(root, ctx, opts, build){
+  // wide arenas turn sideways on tall phone screens (and the stick turns with them)
+  if(opts.rot && !opts.portrait){ const c = opts.cam || [0, 17, 15]; opts.portrait = { cam:[-(c[2] + 5), c[1] + 3, 0], look:[1.5, 0, 0], a:.62 }; }
   const S = makeStage(root, opts), view = { S, fxSeen:0, destroy:() => S.destroy() }; ctlShow("stick", opts.btn || "DIVE", { jump:opts.jump }); build(S, view);
   const pred = ctx.host || opts.pred === false ? null : Object.assign({ speed:7, acc:90 }, opts.pred || {});
-  view.update = (snap, dt, t) => { if(view.tick) view.tick(snap, dt, t); physDraw(S, snap.B, dt, t, view.extra, pred); newFx(view, snap.fx, (a, b, c) => view.onFx ? view.onFx(a, b, c) : physFx(a, b)); S.render(t); };
+  view.update = (snap, dt, t) => { if(opts.rot) CTL.map = root.clientWidth < root.clientHeight ? (x, y) => [-y, x] : null; if(view.tick) view.tick(snap, dt, t); physDraw(S, snap.B, dt, t, view.extra, pred); newFx(view, snap.fx, (a, b, c) => view.onFx ? view.onFx(a, b, c) : physFx(a, b)); S.render(t); };
   return view;
 }
 const icingTex = (base, dots) => cTex(512, 512, (x, w) => { x.fillStyle = base; x.fillRect(0, 0, w, w); for(let i=0;i<260;i++){ x.save(); x.translate(rand()*w, rand()*w); x.rotate(rand()*3); x.fillStyle = pick(dots); x.beginPath(); x.roundRect ? x.roundRect(-9, -3, 18, 6, 3) : x.rect(-9, -3, 18, 6); x.fill(); x.restore(); } });
@@ -1227,7 +1346,7 @@ GAMES.bumper = {
   bot(G, id){ const b = G.B[id]; if(!b || !b.alive || b.fall) return null; const r = physBot(G, id, { safe:4 }); if(!r) return r;
     const ex = Math.abs(b.x + b.vx*.3) > 10.2*G.k - 2, ez = Math.abs(b.z + b.vz*.3) > 7.2*G.k - 1.9; if((ex || ez) && rand() < .8){ r.x = ex ? -Math.sign(b.x) : r.x*.3; r.y = ez ? -Math.sign(b.z) : r.y*.3; r.a = 0; } return r; },
   snap(G){ return { B:physSnap(G.B), ko:G.ko, k:+G.k.toFixed(3), fx:G.fx }; },
-  view(root, ctx){ return physView(root, ctx, { sky:"#7ad0ff", sky2:"#d8f4ff", goo:"#3a8aff", fog:"#d8f4ff", cam:[0, 18, 15], btn:"BOOST", pred:{ speed:8.2, acc:20 } }, (S, v) => {
+  view(root, ctx){ return physView(root, ctx, { rot:true, sky:"#7ad0ff", sky2:"#d8f4ff", goo:"#3a8aff", fog:"#d8f4ff", cam:[0, 18, 15], btn:"BOOST", pred:{ speed:8.2, acc:20 } }, (S, v) => {
     const fl = cTex(512, 384, (x, w, h) => { x.fillStyle = "#2a2a4a"; x.fillRect(0, 0, w, h); x.strokeStyle = "rgba(255,255,255,.08)"; x.lineWidth = 2; for(let i=0;i<w;i+=32){ x.beginPath(); x.moveTo(i, 0); x.lineTo(i, h); x.stroke(); } for(let j=0;j<h;j+=32){ x.beginPath(); x.moveTo(0, j); x.lineTo(w, j); x.stroke(); }
       x.fillStyle = "rgba(255,210,58,.9)"; x.font = "bold 70px sans-serif"; x.textAlign = "center"; x.globalAlpha = .18; x.fillText("BUMP!", w/2, h/2 + 25); });
     const floor = new THREE.Mesh(new THREE.BoxGeometry(20.4, .6, 14.4), new THREE.MeshStandardMaterial({ map:fl, roughness:.4, metalness:.2 })); floor.position.y = -.3; floor.receiveShadow = true; S.scene.add(floor);
@@ -1252,20 +1371,25 @@ GAMES.bumper = {
 const DW = 19, DH = 13;
 GAMES.dodge = {
   name:"Dodgeball", icon:"🏐", cat:"phys", desc:"Grab a ball, throw it, don't get hit", dur:55,
-  how:["Run over a ball to pick it up","Tap <b>THROW</b> (or press <b>E</b>) to throw it the way you're facing. No ball? It's a dodge roll","3 hits and you're out. Last bean standing wins!"],
+  how:["Run over a ball to pick it up","<b>Hold THROW</b> (or E) to charge, let go to fire. Longer charge = faster ball! No ball? Tap it to dodge roll","3 hits and you're out. Last bean standing wins!"],
   init(ids){ const G = { B:physInit(ids, ringSpawn(4.6)), outs:[], balls:[], hp:{}, hold:{} }; ids.forEach(id => G.hp[id] = 3);
     const n = Math.max(3, Math.ceil(ids.length * .6)); for(let i=0;i<n;i++){ const a = i / n * Math.PI * 2; G.balls.push({ x:Math.cos(a)*1.6, z:Math.sin(a)*1.6, vx:0, vz:0, own:null, fly:0, by:null }); } return G; },
   tick(G, dt, inp, H){
+    // hold THROW to charge (slower while charging), let go to fire: longer charge = faster, further, harder hit
+    G.ids.forEach(id => G.B[id].boost = G.B[id].charging ? .55 : 1);
     physStep(G, dt, inp, { wall:{ w:DW, h:DH }, speed:6.8, act:(id, b) => {
-      if(G.hold[id] != null){ const bl = G.balls[G.hold[id]]; delete G.hold[id]; bl.by = null; bl.x = b.x + Math.sin(b.f)*.75; bl.z = b.z + Math.cos(b.f)*.75; bl.vx = Math.sin(b.f)*19; bl.vz = Math.cos(b.f)*19; bl.own = id; bl.fly = 1; fxp(G, "t", id); }
+      if(G.hold[id] != null){ b.charging = true; b.charge = 0; }
       else if(b.cd <= 0){ b.dash = .25; b.cd = 1; b.vx = Math.sin(b.f)*12; b.vz = Math.cos(b.f)*12; fxp(G, "d", id); } } });
+    G.ids.forEach(id => { const b = G.B[id]; if(!b.charging) return; if(G.hold[id] == null || !b.alive){ b.charging = false; return; }
+      if((inp[id] || {}).a){ b.charge = Math.min(1.2, b.charge + dt); return; }
+      const p = Math.min(1, b.charge), bl = G.balls[G.hold[id]], sp = 10 + p*15; delete G.hold[id]; b.charging = false; bl.by = null; bl.x = b.x + Math.sin(b.f)*.75; bl.z = b.z + Math.cos(b.f)*.75; bl.vx = Math.sin(b.f)*sp; bl.vz = Math.cos(b.f)*sp; bl.own = id; bl.fly = 1; bl.pow = p; fxp(G, "t", id, p > .8 ? 1 : 0); });
     G.balls.forEach((bl, k) => {
       if(bl.by){ const h = G.B[bl.by]; if(!h || !h.alive){ bl.by = null; delete G.hold[bl.by]; } else { bl.x = h.x + Math.sin(h.f + 1.2)*.55; bl.z = h.z + Math.cos(h.f + 1.2)*.55; return; } }
-      bl.x += bl.vx*dt; bl.z += bl.vz*dt; const f = bl.fly ? .35 : 2.2; bl.vx *= Math.max(0, 1 - f*dt); bl.vz *= Math.max(0, 1 - f*dt);
+      bl.x += bl.vx*dt; bl.z += bl.vz*dt; const f = bl.fly ? .3 : 2.2; bl.vx *= Math.max(0, 1 - f*dt); bl.vz *= Math.max(0, 1 - f*dt);
       const hx = DW/2 - .3, hz = DH/2 - .3; if(Math.abs(bl.x) > hx){ bl.x = Math.sign(bl.x)*hx; bl.vx *= -.6; bl.fly = 0; } if(Math.abs(bl.z) > hz){ bl.z = Math.sign(bl.z)*hz; bl.vz *= -.6; bl.fly = 0; }
-      if(bl.fly && Math.hypot(bl.vx, bl.vz) < 7) bl.fly = 0;
+      if(bl.fly && Math.hypot(bl.vx, bl.vz) < 6) bl.fly = 0;
       if(bl.fly){ for(const id of G.ids){ const b = G.B[id]; if(id === bl.own || !b.alive || b.fall || (b.inv || 0) > G.t) continue; if(Math.hypot(b.x - bl.x, b.z - bl.z) < .85){ b.inv = G.t + 1.2;
-            G.hp[id]--; b.vx += bl.vx*.45; b.vz += bl.vz*.45; b.hit = .5; b.stun = .3; bl.vx *= -.25; bl.vz *= -.25; bl.fly = 0; fxp(G, "h", id, bl.own); G.dirty = true;
+            G.hp[id]--; const kb = .3 + (bl.pow || 0)*.35; b.vx += bl.vx*kb; b.vz += bl.vz*kb; b.hit = .5; b.stun = .25 + (bl.pow || 0)*.25; bl.vx *= -.25; bl.vz *= -.25; bl.fly = 0; fxp(G, "h", id, bl.own); G.dirty = true;
             if(G.hp[id] <= 0){ b.alive = false; G.outs.push(id); fxp(G, "o", id); if(G.hold[id] != null){ const hb = G.balls[G.hold[id]]; hb.by = null; delete G.hold[id]; } } break; } } }
       else { for(const id of G.ids){ const b = G.B[id]; if(!b.alive || G.hold[id] != null || b.hit > 0) continue; if(Math.hypot(b.x - bl.x, b.z - bl.z) < .9){ bl.by = id; bl.own = null; bl.vx = bl.vz = 0; G.hold[id] = k; fxp(G, "g", id); break; } } }
     });
@@ -1278,12 +1402,12 @@ GAMES.dodge = {
       if(d < 5 && (dx*bl.vx + dz*bl.vz) / (d*sp) > .8 && rand() < .6) return { x:-bl.vz/sp, y:bl.vx/sp, a:d < 2.4 && rand() < .1 ? 1 : 0 }; }
     if(G.hold[id] != null){ let best = null, bd = 1e9; for(const k of G.ids){ const c = G.B[k]; if(k === id || !c.alive) continue; const d = Math.hypot(c.x - b.x, c.z - b.z); if(d < bd){ bd = d; best = c; } }
       if(!best) return { x:0, y:0 }; const dx = best.x + best.vx*(rand()*.4) - b.x + (rand() - .5)*1.6, dz = best.z + best.vz*(rand()*.4) - b.z + (rand() - .5)*1.6, m = Math.hypot(dx, dz) || 1;
-      if(bd < 3) return { x:-dx/m, y:-dz/m }; b.aimT = (b.aimT || 0) + .016; const fire = bd < 8 && b.aimT > 1.1 && rand() < .05; if(fire) b.aimT = 0; return { x:dx/m*(bd > 7 ? 1 : .25), y:dz/m*(bd > 7 ? 1 : .25), a:fire ? 1 : 0 }; }
+      if(bd < 3) return { x:-dx/m, y:-dz/m }; b.aimT = (b.aimT || 0) + .016; if(b.charging){ return { x:dx/m*.3, y:dz/m*.3, a:b.charge < (b.want || .5) ? 1 : 0 }; } const fire = bd < 10 && b.aimT > 1.1 && rand() < .05; if(fire){ b.aimT = 0; b.want = .25 + rand()*.85; } return { x:dx/m*(bd > 7 ? 1 : .25), y:dz/m*(bd > 7 ? 1 : .25), a:fire ? 1 : 0 }; }
     let tgt = null, td = 1e9; G.balls.forEach(bl => { if(bl.by || bl.fly) return; const d = Math.hypot(bl.x - b.x, bl.z - b.z); if(d < td){ td = d; tgt = bl; } });
     if(tgt){ const dx = tgt.x - b.x, dz = tgt.z - b.z, m = Math.hypot(dx, dz) || 1; return { x:dx/m, y:dz/m }; }
     return physBot(G, id, { flee:true, chase:false }); },
-  snap(G){ return { B:physSnap(G.B), bl:G.balls.map(b => [+b.x.toFixed(2), +b.z.toFixed(2), b.by ? 2 : b.fly ? 1 : 0]), hp:G.hp, fx:G.fx }; },
-  view(root, ctx){ return physView(root, ctx, { sky:"#ffb86a", sky2:"#ffe8c8", goo:"#ff8a3a", fog:"#ffe8c8", cam:[0, 18, 13], btn:"THROW", pred:{ speed:6.8 } }, (S, v) => {
+  snap(G){ const ch = {}; G.ids.forEach(id => { if(G.B[id].charging) ch[id] = +Math.min(1, G.B[id].charge).toFixed(2); }); return { B:physSnap(G.B), bl:G.balls.map(b => [+b.x.toFixed(2), +b.z.toFixed(2), b.by ? 2 : b.fly ? 1 : 0]), hp:G.hp, ch, fx:G.fx }; },
+  view(root, ctx){ return physView(root, ctx, { rot:true, sky:"#ffb86a", sky2:"#ffe8c8", goo:"#ff8a3a", fog:"#ffe8c8", cam:[0, 18, 13], btn:"THROW", pred:{ speed:6.8 } }, (S, v) => {
     const fl = cTex(512, 352, (x, w, h) => { x.fillStyle = "#f4c890"; x.fillRect(0, 0, w, h); for(let i=0;i<w;i+=24){ x.fillStyle = i % 48 ? "rgba(160,90,30,.08)" : "rgba(160,90,30,.14)"; x.fillRect(i, 0, 24, h); }
       x.strokeStyle = "#fff"; x.lineWidth = 6; x.strokeRect(12, 12, w - 24, h - 24); x.beginPath(); x.moveTo(w/2, 12); x.lineTo(w/2, h - 12); x.stroke(); x.beginPath(); x.arc(w/2, h/2, 46, 0, 7); x.stroke(); });
     const floor = new THREE.Mesh(new THREE.BoxGeometry(DW, .6, DH), new THREE.MeshStandardMaterial({ map:fl, roughness:.5 })); floor.position.y = -.3; floor.receiveShadow = true; S.scene.add(floor);
@@ -1292,13 +1416,17 @@ GAMES.dodge = {
     const bt = cTex(128, 64, (x, w, h) => { x.fillStyle = "#ff3a5a"; x.fillRect(0, 0, w, h); x.fillStyle = "#fff"; x.fillRect(0, h/2 - 5, w, 10); });
     const bm = new THREE.MeshStandardMaterial({ map:bt, roughness:.35 }), balls = [];
     const ballMesh = () => { const m = new THREE.Mesh(new THREE.SphereGeometry(.32, 16, 12), bm); m.castShadow = true; S.scene.add(m); return m; };
-    const hud = hudEl(root); let lastHp = "";
+    const hud = hudEl(root); let lastHp = ""; const arrows = {}, am = new THREE.MeshBasicMaterial({ color:"#ffe23a", transparent:true, opacity:.85, depthWrite:false });
+    const arrowOf = id => arrows[id] || (arrows[id] = (() => { const g = new THREE.Group(), sh = new THREE.Mesh(new THREE.PlaneGeometry(.22, 1), am), hd = new THREE.Mesh(new THREE.CircleGeometry(.32, 3), am); sh.rotation.x = -Math.PI/2; sh.position.z = .5; hd.rotation.x = -Math.PI/2; hd.rotation.z = Math.PI/2; hd.position.z = 1; g.add(sh); g.add(hd); g.userData = { sh, hd }; g.position.y = .06; S.scene.add(g); return g; })());
+    const meter = document.createElement("div"); meter.className = "charge-meter"; meter.innerHTML = "<i></i><span>CHARGE</span>"; meter.hidden = true; root.appendChild(meter);
     v.tick = (s, dt, t) => {
       s.bl.forEach((b, i) => { const m = balls[i] || (balls[i] = ballMesh()); const k = Math.min(1, dt*18); m.position.x = lerp(m.position.x, b[0], k); m.position.z = lerp(m.position.z, b[1], k); m.position.y = b[2] === 2 ? 1.05 : b[2] === 1 ? .7 : .32 + Math.abs(Math.sin(t*3 + i))*.12; m.rotation.x += dt*(b[2] === 1 ? 20 : 2); });
       const hk = JSON.stringify(s.hp); if(hk !== lastHp){ lastHp = hk; for(const id in s.hp){ const tag = S.tags.get(id); if(tag) tag.innerHTML = `${esc(id)} <span class="hearts">${"❤️".repeat(Math.max(0, s.hp[id]))}</span>`; }
-        const me = s.hp[ctx.me]; hud.innerHTML = me != null ? `<span>${me > 0 ? "❤️".repeat(me) + "🖤".repeat(3 - me) : "You're out 💀"}</span>` : ""; } };
-    v.onFx = (type, a, b) => { if(type === "t"){ sfx.whoosh(); } else if(type === "h"){ sfx.whack(); if(a === ctx.me) toast(`💥 ${b} hit you!`, 1200); if(b === ctx.me) sfx.coin(); } else if(type === "g"){ if(a === ctx.me) sfx.pop(); } else if(type === "o"){ sfx.lose(); } else physFx(type, a); };
-    const d0 = v.destroy; v.destroy = () => { hud.remove(); d0(); };
+        const me = s.hp[ctx.me]; hud.innerHTML = me != null ? `<span>${me > 0 ? "❤️".repeat(me) + "🖤".repeat(3 - me) : "You're out 💀"}</span>` : ""; }
+      for(const id in arrows) arrows[id].visible = false; for(const id in (s.ch || {})){ const c = s.ch[id], g = arrowOf(id), b = S.bean(id); g.visible = true; g.position.x = b.position.x; g.position.z = b.position.z; g.rotation.y = b.rotation.y; const L = 1 + c*3.2; g.userData.sh.scale.y = L; g.userData.sh.position.z = .45 + L/2; g.userData.hd.position.z = .45 + L; am.color.setHSL(.15 - c*.15, 1, .55); }
+      const mc = s.ch && s.ch[ctx.me]; meter.hidden = mc == null; if(mc != null){ meter.firstChild.style.width = (mc*100) + "%"; meter.classList.toggle("full", mc >= 1); if(mc >= 1 && !v.fullT){ v.fullT = 1; sfx.ding(); } } else v.fullT = 0; };
+    v.onFx = (type, a, b) => { if(type === "t"){ sfx.whoosh(); if(b) sfx.boom(); } else if(type === "h"){ sfx.whack(); if(a === ctx.me) toast(`💥 ${b} hit you!`, 1200); if(b === ctx.me) sfx.coin(); } else if(type === "g"){ if(a === ctx.me) sfx.pop(); } else if(type === "o"){ sfx.lose(); } else physFx(type, a); };
+    const d0 = v.destroy; v.destroy = () => { hud.remove(); meter.remove(); d0(); };
   }); }
 };
 
@@ -1796,7 +1924,7 @@ GAMES.red = {
   snap(G){ const o = {}; for(const id in G.res){ const r = G.res[id]; o[id] = [r.s, 3 - r.miss, r.out != null ? 1 : 0]; } return { r:o, t:+G.t.toFixed(1) }; },
   view(root, ctx){
     ctlShow(null); const seq = ctx.info.seq, v = { tapped:{}, out:false };
-    root.innerHTML = `<div class="red"><div class="red-top"><span id="redScore">0</span><span id="redLives">❤️❤️❤️</span></div><div class="red-grid" id="redGrid">${Array.from({ length:9 }, (_, i) => `<button class="rb" data-c="${i}"></button>`).join("")}</div><div class="red-board" id="redBoard"></div><div class="red-out" id="redOut" hidden></div></div>`;
+    root.innerHTML = `<div class="redg"><div class="red-top"><span id="redScore">0</span><span id="redLives">❤️❤️❤️</span></div><div class="red-grid" id="redGrid">${Array.from({ length:9 }, (_, i) => `<button class="rb" data-c="${i}"></button>`).join("")}</div><div class="red-board" id="redBoard"></div><div class="red-out" id="redOut" hidden></div></div>`;
     const cells = $$("#redGrid .rb");
     const active = tt => { const a = {}; seq.forEach((L, i) => { if(tt >= L[0] && tt < L[0] + L[3]) a[L[1]] = i; }); return a; };
     cells.forEach(b => b.addEventListener("pointerdown", e => { e.preventDefault(); if(CM.phase !== "play" || v.out) return; const tt = now() - CM.playT, c = +b.dataset.c, i = active(tt)[c]; if(i == null || v.tapped[i]) return;
@@ -2255,7 +2383,7 @@ GAMES.tailtag = {
     const [k, d] = nearest(G, id, (k) => G.T[k] !== G.T[id] && !G.tail[k]); if(!k || d > 6.5) return { x:-b.x*.08 + (rand() - .5)*.5, y:-b.z*.08 + (rand() - .5)*.5 };
     const c = G.B[k]; let r = toward(b, b.x - (c.x - b.x), b.z - (c.z - b.z)); if(Math.abs(b.x) > 8.5) r.x = -Math.sign(b.x); if(Math.abs(b.z) > 5.5) r.y = -Math.sign(b.z); r.j = d < 1.8 && rand() < .12 ? 1 : 0; return r; },
   snap(G){ return { B:physSnap(G.B), tail:G.ids.filter(id => G.tail[id]), fx:G.fx }; },
-  view(root, ctx){ const T = ctx.info.T; return physView(root, ctx, { sky:"#9ae0ff", sky2:"#fff4d8", goo:"#7ad86a", fog:"#fff4d8", cam:[0, 19, 15], btn:"GRAB", jump:true, pred:{ speed:7.2 } }, (S, v) => {
+  view(root, ctx){ const T = ctx.info.T; return physView(root, ctx, { rot:true, sky:"#9ae0ff", sky2:"#fff4d8", goo:"#7ad86a", fog:"#fff4d8", cam:[0, 19, 15], btn:"GRAB", jump:true, pred:{ speed:7.2 } }, (S, v) => {
     floorBox(S, 22, 16, new THREE.MeshStandardMaterial({ map:stripeTex("#8ae07a", "#7ad06a", 8, [1, 1]), roughness:.8 })); wallRing(S, 22, 16, "#ffd23a");
     const tails = {}, tm = new THREE.MeshStandardMaterial({ color:"#ffb03a", roughness:.9 }), tw = new THREE.MeshStandardMaterial({ color:"#fff", roughness:.9 }), hud = scoreHud(root);
     const mkTail = () => { const g = new THREE.Group(); [[0, 0, 0, .26, tm], [0, .12, -.25, .22, tm], [0, .28, -.42, .16, tw]].forEach(([x, y, z, r, m]) => { const s = new THREE.Mesh(new THREE.SphereGeometry(r, 10, 8), m); s.position.set(x, y, z); s.castShadow = true; g.add(s); }); g.position.set(0, .45, -.55); return g; };
@@ -2403,7 +2531,7 @@ GAMES.infect = {
       let sc = Math.min(...Z.map(c => Math.hypot(c.x + c.vx*.5 - px, c.z + c.vz*.5 - pz))); sc -= Math.max(0, Math.abs(px) - 11.5)*3 + Math.max(0, Math.abs(pz) - 7.5)*3; sc -= INF_PILLARS.some(([x, z]) => Math.hypot(x - px, z - pz) < 1.6) ? 2 : 0; if(sc > bs){ bs = sc; best = a; } }
     const [, d] = nearest(G, id, k => G.z[k] != null); if(d > 9) return { x:(rand() - .5)*.3, y:(rand() - .5)*.3 }; return { x:Math.cos(best), y:Math.sin(best), j:d < 1.6 && rand() < .1 ? 1 : 0 }; },
   snap(G){ return { B:physSnap(G.B), z:Object.keys(G.z), fx:G.fx }; },
-  view(root, ctx){ return physView(root, ctx, { sky:"#4a3a6a", sky2:"#b8e0a0", goo:"#5ac85a", fog:"#a8c8a0", cam:[0, 20, 15], jump:true, btn:"LUNGE", pred:{ speed:7 } }, (S, v) => {
+  view(root, ctx){ return physView(root, ctx, { rot:true, sky:"#4a3a6a", sky2:"#b8e0a0", goo:"#5ac85a", fog:"#a8c8a0", cam:[0, 20, 15], jump:true, btn:"LUNGE", pred:{ speed:7 } }, (S, v) => {
     floorBox(S, 26, 18, new THREE.MeshStandardMaterial({ map:cTex(256, 256, (x, w) => { x.fillStyle = "#9ad08a"; x.fillRect(0, 0, w, w); for(let i=0;i<300;i++){ x.fillStyle = pick(["#8ac07a", "#aae09a", "#7ab06a"]); x.fillRect(rand()*w, rand()*w, 4, 10); } }, [3, 2]), roughness:.9 })); wallRing(S, 26, 18, "#6a5a8a");
     INF_PILLARS.forEach(([x, z], i) => { const m = new THREE.Mesh(new THREE.CylinderGeometry(1, 1.1, 2.6, 18), new THREE.MeshStandardMaterial({ map:stripeTex(["#ff7ab8", "#7ad8ff", "#ffd23a"][i % 3], "#fff", 10, [2, 1]) })); m.position.set(x, 1.3, z); m.castShadow = true; S.scene.add(m); });
     const hud = raceHud(root), zMat = new THREE.MeshStandardMaterial({ color:"#7ad83a", roughness:.6, emissive:"#2a6a0a", emissiveIntensity:.35 });
@@ -2440,7 +2568,7 @@ GAMES.football = {
     if(dP > 1.1 && dB > 1.6 || (b.x - bl.x)*Math.sign(gx) > 0){ const side = (b.x - bl.x)*Math.sign(gx) > 0 ? (b.z > bl.z ? 1.6 : -1.6) : 0; return toward(b, px, pz + side); }
     const r = toward(b, bl.x, bl.z); r.a = dB < 1.8 && rand() < .12 ? 1 : 0; return r; },
   snap(G){ return { B:physSnap(G.B), b:[+G.ball.x.toFixed(2), +G.ball.z.toFixed(2)], g:G.goals, fx:G.fx }; },
-  view(root, ctx){ const T = ctx.info.T; return physView(root, ctx, { sky:"#7ac8ff", sky2:"#e8f8ff", goo:"#3a9a4a", fog:"#e0f0ff", cam:[0, 21, 15], btn:"KICK", portrait:{ cam:[-20, 24, 0], look:[1.5, 0, 0], a:.62 }, pred:{ speed:7.2 } }, (S, v) => {
+  view(root, ctx){ const T = ctx.info.T; return physView(root, ctx, { sky:"#7ac8ff", sky2:"#e8f8ff", goo:"#3a9a4a", fog:"#e0f0ff", cam:[0, 21, 15], btn:"KICK", rot:true, portrait:{ cam:[-20, 24, 0], look:[1.5, 0, 0], a:.62 }, pred:{ speed:7.2 } }, (S, v) => {
     floorBox(S, FW + 3, FH, new THREE.MeshStandardMaterial({ map:cTex(512, 320, (x, w, h) => { for(let i=0;i<10;i++){ x.fillStyle = i % 2 ? "#5ac85a" : "#4ab84a"; x.fillRect(i*w/10, 0, w/10, h); } x.strokeStyle = "#fff"; x.lineWidth = 4; const m = 12; x.strokeRect(m, 4, w - 2*m, h - 8); x.beginPath(); x.moveTo(w/2, 4); x.lineTo(w/2, h - 4); x.stroke(); x.beginPath(); x.arc(w/2, h/2, 36, 0, 7); x.stroke(); x.strokeRect(m, h/2 - 60, 40, 120); x.strokeRect(w - m - 40, h/2 - 60, 40, 120); }), roughness:.85 }));
     const wm = new THREE.MeshStandardMaterial({ color:"#fff", roughness:.4 }); [[0, FH/2 + .2, FW + .8, .4], [0, -FH/2 - .2, FW + .8, .4]].forEach(([x, z, a, d]) => { const m = new THREE.Mesh(new THREE.BoxGeometry(a, .9, d), wm); m.position.set(x, .45, z); S.scene.add(m); });
     [-1, 1].forEach(sd => { const len = FH/2 - GOAL; [1, -1].forEach(zs => { const m = new THREE.Mesh(new THREE.BoxGeometry(.4, .9, len), wm); m.position.set(sd*(FW/2 + .2), .45, zs*(GOAL + len/2)); S.scene.add(m); });
@@ -2452,7 +2580,7 @@ GAMES.football = {
     const hud = scoreHud(root), big = document.createElement("div"); big.className = "goal-pop"; root.appendChild(big); let lx = 0, lz = 0;
     v.extra = (id, b) => teamMark(S, id, b, T[id]);
     v.tick = (s, dt) => { const k = Math.min(1, dt*14); ball.position.x = lerp(ball.position.x, s.b[0], k); ball.position.z = lerp(ball.position.z, s.b[1], k); const dx = ball.position.x - lx, dz = ball.position.z - lz; lx = ball.position.x; lz = ball.position.z; ball.rotation.z -= dx / .8; ball.rotation.x += dz / .8;
-      hud.innerHTML = teamScoreHTML(s.g[0], s.g[1]); CTL.map = root.clientWidth < root.clientHeight ? (x, y) => [-y, x] : null; };
+      hud.innerHTML = teamScoreHTML(s.g[0], s.g[1]); };
     v.onFx = (type, a, b) => { if(type === "kick"){ sfx.whack(); } else if(type === "goal"){ sfx.crown(); SND.say("Goal!"); big.innerHTML = `GOAL!<small>${TEAM_NAME[a]}${b ? " · " + esc(b) : ""}</small>`; big.style.color = TEAM_COL[a]; big.classList.remove("on"); void big.offsetWidth; big.classList.add("on"); } else physFx(type, a); };
     const d0 = v.destroy; v.destroy = () => { hud.remove(); big.remove(); d0(); };
   }); }
@@ -2516,7 +2644,7 @@ GAMES.snowball = {
     const c = G.B[en], lead = de / 18, ax = c.x + c.vx*lead + (rand() - .5)*1.4 - b.x, az = c.z + c.vz*lead + (rand() - .5)*1.4 - b.z, am = Math.hypot(ax, az) || 1;
     if(de > 9) return { x:ax/am, y:az/am }; if(de < 5) return { x:-ax/am*.6 + az/am*.4, y:-az/am*.6 - ax/am*.4 }; return { x:ax/am*.25, y:az/am*.25, a:b.cd <= 0 && rand() < .1 ? 1 : 0 }; },
   snap(G){ const fr = G.ids.filter(id => (G.fr[id] || 0) > G.t); return { B:physSnap(G.B), s:G.balls.map(s => [+s.x.toFixed(1), +s.z.toFixed(1)]), fr, h:G.hits, fx:G.fx }; },
-  view(root, ctx){ const T = ctx.info.T; return physView(root, ctx, { sky:"#a8d8ff", sky2:"#ffffff", goo:"#bfe8ff", fog:"#eaf6ff", cam:[0, 21, 15], btn:"THROW", pred:{ speed:7 } }, (S, v) => {
+  view(root, ctx){ const T = ctx.info.T; return physView(root, ctx, { rot:true, sky:"#a8d8ff", sky2:"#ffffff", goo:"#bfe8ff", fog:"#eaf6ff", cam:[0, 21, 15], btn:"THROW", pred:{ speed:7 } }, (S, v) => {
     floorBox(S, SNW, SNH, new THREE.MeshStandardMaterial({ map:cTex(256, 256, (x, w) => { x.fillStyle = "#f6fbff"; x.fillRect(0, 0, w, w); for(let i=0;i<200;i++){ x.fillStyle = pick(["#e4f0fa", "#ffffff", "#dbe9f6"]); x.beginPath(); x.arc(rand()*w, rand()*w, 3 + rand()*8, 0, 7); x.fill(); } }, [3, 2]), roughness:.95 })); wallRing(S, SNW, SNH, "#dceeff");
     const sm = new THREE.MeshStandardMaterial({ color:"#ffffff", roughness:.9 }); SNOW_WALLS.forEach(([x, z, w, d]) => { const m = new THREE.Mesh(new THREE.BoxGeometry(w*2, 1.1, d*2), sm); m.position.set(x, .55, z); m.castShadow = true; m.receiveShadow = true; S.scene.add(m); });
     const ballG = new THREE.SphereGeometry(.22, 10, 8), balls = [], ice = {}, iceM = new THREE.MeshStandardMaterial({ color:"#9ad8ff", transparent:true, opacity:.55, roughness:.05, metalness:.2 }), hud = scoreHud(root);
@@ -2527,6 +2655,314 @@ GAMES.snowball = {
     v.onFx = (type, a, b) => { if(type === "t"){ if(a === ctx.me) sfx.whoosh(); } else if(type === "hit"){ sfx.whack(); if(a === ctx.me) toast(`🥶 ${b} froze you!`, 1300); if(b === ctx.me) sfx.coin(); } else if(type === "thaw"){ sfx.ding(); if(a === ctx.me) toast(`🔥 ${b} thawed you!`, 1100); } else if(type === "poof"){ } else physFx(type, a); };
     const d0 = v.destroy; v.destroy = () => { hud.remove(); d0(); };
   }); }
+};
+
+// ===================== drop 3: Egg Scramble, Coin Rush, Hoop Dive, Team Tower, Darts, Penalty Shootout, Fishing, Relay Sprint =====================
+const fitCan = (can, x) => { const W = can.clientWidth, H = can.clientHeight; if(can.width !== W*2 || can.height !== H*2){ can.width = W*2; can.height = H*2; } x.setTransform(2, 0, 0, 2, 0, 0); return [W, H]; };
+const teamSpawn = (B, T, ids, sx, gap = 2.4) => [0, 1].forEach(t => { const m = ids.filter(id => T[id] === t); m.forEach((id, i) => Object.assign(B[id], { x:(t ? 1 : -1)*sx, z:(i - (m.length - 1)/2)*gap, f:t ? -Math.PI/2 : Math.PI/2 })); });
+const sideTotals = (G, f) => { const s = [0, 0]; G.ids.forEach(id => s[G.T[id]] += f(id)); return s; };
+const winOf = s => s[0] === s[1] ? -1 : s[0] > s[1] ? 0 : 1;
+
+// ---------- EGG SCRAMBLE (teams) ----------
+const NEST = 9.2, NR = 2.4;
+GAMES.eggs = {
+  name:"Egg Scramble", icon:"🥚", cat:"phys", desc:"Grab eggs, fill your nest, raid theirs", dur:50, team:true,
+  how:["Run over an egg to pick it up and bring it to <b>your nest</b>","Steal eggs from the other team's nest! <b>DIVE</b> (E) into a carrier to make them drop it","Most eggs in your nest wins. <b>Golden eggs</b> count for 3"],
+  init(ids){ const T = teamSplit(ids), B = physInit(ids, () => [0, 0]); teamSpawn(B, T, ids, 7); const eggs = []; for(let i=0;i<10;i++) eggs.push(this.newEgg(i === 4));
+    const del = {}; ids.forEach(id => del[id] = 0); return { B, T, eggs, del, carry:{}, next:3, outs:[], info:{ T } }; },
+  newEgg(gold){ const a = rand()*Math.PI*2, r = rand()*4.5; return { x:Math.cos(a)*r, z:Math.sin(a)*r*.8, st:"free", by:null, team:-1, gold:!!gold }; },
+  introNote(info, me){ const t = info.T[me]; return t == null ? "" : `${teamNote(info, me)}. Your nest is on the <b>${t ? "RIGHT" : "LEFT"}</b>`; },
+  tick(G, dt, inp, H){
+    if(G.t > G.next && G.eggs.filter(e => e.st === "free").length < 8){ G.next = G.t + 2.2; G.eggs.push(this.newEgg(rand() < .15)); }
+    G.ids.forEach(id => G.B[id].boost = G.carry[id] != null ? .86 : 1);
+    physStep(G, dt, inp, { wall:{ w:24, h:18 }, speed:7, dash:13, floorH:() => 0, jumpV:9,
+      onTouch:(a, b) => { [[a, b], [b, a]].forEach(([x, y]) => { if(G.B[x].dash > 0 && G.carry[y] != null && G.T[x] !== G.T[y]){ const e = G.eggs[G.carry[y]]; e.st = "free"; e.by = null; e.x = G.B[y].x + (rand() - .5)*2; e.z = G.B[y].z + (rand() - .5)*2; delete G.carry[y]; fxp(G, "drop", y, x); } }); } });
+    G.ids.forEach(id => { const b = G.B[id], t = G.T[id];
+      if(G.carry[id] != null){ const e = G.eggs[G.carry[id]], nx = t ? NEST : -NEST; e.x = b.x; e.z = b.z;
+        if(Math.hypot(b.x - nx, b.z) < NR){ const a = rand()*Math.PI*2, r = rand()*(NR - .6); e.st = "nest"; e.team = t; e.by = null; e.x = nx + Math.cos(a)*r; e.z = Math.sin(a)*r; delete G.carry[id]; G.del[id] += e.gold ? 3 : 1; fxp(G, "nest", id); G.dirty = true; } return; }
+      if(b.air || b.y > .5) return;
+      for(let k=0;k<G.eggs.length;k++){ const e = G.eggs[k]; if(e.st === "held" || e.st === "nest" && e.team === t) continue; if(Math.hypot(e.x - b.x, e.z - b.z) < .9){ if(e.st === "nest") fxp(G, "steal", id); e.st = "held"; e.by = id; e.team = -1; G.carry[id] = k; G.dirty = true; break; } } });
+  },
+  count(G){ const c = [0, 0]; G.eggs.forEach(e => { if(e.st === "nest") c[e.team] += e.gold ? 3 : 1; }); return c; },
+  timeout(G){ return teamRank(G, winOf(this.count(G)), id => G.del[id]); },
+  drop(G, id){ if(G.carry[id] != null){ const e = G.eggs[G.carry[id]]; e.st = "free"; e.by = null; delete G.carry[id]; } },
+  bot(G, id){ const b = G.B[id]; if(!b) return null; const t = G.T[id], home = t ? NEST : -NEST;
+    if(G.carry[id] != null) return toward(b, home, 0);
+    const [en, de] = nearest(G, id, k => G.T[k] !== t && G.carry[k] != null); if(en && de < 3){ const c = G.B[en], r = toward(b, c.x, c.z); r.a = de < 2.2 && rand() < .15 ? 1 : 0; return r; }
+    let best = null, bd = 1e9; G.eggs.forEach(e => { if(e.st === "held" || e.st === "nest" && e.team === t) return; const d = Math.hypot(e.x - b.x, e.z - b.z) - (e.gold ? 3 : 0) + (e.st === "nest" ? 2 : 0); if(d < bd){ bd = d; best = e; } });
+    return best ? toward(b, best.x, best.z) : toward(b, 0, 0, .5); },
+  snap(G){ return { B:physSnap(G.B), e:G.eggs.map(e => [+e.x.toFixed(2), +e.z.toFixed(2), e.st === "held" ? 2 : e.st === "nest" ? 1 : 0, e.gold ? 1 : 0]), c:this.count(G), fx:G.fx }; },
+  view(root, ctx){ const T = ctx.info.T; return physView(root, ctx, { rot:true, sky:"#a8e8ff", sky2:"#fff8d8", goo:"#9ad86a", fog:"#fff8d8", cam:[0, 21, 15], jump:true, pred:{ speed:7 } }, (S, v) => {
+    floorBox(S, 24, 18, new THREE.MeshStandardMaterial({ map:stripeTex("#a8e08a", "#98d07a", 10, [1, 1]), roughness:.85 })); wallRing(S, 24, 18, "#c88a4a");
+    [0, 1].forEach(t => { const n = new THREE.Mesh(new THREE.TorusGeometry(NR, .35, 10, 32), new THREE.MeshStandardMaterial({ color:"#d8a050", roughness:.9 })); n.rotation.x = Math.PI/2; n.position.set(t ? NEST : -NEST, .2, 0); S.scene.add(n);
+      const f = new THREE.Mesh(new THREE.CircleGeometry(NR, 32), new THREE.MeshStandardMaterial({ color:TEAM_COL[t], transparent:true, opacity:.45 })); f.rotation.x = -Math.PI/2; f.position.set(t ? NEST : -NEST, .02, 0); S.scene.add(f); });
+    const eg = new THREE.SphereGeometry(.32, 14, 10), em = new THREE.MeshStandardMaterial({ color:"#fff6ea", roughness:.4 }), gm = new THREE.MeshStandardMaterial({ color:"#ffd23a", metalness:.7, roughness:.25, emissive:"#a86a00", emissiveIntensity:.25 }), meshes = [], hud = scoreHud(root);
+    v.extra = (id, b) => teamMark(S, id, b, T[id]);
+    v.tick = (s, dt, t) => { s.e.forEach((e, i) => { const m = meshes[i] || (meshes[i] = (() => { const q = new THREE.Mesh(eg, em); q.scale.set(1, 1.3, 1); q.castShadow = true; S.scene.add(q); return q; })()); m.material = e[3] ? gm : em;
+        if(e[2] === 2){ const holder = Object.entries(s.B).find(([, b]) => Math.abs(b[0] - e[0]) < .01 && Math.abs(b[1] - e[1]) < .01); const bb = holder ? S.bean(holder[0]) : null; if(bb) m.position.set(bb.position.x, bb.position.y + 1.7, bb.position.z); else m.position.set(e[0], 1.7, e[1]); }
+        else { m.position.x = lerp(m.position.x, e[0], .3); m.position.z = lerp(m.position.z, e[1], .3); m.position.y = .4 + (e[2] ? 0 : Math.abs(Math.sin(t*3 + i))*.15); } m.visible = true; });
+      for(let i = s.e.length; i < meshes.length; i++) meshes[i].visible = false; hud.innerHTML = teamScoreHTML(s.c[0] + " 🥚", s.c[1] + " 🥚"); };
+    v.onFx = (type, a, b) => { if(type === "nest"){ sfx.coin(); if(a === ctx.me) toast("🥚 Delivered!", 800); } else if(type === "drop"){ sfx.bump(); if(a === ctx.me) toast(`💥 ${b} made you drop it!`, 1100); } else if(type === "steal"){ sfx.pop(); } else if(type === "j"){ if(a === ctx.me) sfx.boing(); } else physFx(type, a); };
+    const d0 = v.destroy; v.destroy = () => { hud.remove(); d0(); };
+  }); }
+};
+
+// ---------- COIN RUSH (teams) ----------
+GAMES.coins = {
+  name:"Coin Rush", icon:"🪙", cat:"phys", desc:"Grab falling coins, knock theirs loose", dur:45, team:true,
+  how:["Coins rain from the sky. Grab them before the other team!","<b>DIVE</b> (E) into an enemy to knock 3 of their coins loose","Team with the most coins wins. <b>Big coins</b> are worth 5"],
+  init(ids){ const T = teamSplit(ids), B = physInit(ids, () => [0, 0]); teamSpawn(B, T, ids, 5); const have = {}; ids.forEach(id => have[id] = 0); return { B, T, have, coins:[], next:.5, outs:[], info:{ T } }; },
+  introNote:teamNote,
+  tick(G, dt, inp, H){
+    if(G.t > G.next){ G.next = G.t + Math.max(.22, .65 - G.t*.008); G.coins.push({ x:(rand() - .5)*19, z:(rand() - .5)*13, at:G.t, big:rand() < .08, v:1 }); }
+    G.coins = G.coins.filter(c => G.t - c.at < 7);
+    physStep(G, dt, inp, { wall:{ w:22, h:16 }, speed:7.2, dash:14,
+      onTouch:(a, b) => { [[a, b], [b, a]].forEach(([x, y]) => { if(G.B[x].dash > 0 && G.T[x] !== G.T[y] && G.have[y] > 0 && (G.B[y].kn || 0) < G.t){ const n = Math.min(3, G.have[y]); G.have[y] -= n; G.B[y].kn = G.t + .8; for(let i=0;i<n;i++){ const a2 = rand()*Math.PI*2; G.coins.push({ x:clamp(G.B[y].x + Math.cos(a2)*2, -10.5, 10.5), z:clamp(G.B[y].z + Math.sin(a2)*2, -7.5, 7.5), at:G.t - .6, big:false, v:1 }); } fxp(G, "spill", y, x); G.dirty = true; } }); } });
+    G.ids.forEach(id => { const b = G.B[id]; G.coins = G.coins.filter(c => { if(G.t - c.at < .6) return true; if(Math.hypot(c.x - b.x, c.z - b.z) < .9){ G.have[id] += c.big ? 5 : 1; fxp(G, "c", id, c.big ? 1 : 0); G.dirty = true; return false; } return true; }); }); },
+  timeout(G){ return teamRank(G, winOf(sideTotals(G, id => G.have[id])), id => G.have[id]); },
+  drop(G, id){},
+  bot(G, id){ const b = G.B[id]; if(!b) return null; const [en, de] = nearest(G, id, k => G.T[k] !== G.T[id] && G.have[k] >= 3);
+    if(en && de < 2.6){ const c = G.B[en], r = toward(b, c.x, c.z); r.a = rand() < .12 ? 1 : 0; return r; }
+    let best = null, bd = 1e9; G.coins.forEach(c => { const land = Math.max(0, .6 - (G.t - c.at)), d = Math.hypot(c.x - b.x, c.z - b.z) - (c.big ? 4 : 0) + land*3; if(d < bd){ bd = d; best = c; } });
+    return best ? toward(b, best.x, best.z) : { x:0, y:0 }; },
+  snap(G){ const s = sideTotals(G, id => G.have[id]); return { B:physSnap(G.B), c:G.coins.map(c => [+c.x.toFixed(1), +c.z.toFixed(1), +Math.min(.6, G.t - c.at).toFixed(2), c.big ? 1 : 0]), s, h:G.have, fx:G.fx }; },
+  view(root, ctx){ const T = ctx.info.T; return physView(root, ctx, { rot:true, sky:"#ffd88a", sky2:"#fff4e0", goo:"#ffb03a", fog:"#fff0d8", cam:[0, 19, 14], pred:{ speed:7.2 } }, (S, v) => {
+    floorBox(S, 22, 16, new THREE.MeshStandardMaterial({ map:cTex(256, 256, (x, w) => { for(let i=0;i<8;i++) for(let j=0;j<8;j++){ x.fillStyle = (i + j) % 2 ? "#ffe8b0" : "#ffd890"; x.fillRect(i*32, j*32, 32, 32); } }, [3, 2]), roughness:.6 })); wallRing(S, 22, 16, "#ff8a3a");
+    const cg = new THREE.CylinderGeometry(.32, .32, .08, 18), cm = new THREE.MeshStandardMaterial({ color:"#ffd23a", metalness:.8, roughness:.25, emissive:"#a87000", emissiveIntensity:.3 }), meshes = [], hud = scoreHud(root);
+    v.extra = (id, b) => teamMark(S, id, b, T[id]);
+    v.tick = (s, dt, t) => { s.c.forEach((c, i) => { const m = meshes[i] || (meshes[i] = (() => { const q = new THREE.Mesh(cg, cm); q.castShadow = true; S.scene.add(q); return q; })()); m.visible = true; const k = c[3] ? 2 : 1; m.scale.set(k, k, k);
+        m.position.set(c[0], c[2] < .6 ? .5 + (.6 - c[2]) * 14 : .5 + Math.sin(t*4 + i)*.08, c[1]); m.rotation.x = Math.PI/2; m.rotation.z = t*3 + i; });
+      for(let i = s.c.length; i < meshes.length; i++) meshes[i].visible = false; hud.innerHTML = teamScoreHTML(s.s[0], s.s[1], `You: ${s.h[ctx.me] || 0} 🪙`); };
+    v.onFx = (type, a, b) => { if(type === "c"){ if(a === ctx.me) b ? sfx.win() : sfx.coin(); } else if(type === "spill"){ sfx.bump(); if(a === ctx.me) toast(`💸 ${b} knocked your coins loose!`, 1100); } else physFx(type, a); };
+    const d0 = v.destroy; v.destroy = () => { hud.remove(); d0(); };
+  }); }
+};
+
+// ---------- HOOP DIVE (teams) ----------
+function newHoop(old){ let x, z, ok, k = 0; do { x = (rand() - .5)*18; z = (rand() - .5)*12; ok = !old || old.every(h => Math.hypot(h.x - x, h.z - z) > 3.5); } while(!ok && ++k < 30);
+  return { x, z, a:rand()*Math.PI, h:1.25 + rand()*.75, gold:rand() < .15, cd:0 }; }
+GAMES.hoops = {
+  name:"Hoop Dive", icon:"⭕", cat:"phys", desc:"Jump through floating hoops", dur:45, team:true,
+  how:["Hoops float in the air. <b>JUMP</b> (Space) and fly through them!","<b>DIVE</b> (E) in mid-air to go further. Each hoop scores for your team","Gold hoops are worth 3. Most points wins"],
+  init(ids){ const T = teamSplit(ids), B = physInit(ids, () => [0, 0]); teamSpawn(B, T, ids, 6); const hoops = []; for(let i=0;i<6;i++) hoops.push(newHoop(hoops)); const pts = {}; ids.forEach(id => pts[id] = 0); return { B, T, hoops, pts, outs:[], info:{ T } }; },
+  introNote:teamNote,
+  tick(G, dt, inp, H){ const prev = {}; G.ids.forEach(id => prev[id] = [G.B[id].x, G.B[id].z]);
+    physStep(G, dt, inp, { wall:{ w:22, h:16 }, speed:7, dash:11, dashT:.3, floorH:() => 0, jumpV:10.5 });
+    G.hoops.forEach((h, k) => { if(h.cd > G.t) return; const nx = Math.cos(h.a), nz = Math.sin(h.a);
+      G.ids.forEach(id => { const b = G.B[id], [px, pz] = prev[id], s0 = (px - h.x)*nx + (pz - h.z)*nz, s1 = (b.x - h.x)*nx + (b.z - h.z)*nz; if(s0 * s1 > 0 || s0 === s1) return;
+        const lat = Math.abs(-(b.x - h.x)*nz + (b.z - h.z)*nx), cy = b.y + .65; if(Math.hypot(lat, cy - h.h) < 1.05 && h.cd <= G.t){ G.pts[id] += h.gold ? 3 : 1; fxp(G, "hoop", id, k, h.gold ? 1 : 0); h.cd = G.t + 1e9; G.dirty = true; G.hoops[k] = Object.assign(newHoop(G.hoops), { cd:G.t + 1 }); } }); }); },
+  timeout(G){ return teamRank(G, winOf(sideTotals(G, id => G.pts[id])), id => G.pts[id]); },
+  drop(G, id){},
+  bot(G, id){ const b = G.B[id]; if(!b) return null; let best = null, bd = 1e9; G.hoops.forEach(h => { if(h.cd > G.t) return; const d = Math.hypot(h.x - b.x, h.z - b.z) - (h.gold ? 3 : 0); if(d < bd){ bd = d; best = h; } }); if(!best) return { x:0, y:0 };
+    const nx = Math.cos(best.a), nz = Math.sin(best.a), s = (b.x - best.x)*nx + (b.z - best.z)*nz, side = s >= 0 ? 1 : -1, lat = -(b.x - best.x)*nz + (b.z - best.z)*nx;
+    if(Math.abs(s) < 1.2 && Math.abs(lat) < .6 && b.air){ return { x:-nx*side, y:-nz*side }; }
+    const ax = best.x + nx*side*3, az = best.z + nz*side*3; if(Math.hypot(ax - b.x, az - b.z) > .7 && !(Math.abs(lat) < .5 && Math.abs(s) < 3.2)) return toward(b, ax, az);
+    const r = { x:-nx*side, y:-nz*side }; r.j = !b.air && Math.abs(s) < 2.1 && Math.abs(s) > 1.2 ? 1 : 0; r.a = b.air && b.vy < 2 && Math.abs(s) > .8 && b.cd <= 0 && rand() < .3 ? 1 : 0; return r; },
+  snap(G){ return { B:physSnap(G.B), h:G.hoops.map(h => [+h.x.toFixed(2), +h.z.toFixed(2), +h.a.toFixed(2), +h.h.toFixed(2), h.gold ? 1 : 0, h.cd > G.t ? 1 : 0]), s:sideTotals(G, id => G.pts[id]), fx:G.fx }; },
+  view(root, ctx){ const T = ctx.info.T; return physView(root, ctx, { rot:true, sky:"#7ad0ff", sky2:"#f0e0ff", goo:"#9a6aff", fog:"#f0e8ff", cam:[0, 17, 15], jump:true, pred:{ speed:7 } }, (S, v) => {
+    floorBox(S, 22, 16, new THREE.MeshStandardMaterial({ map:cTex(256, 256, (x, w) => { x.fillStyle = "#e8dcff"; x.fillRect(0, 0, w, w); x.strokeStyle = "#d4c4f4"; x.lineWidth = 6; for(let r=20;r<w*.8;r+=40){ x.beginPath(); x.arc(w/2, w/2, r, 0, 7); x.stroke(); } }, [2, 1.5]), roughness:.6 })); wallRing(S, 22, 16, "#9a6aff");
+    const rg = new THREE.TorusGeometry(1.05, .1, 10, 36), rm = new THREE.MeshStandardMaterial({ color:"#ff4ab8", emissive:"#ff4ab8", emissiveIntensity:.35 }), gm = new THREE.MeshStandardMaterial({ color:"#ffd23a", emissive:"#ffb000", emissiveIntensity:.5, metalness:.6 }), pm = new THREE.MeshStandardMaterial({ color:"#ffffff" }), hoops = [], hud = scoreHud(root);
+    const mk = () => { const g = new THREE.Group(), r = new THREE.Mesh(rg, rm); r.castShadow = true; g.add(r); const p = new THREE.Mesh(new THREE.CylinderGeometry(.06, .06, 1, 6), pm); g.add(p); g.userData = { r, p }; S.scene.add(g); return g; };
+    v.extra = (id, b) => teamMark(S, id, b, T[id]);
+    v.tick = (s, dt, t) => { s.h.forEach((h, i) => { const g = hoops[i] || (hoops[i] = mk()); g.visible = !h[5]; g.position.set(h[0], h[3], h[1]); g.rotation.y = -h[2] + Math.PI/2; g.userData.r.material = h[4] ? gm : rm; g.userData.r.rotation.z = t*.6; const p = g.userData.p; p.scale.y = Math.max(.1, h[3] - 1.05); p.position.y = -(1.05 + p.scale.y/2); });
+      hud.innerHTML = teamScoreHTML(s.s[0], s.s[1]); };
+    v.onFx = (type, a, b, c) => { if(type === "hoop"){ c ? sfx.win() : sfx.ding(); if(a === ctx.me) toast(c ? "⭐ Gold hoop! +3" : "⭕ +1", 700); } else if(type === "j"){ if(a === ctx.me) sfx.boing(); } else physFx(type, a); };
+    const d0 = v.destroy; v.destroy = () => { hud.remove(); d0(); };
+  }); }
+};
+
+// ---------- TEAM TOWER (teams) ----------
+const TB = 2.6, TBH = .55;
+const towerX = (st, t) => Math.sin((t - st.ts) * st.sp) * 4.2;
+GAMES.tower = {
+  name:"Team Tower", icon:"🏗️", cat:"mash", desc:"Take turns stacking the tallest tower", dur:45, team:true, rate:10,
+  how:["Your team takes turns dropping blocks onto your tower","When it's <b>your turn</b>, tap <b>DROP</b> (or <b>E</b>) when the block is lined up. Overhang gets chopped off!","Tallest tower when time's up wins"],
+  init(ids){ const T = teamSplit(ids), S = [0, 1].map(t => { const m = shuffle(ids.filter(id => T[id] === t)); return { m, ti:0, top:[0, TB], h:0, ts:.5, sp:1.6, fall:null }; }), n = {}; ids.forEach(id => n[id] = 0); return { T, S, n, bots:{}, info:{ T, order:S.map(s => s.m) } }; },
+  introNote:teamNote,
+  place(G, t, x){ const st = G.S[t], L = Math.max(x - st.top[1]/2, st.top[0] - st.top[1]/2), R = Math.min(x + st.top[1]/2, st.top[0] + st.top[1]/2), who = st.m[st.ti % st.m.length];
+    if(R - L > .08){ const perfect = Math.abs(x - st.top[0]) < .12; st.top = perfect ? st.top : [(L + R)/2, R - L]; st.h++; G.n[who]++; fxp(G, perfect ? "perfect" : "place", t, who); }
+    else { fxp(G, "miss", t, who); }
+    st.ti++; st.ts = G.t + .45; st.sp = Math.min(3.6, 1.6 + st.h*.09); G.dirty = true; },
+  onEvent(G, id, d){ if(d.e !== "drop") return; const t = G.T[id], st = G.S[t]; if(st.m[st.ti % st.m.length] !== id || G.t < st.ts) return; this.place(G, t, clamp(+d.x || 0, -5, 5)); },
+  tick(G, dt){ [0, 1].forEach(t => { const st = G.S[t], cur = st.m[st.ti % st.m.length]; if(!cur || !playerOf(cur)){ if(cur) st.ti++; return; }
+      if(G.t - st.ts > 6 && !playerOf(cur)?.bot){ st.ti++; st.ts = G.t + .3; fxp(G, "skip", t, cur); G.dirty = true; return; }
+      if(playerOf(cur)?.bot && G.t > st.ts){ const B = G.bots[t] || (G.bots[t] = {}); if(B.ti !== st.ti){ B.ti = st.ti; B.err = (rand() - .5) * (rand() < .7 ? .5 : 1.4); }
+        const x = towerX(st, G.t); if(Math.abs(x - (st.top[0] + B.err)) < .15) this.place(G, t, x); } }); },
+  timeout(G){ return teamRank(G, winOf([G.S[0].h, G.S[1].h]), id => G.n[id]); },
+  bot(){ return null; }, drop(G, id){},
+  snap(G){ return { S:G.S.map(st => ({ top:st.top.map(v => +v.toFixed(2)), h:st.h, ts:+st.ts.toFixed(2), sp:+st.sp.toFixed(2), cur:st.m[st.ti % st.m.length] })), fx:G.fx }; },
+  view(root, ctx){ ctlShow(null); const T = ctx.info.T, me = ctx.me, myT = T[me], v = { fxSeen:0, stacks:[[], []], imgs:{} };
+    root.innerHTML = `<div class="tw"><canvas id="twCan"></canvas><div class="team-hud" id="twHud"></div><div class="tw-ui"><div class="tw-turn" id="twTurn"></div><button class="mash pink" id="twBtn">DROP</button></div></div>`;
+    const can = $("#twCan"), x = can.getContext("2d"), btn = $("#twBtn"); let S = null;
+    const drop = () => { if(!S || CM.phase !== "play") return; const st = S.S[myT]; if(!st || st.cur !== me) return; const tt = now() - CM.playT; if(tt < st.ts) return; ctx.input({ e:"drop", x:+towerX(st, tt).toFixed(3) }); sfx.click(); };
+    tapBtn(btn, drop); const key = e => { if(actKey(e)){ e.preventDefault(); if(!e.repeat) drop(); } }; addEventListener("keydown", key);
+    v.update = (s, dt, t) => { S = s; const tt = CM.phase === "play" ? now() - CM.playT : 0;
+      newFx(v, s.fx, (type, tm, who) => { const st = s.S[tm]; if(type === "place" || type === "perfect"){ v.stacks[tm].push(st.top.slice()); type === "perfect" ? sfx.win() : sfx.pop(); if(who === me && type === "perfect") toast("✨ PERFECT!", 800); } if(type === "miss"){ sfx.wrong(); if(who === me) toast("❌ Missed!", 800); } });
+      [0, 1].forEach(tm => { const st = s.S[tm]; while(v.stacks[tm].length < st.h) v.stacks[tm].push(st.top.slice()); });
+      const my = myT != null ? s.S[myT] : null, mine = my && my.cur === me; btn.disabled = !mine || tt < (my ? my.ts : 0);
+      $("#twTurn").innerHTML = my ? (mine ? `<b>YOUR TURN!</b> Drop it!` : `${nameChip(my.cur)} is dropping…`) : "Watching";
+      $("#twHud").innerHTML = teamScoreHTML(s.S[0].h + "🧱", s.S[1].h + "🧱");
+      const [W, H] = fitCan(can, x), ppu = Math.min(W / 22, 34), maxH = Math.max(s.S[0].h, s.S[1].h), camY = Math.max(0, maxH*TBH - 6), base = H*.72 + camY*ppu;
+      const g = x.createLinearGradient(0, 0, 0, H); g.addColorStop(0, "#8ad0ff"); g.addColorStop(1, "#ffe0f0"); x.fillStyle = g; x.fillRect(0, 0, W, H);
+      x.fillStyle = "#8ad86a"; x.fillRect(0, base, W, H - base);
+      [0, 1].forEach(tm => { const cx = W/2 + (tm ? 1 : -1) * W*.24, st = s.S[tm], col = TEAM_COL[tm];
+        x.fillStyle = "#9a7a5a"; x.fillRect(cx - TB/2*ppu - 6, base - 6, TB*ppu + 12, 10);
+        v.stacks[tm].forEach((b, i) => { const y = base - (i + 1)*TBH*ppu; x.fillStyle = i % 2 ? col : shade(col, .25); x.fillRect(cx + (b[0] - b[1]/2)*ppu, y, b[1]*ppu, TBH*ppu - 1); });
+        if(CM.phase === "play" && tt >= st.ts){ const bx = towerX(st, tt), y = base - (st.h + 1)*TBH*ppu - 26; x.fillStyle = "#555"; x.fillRect(cx + bx*ppu - 1, y - 40, 2, 40); x.globalAlpha = .9; x.fillStyle = col; x.fillRect(cx + (bx - st.top[1]/2)*ppu, y, st.top[1]*ppu, TBH*ppu); x.globalAlpha = 1;
+          const im = beanImg(v.imgs, st.cur); if(im.complete) x.drawImage(im, cx + bx*ppu - 12, y - 64, 24, 31); }
+        x.font = "bold 12px Nunito, sans-serif"; x.textAlign = "center"; x.fillStyle = "#fff"; x.strokeStyle = "rgba(0,0,0,.4)"; x.lineWidth = 3; const lab = `${TEAM_NAME[tm]}: ${st.cur || ""}`; x.strokeText(lab, cx, base + 22); x.fillText(lab, cx, base + 22); }); };
+    v.destroy = () => removeEventListener("keydown", key); return v; }
+};
+
+// ---------- DARTS ----------
+const DART_N = [20, 1, 18, 4, 13, 6, 10, 15, 2, 17, 3, 19, 7, 16, 8, 11, 14, 9, 12, 5], DARTS = 5;
+function dartScore(x, y){ const r = Math.hypot(x, y); if(r < .055) return 50; if(r < .11) return 25; if(r > 1) return 0; let a = Math.atan2(x, -y) * 180 / Math.PI; a = (a + 360 + 9) % 360; const n = DART_N[Math.floor(a / 18)]; return r > .93 ? n*2 : r > .55 && r < .62 ? n*3 : n; }
+GAMES.darts = {
+  name:"Darts", icon:"🎯", cat:"react", desc:"Steady your shaky aim and throw", dur:40, rate:5,
+  how:["Your aim wobbles around the board","<b>HOLD</b> the button (or E) to steady your arm, <b>let go</b> to throw. Hold too long and it shakes again!","5 darts each. Highest total wins. Bullseye = 50"],
+  init(ids){ const d = {}; ids.forEach(id => d[id] = []); return { d, bots:{} }; },
+  onEvent(G, id, ev){ if(ev.e !== "dart" || !G.d[id] || G.d[id].length >= DARTS) return; const x = clamp(+ev.x || 0, -1.4, 1.4), y = clamp(+ev.y || 0, -1.4, 1.4); G.d[id].push([+x.toFixed(3), +y.toFixed(3), dartScore(x, y)]); G.dirty = true; },
+  tick(G, dt, inp, H){ if(G.ids.every(id => !playerOf(id) || G.d[id].length >= DARTS) && G.t > 1) H.end(this.timeout(G)); },
+  tot(G, id){ return G.d[id].reduce((s, d) => s + d[2], 0); },
+  timeout(G){ return byScore(G.ids, id => this.tot(G, id)); },
+  bot(G, id){ const B = G.bots[id] || (G.bots[id] = { nx:2 + rand()*3 }); if(G.t < B.nx || G.d[id].length >= DARTS) return null; B.nx = G.t + 3 + rand()*4;
+    const tg = rand() < .5 ? [0, -.585] : [0, 0], g = () => (rand() + rand() + rand() - 1.5) * .22; this.onEvent(G, id, { e:"dart", x:tg[0] + g(), y:tg[1] + g() }); return null; },
+  drop(G, id){ if(G.d[id]) while(G.d[id].length < DARTS) G.d[id].push([9, 9, 0]); },
+  snap(G){ return { d:G.d }; },
+  view(root, ctx){ ctlShow(null); const me = ctx.me, v = { hold:0, held:false, ax:0, ay:0, ph:rand()*9, sent:0 };
+    root.innerHTML = `<div class="dt"><canvas id="dtCan"></canvas><div class="dt-ui"><div class="dt-left" id="dtLeft"></div><button class="mash pink" id="dtBtn">HOLD & RELEASE</button></div><div class="red-board" id="dtBoard"></div></div>`;
+    const can = $("#dtCan"), x = can.getContext("2d"), btn = $("#dtBtn");
+    const press = () => { if(CM.phase !== "play" || v.held) return; v.held = true; v.hold = 0; btn.classList.add("on"); };
+    const release = () => { if(!v.held) return; v.held = false; btn.classList.remove("on"); if(CM.phase !== "play" || v.sent >= DARTS) return; v.sent++; ctx.input({ e:"dart", x:+v.ax.toFixed(3), y:+v.ay.toFixed(3) }); sfx.whoosh(); setTimeout(() => sfx.whack(), 120); };
+    btn.addEventListener("pointerdown", e => { e.preventDefault(); press(); }); ["pointerup", "pointercancel", "pointerleave"].forEach(ev => btn.addEventListener(ev, release));
+    const kd = e => { if(actKey(e)){ e.preventDefault(); if(!e.repeat) press(); } }, ku = e => { if(actKey(e)) release(); }; addEventListener("keydown", kd); addEventListener("keyup", ku);
+    v.update = (s, dt, t) => { v.ph += dt;
+      if(v.held) v.hold += dt; const steady = v.held ? (v.hold < 1.3 ? 1 - v.hold / 1.3 * .82 : .18 + (v.hold - 1.3) * 1.2) : 1, amp = .55 * Math.min(1.6, steady);
+      v.ax = Math.sin(v.ph*1.7) * amp*.8 + Math.sin(v.ph*3.1 + 1) * amp*.35; v.ay = Math.cos(v.ph*1.3 + .5) * amp*.7 + Math.sin(v.ph*2.7) * amp*.3;
+      const [W, H] = fitCan(can, x), R = Math.min(W * .4, H * .3), cx = W/2, cy = H*.5;
+      x.fillStyle = "#3a2a4a"; x.fillRect(0, 0, W, H); x.fillStyle = "#5a3a2a"; x.beginPath(); x.arc(cx, cy, R*1.18, 0, 7); x.fill();
+      for(let i=0;i<20;i++){ const a0 = (i*18 - 9 - 90) * Math.PI/180, a1 = a0 + 18*Math.PI/180, dark = i % 2 === 0;
+        [[1, .93, dark ? "#e83a3a" : "#2a9a4a"], [.93, .62, dark ? "#1a1a1a" : "#f4e8c8"], [.62, .55, dark ? "#e83a3a" : "#2a9a4a"], [.55, .11, dark ? "#1a1a1a" : "#f4e8c8"]].forEach(([r0, r1, c]) => { x.fillStyle = c; x.beginPath(); x.arc(cx, cy, R*r0, a0, a1); x.arc(cx, cy, R*r1, a1, a0, true); x.fill(); });
+        x.fillStyle = "#fff"; x.font = `bold ${Math.round(R*.09)}px Nunito, sans-serif`; x.textAlign = "center"; x.textBaseline = "middle"; const am = (a0 + a1)/2; x.fillText(DART_N[i], cx + Math.cos(am)*R*1.09, cy + Math.sin(am)*R*1.09); }
+      x.fillStyle = "#2a9a4a"; x.beginPath(); x.arc(cx, cy, R*.11, 0, 7); x.fill(); x.fillStyle = "#e83a3a"; x.beginPath(); x.arc(cx, cy, R*.055, 0, 7); x.fill();
+      (s.d[me] || []).forEach(d => { if(d[0] > 5) return; const px = cx + d[0]*R, py = cy + d[1]*R; x.fillStyle = "#ffd23a"; x.strokeStyle = "#000"; x.lineWidth = 1.5; x.beginPath(); x.arc(px, py, 5, 0, 7); x.fill(); x.stroke(); x.fillStyle = "#fff"; x.font = "bold 11px Nunito, sans-serif"; x.fillText(d[2], px, py - 12); });
+      if(CM.phase === "play" && v.sent < DARTS){ const px = cx + v.ax*R, py = cy + v.ay*R; x.strokeStyle = v.held ? (v.hold > 1.3 ? "#ff3a3a" : "#5aff7a") : "#fff"; x.lineWidth = 2.5; x.beginPath(); x.arc(px, py, 11, 0, 7); x.moveTo(px - 18, py); x.lineTo(px + 18, py); x.moveTo(px, py - 18); x.lineTo(px, py + 18); x.stroke(); }
+      const mine = s.d[me] || [], tot = mine.reduce((a, d) => a + d[2], 0); $("#dtLeft").innerHTML = `🎯 <b>${tot}</b> pts · ${"➶".repeat(Math.max(0, DARTS - mine.length))}${mine.length >= DARTS ? "Done!" : ""}`; btn.disabled = mine.length >= DARTS;
+      const k = JSON.stringify(s.d); if(v.k !== k){ v.k = k; const ids = Object.keys(s.d), tt2 = id => s.d[id].reduce((a, d) => a + d[2], 0); $("#dtBoard").innerHTML = boardRow(ids.sort((a, b) => tt2(b) - tt2(a)), id => `${tt2(id)} <small>(${s.d[id].length}/${DARTS})</small>`, me); } };
+    v.destroy = () => { removeEventListener("keydown", kd); removeEventListener("keyup", ku); }; return v; }
+};
+
+// ---------- PENALTY SHOOTOUT (teams) ----------
+const PK_PICK = 4.5, PK_SHOW = 2.6, PK_N = 3;
+GAMES.penalty = {
+  name:"Penalty Shootout", icon:"🥅", cat:"react", desc:"Shooters pick a corner, keepers guess", dur:PK_N*2*(PK_PICK + PK_SHOW) + 2, team:true, rate:6, noClock:true,
+  how:["Teams take turns: one player shoots, someone from the other team saves","Shooter: tap <b>left, middle or right</b>. Keeper: tap where you'll dive. You've got 4 seconds!","Keeper guesses right = saved. Most goals after 3 kicks each wins"],
+  init(ids){ const T = teamSplit(ids), m = [0, 1].map(t => shuffle(ids.filter(id => T[id] === t))), kicks = []; for(let i=0;i<PK_N*2;i++){ const st = i % 2, n = Math.floor(i / 2); kicks.push({ sh:m[st][n % m[st].length], kp:m[1 - st][n % m[1 - st].length], st }); }
+    const g = {}; ids.forEach(id => g[id] = 0); return { T, kicks, ki:0, ph:"pick", pend:PK_PICK, s:null, k:null, goals:[0, 0], g, res:[], info:{ T } }; },
+  introNote:teamNote,
+  onEvent(G, id, d){ if(d.e !== "pick" || G.ph !== "pick") return; const K = G.kicks[G.ki], z = clamp(d.z | 0, 0, 2); if(id === K.sh && G.s == null) G.s = z; if(id === K.kp && G.k == null) G.k = z; G.dirty = true; },
+  tick(G, dt, inp, H){ const K = G.kicks[G.ki]; if(!K) return;
+    [["sh", "s"], ["kp", "k"]].forEach(([r, f]) => { const id = K[r]; if(G[f] == null && playerOf(id)?.bot && G.t > G.pend - PK_PICK + 1 + rand()*2.5) G[f] = Math.floor(rand()*3); });
+    if(G.ph === "pick" && (G.t >= G.pend || G.s != null && G.k != null)){ if(G.s == null) G.s = Math.floor(rand()*3); if(G.k == null) G.k = Math.floor(rand()*3); const goal = G.s !== G.k; if(goal){ G.goals[K.st]++; G.g[K.sh] += 2; } else G.g[K.kp] += 2;
+      G.res.push({ st:K.st, goal, s:G.s, k:G.k, sh:K.sh, kp:K.kp }); G.ph = "show"; G.pend = G.t + PK_SHOW; fxp(G, "kick", goal ? 1 : 0); G.dirty = true; }
+    else if(G.ph === "show" && G.t >= G.pend){ G.ki++; G.s = G.k = null; G.ph = "pick"; G.pend = G.t + PK_PICK; G.dirty = true; if(G.ki >= G.kicks.length) H.end(this.timeout(G)); } },
+  timeout(G){ return teamRank(G, winOf(G.goals), id => G.g[id]); },
+  bot(){ return null; }, drop(G, id){},
+  snap(G){ const K = G.kicks[G.ki] || {}; return { ki:G.ki, n:G.kicks.length, ph:G.ph, pe:+G.pend.toFixed(1), sh:K.sh, kp:K.kp, st:K.st, ready:[G.s != null, G.k != null], last:G.res[G.res.length - 1] || null, goals:G.goals, res:G.res.map(r => [r.st, r.goal ? 1 : 0]), fx:G.fx }; },
+  view(root, ctx){ ctlShow(null); const T = ctx.info.T, me = ctx.me, v = { fxSeen:0, picked:-1, ki:-1, imgs:{} };
+    root.innerHTML = `<div class="pk"><div class="team-hud" id="pkHud"></div><div class="pk-who" id="pkWho"></div><div class="pk-goal" id="pkGoal"><div class="pk-net"></div>${[0, 1, 2].map(z => `<button class="pk-z" data-z="${z}"></button>`).join("")}<div class="pk-keeper" id="pkKeep"></div><div class="pk-ball" id="pkBall">⚽</div></div><div class="pk-msg" id="pkMsg"></div><div class="pk-dots" id="pkDots"></div></div>`;
+    $("#pkGoal").onclick = e => { const b = e.target.closest("[data-z]"); if(!b || v.picked >= 0 || CM.phase !== "play") return; const S = v.S; if(!S || S.ph !== "pick" || (S.sh !== me && S.kp !== me)) return; v.picked = +b.dataset.z; ctx.input({ e:"pick", z:v.picked }); sfx.vote(); b.classList.add("mine"); };
+    v.update = s => { v.S = s; const tt = CM.phase === "play" ? now() - CM.playT : 0;
+      if(s.ki !== v.ki){ v.ki = s.ki; v.picked = -1; $$(".pk-z").forEach(b => b.classList.remove("mine")); $("#pkBall").className = "pk-ball"; $("#pkKeep").className = "pk-keeper"; $("#pkKeep").innerHTML = s.kp ? beanSVG(playerOf(s.kp)?.bean, 46) : ""; }
+      newFx(v, s.fx, (type, goal) => { if(type !== "kick") return; const L = s.last; $("#pkBall").className = "pk-ball z" + L.s; $("#pkKeep").className = "pk-keeper z" + L.k; setTimeout(() => { goal ? (sfx.crown(), SND.say("Goal!")) : (sfx.whack(), SND.say("Saved!")); }, 450); });
+      const role = s.sh === me ? "sh" : s.kp === me ? "kp" : "", left = Math.max(0, Math.ceil(s.pe - tt));
+      $("#pkWho").innerHTML = s.sh ? `<span style="color:${TEAM_COL[s.st]}">⚽ ${esc(s.sh)}</span> vs <span style="color:${TEAM_COL[1 - s.st]}">🧤 ${esc(s.kp)}</span> <small>Kick ${Math.min(s.ki + 1, s.n)}/${s.n}</small>` : "";
+      $("#pkMsg").innerHTML = s.ph === "show" && s.last ? (s.last.goal ? `<b class="pk-g">GOAL! ⚽</b>` : `<b class="pk-s">SAVED! 🧤</b>`) : role === "sh" ? (v.picked >= 0 ? "Locked in… 🤫" : `<b>You're shooting!</b> Tap where to aim · ${left}s`) : role === "kp" ? (v.picked >= 0 ? "Locked in… 🤫" : `<b>You're in goal!</b> Tap where to dive · ${left}s`) : `Waiting for them to pick… ${left}s ${s.ready[0] ? "⚽✓" : ""} ${s.ready[1] ? "🧤✓" : ""}`;
+      $("#pkGoal").classList.toggle("can", s.ph === "pick" && !!role && v.picked < 0);
+      $("#pkHud").innerHTML = teamScoreHTML(s.goals[0], s.goals[1]); $("#pkDots").innerHTML = [0, 1].map(t => `<span style="color:${TEAM_COL[t]}">${TEAM_NAME[t]} ${s.res.filter(r => r[0] === t).map(r => r[1] ? "⚽" : "❌").join("")}</span>`).join(""); };
+    v.destroy = () => {}; return v; }
+};
+
+// ---------- FISHING ----------
+const FISH = [["🐟", "Sardine", .4, 1.2], ["🐠", "Clownfish", .6, 2], ["🐡", "Pufferfish", 1, 3.5], ["🦑", "Squid", 2, 5], ["🐙", "Octopus", 3, 7], ["🦈", "Shark", 8, 16], ["🥾", "Old boot", 0, 0]];
+GAMES.fishing = {
+  name:"Fishing", icon:"🎣", cat:"react", desc:"Wait for the bite, then reel it in", dur:40, rate:5,
+  how:["Watch your float. When it dips and shows <b>!</b>, tap <b>REEL</b> fast to hook it","Then <b>hold</b> REEL (or E) to pull it in. Let go if the line gets too tight or it snaps!","Heaviest total catch wins"],
+  init(ids){ const c = {}; ids.forEach(id => c[id] = []); return { c, bots:{} }; },
+  onEvent(G, id, d){ if(d.e !== "catch" || !G.c[id]) return; const f = FISH[clamp(d.f | 0, 0, FISH.length - 1)], kg = clamp(+d.kg || 0, f[2], f[3]); G.c[id].push([d.f | 0, +kg.toFixed(1)]); G.dirty = true; },
+  tick(){}, kg(G, id){ return G.c[id].reduce((s, c) => s + c[1], 0); },
+  timeout(G){ return byScore(G.ids, id => Math.round(this.kg(G, id) * 10)); },
+  bot(G, id){ const B = G.bots[id] || (G.bots[id] = { nx:4 + rand()*5 }); if(G.t < B.nx) return null; B.nx = G.t + 4.5 + rand()*5; if(rand() < .25) return null; const f = this.pickFish(); this.onEvent(G, id, { e:"catch", f, kg:FISH[f][2] + rand()*(FISH[f][3] - FISH[f][2]) }); return null; },
+  pickFish(){ const r = rand(); return r < .3 ? 0 : r < .52 ? 1 : r < .68 ? 2 : r < .8 ? 3 : r < .88 ? 4 : r < .93 ? 5 : 6; },
+  drop(G, id){}, snap(G){ return { c:G.c }; },
+  view(root, ctx){ ctlShow(null); const me = ctx.me, g = this, v = { st:"wait", t:2 + rand()*3, ten:0, prog:0, fish:null, held:false, pull:0 };
+    root.innerHTML = `<div class="fs"><canvas id="fsCan"></canvas><div class="fs-ui"><div class="fs-bar" id="fsBar" hidden><i id="fsTen"></i><b id="fsProg"></b></div><div class="fs-msg" id="fsMsg"></div><button class="mash blue" id="fsBtn">REEL</button></div><div class="red-board" id="fsBoard"></div></div>`;
+    const can = $("#fsCan"), x = can.getContext("2d"), btn = $("#fsBtn");
+    const press = () => { if(CM.phase !== "play") return; v.held = true; btn.classList.add("on");
+      if(v.st === "bite"){ v.st = "reel"; v.fish = g.pickFish(); const F = FISH[v.fish]; v.kg = F[2] + rand()*(F[3] - F[2]); v.prog = .15; v.ten = .3; v.str = v.fish === 6 ? .3 : .45 + F[3] / 16 * .8; sfx.ding(); }
+      else if(v.st === "wait"){ v.t += .8; sfx.wrong(); toast("Too early! Wait for the !", 900); } };
+    const release = () => { v.held = false; btn.classList.remove("on"); };
+    btn.addEventListener("pointerdown", e => { e.preventDefault(); press(); }); ["pointerup", "pointercancel", "pointerleave"].forEach(ev => btn.addEventListener(ev, release));
+    const kd = e => { if(actKey(e)){ e.preventDefault(); if(!e.repeat) press(); } }, ku = e => { if(actKey(e)) release(); }; addEventListener("keydown", kd); addEventListener("keyup", ku);
+    v.update = (s, dt, t) => { if(CM.phase === "play"){
+        if(v.st === "wait"){ v.t -= dt; if(v.t <= 0){ v.st = "bite"; v.bt = .75 + rand()*.35; sfx.beep(); } }
+        else if(v.st === "bite"){ v.bt -= dt; if(v.bt <= 0){ v.st = "wait"; v.t = 1.5 + rand()*3; toast("It got away! 🐟💨", 900); } }
+        else if(v.st === "reel"){ v.pull = Math.max(0, v.pull - dt); if(v.pull <= 0 && rand() < dt*1.2){ v.pull = .4 + rand()*.6; } const surge = v.pull > 0 ? v.str * 1.5 : 0;
+          v.ten = clamp(v.ten + (v.held ? .55 + surge : -.9 + surge*.6) * dt, 0, 1.05); if(v.held) v.prog += dt * (.32 - v.str*.12) * (v.pull > 0 ? .4 : 1); else v.prog -= dt*.05;
+          if(v.ten >= 1){ v.st = "wait"; v.t = 1.5 + rand()*2.5; sfx.slip(); toast("💥 SNAP! The line broke", 1100); }
+          else if(v.prog >= 1){ ctx.input({ e:"catch", f:v.fish, kg:+v.kg.toFixed(1) }); const F = FISH[v.fish]; v.fish === 6 ? sfx.lose() : sfx.win(); toast(`${F[0]} ${F[1]}${v.fish === 6 ? "… 🙄" : ` · ${v.kg.toFixed(1)}kg!`}`, 1600); v.st = "wait"; v.t = 2 + rand()*3; }
+          else if(v.prog <= 0){ v.st = "wait"; v.t = 2; toast("It swam off 🐟", 900); } } }
+      $("#fsBar").hidden = v.st !== "reel"; if(v.st === "reel"){ $("#fsTen").style.width = Math.min(100, v.ten*100) + "%"; $("#fsTen").style.background = v.ten > .8 ? "#ff3a3a" : v.ten > .55 ? "#ffb03a" : "#5ae07a"; $("#fsProg").style.left = (v.prog*100) + "%"; }
+      $("#fsMsg").textContent = v.st === "wait" ? "Waiting for a bite…" : v.st === "bite" ? "❗ BITE! TAP REEL!" : v.pull > 0 ? "🐟 It's pulling! Ease off!" : "Hold to reel, watch the tension";
+      const [W, H] = fitCan(can, x), wy = H*.38; const sky = x.createLinearGradient(0, 0, 0, wy); sky.addColorStop(0, "#ffb88a"); sky.addColorStop(1, "#ffe8c8"); x.fillStyle = sky; x.fillRect(0, 0, W, wy);
+      const sea = x.createLinearGradient(0, wy, 0, H); sea.addColorStop(0, "#3ab8e8"); sea.addColorStop(1, "#1a5a9a"); x.fillStyle = sea; x.fillRect(0, wy, W, H - wy);
+      x.strokeStyle = "rgba(255,255,255,.35)"; x.lineWidth = 2; for(let i=0;i<8;i++){ const y = wy + 14 + i*22, o = (t*20 + i*37) % 60; x.beginPath(); for(let X = -60 + o; X < W; X += 60){ x.moveTo(X, y); x.quadraticCurveTo(X + 15, y - 4, X + 30, y); } x.stroke(); }
+      const bx = W*.62, dip = v.st === "bite" ? 8 + Math.sin(t*30)*4 : v.st === "reel" ? 10 : Math.sin(t*2)*2, by = wy + 30 + dip;
+      x.strokeStyle = "#5a3a1a"; x.lineWidth = 5; x.beginPath(); x.moveTo(W*.1, H*.95); x.lineTo(W*.32, wy - 60); x.stroke(); x.strokeStyle = "rgba(255,255,255,.8)"; x.lineWidth = 1; x.beginPath(); x.moveTo(W*.32, wy - 60); x.quadraticCurveTo(bx - 40, wy - 40 + (v.st === "reel" ? 30 : 0), bx, by); x.stroke();
+      x.fillStyle = "#ff3a3a"; x.beginPath(); x.arc(bx, by, 8, Math.PI, 0); x.fill(); x.fillStyle = "#fff"; x.beginPath(); x.arc(bx, by, 8, 0, Math.PI); x.fill();
+      if(v.st === "bite"){ x.fillStyle = "#ffe23a"; x.font = "bold 34px Lilita One, sans-serif"; x.textAlign = "center"; x.fillText("!", bx, by - 18); }
+      const mine = s.c[me] || []; x.font = "bold 14px Nunito, sans-serif"; x.textAlign = "left"; x.fillStyle = "#fff"; x.fillText(`🪣 ${mine.map(c => FISH[c[0]][0]).join(" ") || "empty"}`, 10, H - 12);
+      const k = JSON.stringify(s.c); if(v.k !== k){ v.k = k; const ids = Object.keys(s.c), kg = id => s.c[id].reduce((a, c) => a + c[1], 0); $("#fsBoard").innerHTML = boardRow(ids.sort((a, b) => kg(b) - kg(a)), id => kg(id).toFixed(1) + "kg", me); } };
+    v.destroy = () => { removeEventListener("keydown", kd); removeEventListener("keyup", ku); }; return v; }
+};
+
+// ---------- RELAY SPRINT (teams) ----------
+const LEG = 50, LEGS = 4;
+GAMES.relay = {
+  name:"Relay Sprint", icon:"🏃‍♀️", cat:"mash", desc:"Mash your leg, pass the baton", dur:45, team:true, rate:12,
+  how:["Each team runs a 4-leg relay. Wait for the baton!","On <b>your leg</b>, tap <b>LEFT</b> and <b>RIGHT</b> one after the other (A/D or ←/→). Same foot twice = stumble","First team to the finish wins"],
+  init(ids){ const T = teamSplit(ids), R = [0, 1].map(t => { const m = shuffle(ids.filter(id => T[id] === t)), legs = []; for(let i=0;i<LEGS;i++) legs.push(m[i % m.length]); return { legs, li:0, d:0, v:0, foot:-1, fz:0, done:false, ft:0 }; }), lt = {}; ids.forEach(id => lt[id] = 0);
+    return { T, R, lt, fin:[], bots:{}, info:{ T, legs:R.map(r => r.legs) } }; },
+  introNote(info, me){ const t = info.T[me]; if(t == null) return ""; const legs = info.legs[t].map((id, i) => id === me ? i + 1 : 0).filter(Boolean); return `${teamNote(info, me)}. You run leg${legs.length > 1 ? "s" : ""} <b>${legs.join(" & ")}</b>`; },
+  onEvent(G, id, d){ if(d.e !== "step") return; const t = G.T[id], r = G.R[t]; if(r.done || r.legs[r.li] !== id || G.t < r.fz) return; const f = d.f ? 1 : 0;
+    if(f === r.foot){ r.v *= .45; r.fz = G.t + .22; fxp(G, "st", id); } else r.v = Math.min(11.5, r.v + 1.05); r.foot = f; },
+  tick(G, dt, inp, H){ [0, 1].forEach(t => { const r = G.R[t]; if(r.done) return; const cur = r.legs[r.li]; if(!playerOf(cur)) r.v = 6; r.v = Math.max(0, r.v - 3*dt); r.d += r.v*dt; G.lt[cur] += dt;
+      if(r.d >= LEG*(r.li + 1)){ r.li++; r.v *= .5; r.foot = -1; if(r.li >= LEGS){ r.done = true; r.d = LEG*LEGS; G.fin.push(t); fxp(G, "fin", t); if(G.fin.length === 1) G.endAt = G.t + 2.5; } else fxp(G, "pass", t, r.legs[r.li]); G.dirty = true; } });
+    if(G.endAt && G.t >= G.endAt || G.fin.length === 2) H.end(this.timeout(G)); },
+  timeout(G){ const w = G.fin.length ? G.fin[0] : winOf([G.R[0].d, G.R[1].d]); return teamRank(G, w, id => -G.lt[id]); },
+  bot(G, id){ const t = G.T[id], r = G.R[t]; if(r.done || r.legs[r.li] !== id) return null; const B = G.bots[id] || (G.bots[id] = { nx:0, rate:7 + rand()*3 }); if(G.t < B.nx) return null; B.nx = G.t + 1 / B.rate * (.8 + rand()*.4);
+    this.onEvent(G, id, { e:"step", f:rand() < .05 ? r.foot : 1 - r.foot }); return null; },
+  drop(G, id){},
+  snap(G){ return { R:G.R.map(r => ({ d:+r.d.toFixed(2), v:+r.v.toFixed(1), li:r.li, cur:r.legs[Math.min(r.li, LEGS - 1)], done:r.done })), fin:G.fin, fx:G.fx }; },
+  view(root, ctx){ ctlShow(null); const T = ctx.info.T, me = ctx.me, myT = T[me], v = { imgs:{}, fxSeen:0, dd:[0, 0] };
+    root.innerHTML = `<div class="sp"><canvas id="rlCan"></canvas><div class="team-hud" id="rlHud"></div><div class="sp-call" id="rlCall"></div><div class="sp-btns"><button class="mash pink" id="rlL">LEFT</button><button class="mash blue" id="rlR">RIGHT</button></div></div>`;
+    const can = $("#rlCan"), x = can.getContext("2d"); let S = null;
+    const step = f => { if(CM.phase !== "play" || !S || myT == null) return; const r = S.R[myT]; if(r.cur !== me || r.done) return; ctx.input({ e:"step", f }); sfx.step(); };
+    tapBtn($("#rlL"), () => step(0)); tapBtn($("#rlR"), () => step(1));
+    const key = e => { if(e.repeat || e.target.closest("input")) return; if(["KeyA", "ArrowLeft", "KeyQ"].includes(e.code)){ e.preventDefault(); step(0); } if(["KeyD", "ArrowRight", "KeyE"].includes(e.code)){ e.preventDefault(); step(1); } }; addEventListener("keydown", key);
+    v.update = (s, dt, t) => { S = s; newFx(v, s.fx, (type, a, b) => { if(type === "pass"){ sfx.pass(); if(b === me){ toast("🏃 BATON! Your leg, GO GO GO!", 1500); SND.say("Go!"); } } if(type === "fin") sfx.win(); if(type === "st" && a === me) sfx.slip(); });
+      const mine = myT != null && s.R[myT].cur === me && !s.R[myT].done; $$("#rlL,#rlR").forEach(b => b.disabled = !mine);
+      $("#rlCall").textContent = mine ? "YOUR LEG! MASH!" : ""; $("#rlHud").innerHTML = teamScoreHTML(Math.floor(s.R[0].d) + "m", Math.floor(s.R[1].d) + "m", `/ ${LEG*LEGS}m`);
+      [0, 1].forEach(tm => v.dd[tm] = lerp(v.dd[tm], s.R[tm].d, Math.min(1, dt*10)));
+      const [W, H] = fitCan(can, x), total = LEG*LEGS, pad = 30, ppm = (W - pad*2) / total, top = H*.3, lh = H*.22;
+      x.fillStyle = "#9ad8ff"; x.fillRect(0, 0, W, top); x.fillStyle = "#7ad86a"; x.fillRect(0, top - 10, W, 10);
+      [0, 1].forEach(tm => { const y = top + tm*lh; x.fillStyle = tm ? "#3a7ad8" : "#d84a7a"; x.fillRect(0, y, W, lh); x.fillStyle = "rgba(255,255,255,.7)"; x.fillRect(0, y, W, 2);
+        for(let l=1;l<=LEGS;l++){ const px = pad + l*LEG*ppm; x.fillStyle = l === LEGS ? "#fff" : "rgba(255,255,255,.5)"; x.fillRect(px - 1, y, l === LEGS ? 4 : 2, lh); }
+        const r = s.R[tm], px = pad + v.dd[tm]*ppm, sz = Math.min(lh*.9, 52), bob = r.v > .5 ? Math.abs(Math.sin(t*r.v*1.6))*sz*.12 : 0, im = beanImg(v.imgs, r.cur);
+        if(im.complete){ x.drawImage(im, px - sz/2, y + lh*.5 - sz*.75 - bob, sz, sz*1.3); } x.fillStyle = "#ffd23a"; x.fillRect(px + sz*.3, y + lh*.5 - 4 - bob, 14, 6);
+        x.font = "bold 12px Nunito, sans-serif"; x.fillStyle = "#fff"; x.textAlign = "left"; x.fillText(`${TEAM_NAME[tm]} · leg ${Math.min(r.li + 1, LEGS)}/${LEGS}: ${r.cur}${r.done ? " 🏁" : ""}`, 6, y + 14); });
+      x.fillStyle = "#e8d8b0"; x.fillRect(0, top + lh*2, W, H - top - lh*2); };
+    v.destroy = () => removeEventListener("keydown", key); return v; }
 };
 
 // ===================== screens: login, home, wardrobe, friends, stats, lobby, chat =====================
@@ -2604,8 +3040,9 @@ function renderStats(){
     <div class="label">Recent matches</div><div class="hist">${(ME.hist || []).length ? ME.hist.map(h => `<div class="h-row"><span class="h-place p${Math.min(h.place, 4)}">${ordinal(h.place)}</span><div><b>${h.place === 1 ? "Won" : "Played"} vs ${h.n - 1} other${h.n === 2 ? "" : "s"}</b><small>${(h.board || []).slice(0, 4).map(b => `${esc(b.name)} ${b.pts}`).join(" · ")}</small></div><span class="h-r">+${h.coins}🪙<small>${timeAgo(h.t)}</small></span></div>`).join("") : `<p class="muted">No matches yet. Go play!</p>`}</div>`;
 }
 // ---------- settings ----------
-function syncSet(){ $("#sMusic").setAttribute("aria-checked", !!STORE.music); $("#sSound").setAttribute("aria-checked", !!STORE.sound); $("#sVoice").setAttribute("aria-checked", !!STORE.voice); $("#sVol").value = Math.round(STORE.vol * 100); }
+function syncSet(){ $("#sDark").setAttribute("aria-checked", isDark()); $("#sMusic").setAttribute("aria-checked", !!STORE.music); $("#sSound").setAttribute("aria-checked", !!STORE.sound); $("#sVoice").setAttribute("aria-checked", !!STORE.voice); $("#sVol").value = Math.round(STORE.vol * 100); }
 $("#hSettings").onclick = () => { syncSet(); modal("#setModal"); };
+$("#sDark").onclick = () => { STORE.dark = !isDark(); saveStore(); applyDark(); syncSet(); sfx.click(); };
 [["#sMusic", "music"], ["#sSound", "sound"], ["#sVoice", "voice"]].forEach(([s, k]) => $(s).onclick = () => { STORE[k] = !STORE[k]; saveStore(); syncSet(); sfx.click(); });
 $("#sVol").oninput = e => SND.setVol(e.target.value / 100);
 $("#sLogout").onclick = async () => { await api("logout"); STORE.token = null; saveStore(); leaveRoom(true); modal("#setModal", false); showAuth(); };
@@ -2623,7 +3060,7 @@ function renderRoom(){
   $("#rHostRow").innerHTML = host ? `<button class="btn small blue" id="rBotAdd" ${r.players.length >= 8 ? "disabled" : ""}>🤖 Add bot</button><button class="btn small ghost" id="rBotRem" ${r.players.some(p => p.bot) ? "" : "disabled"}>Remove bot</button><button class="btn small ${r.locked ? "yellow" : "ghost"}" id="rLock">${r.locked ? "🔒 Locked" : "🔓 Open"}</button>` : `<small class="muted">${esc(r.host)} is the host · ${r.pub ? "🌍 public room" : "🔒 private room"}</small>`;
   $("#rSettings").hidden = !host;
   const single = r.mode === "single", pg = GAMES[r.pick];
-  if(host){ const off = r.off || [];
+  if(host){ const off = r.off || [], keep = $(".g-pick") ? $(".g-pick").scrollTop : 0, py = window.scrollY;
     $("#rSettings").innerHTML = `<div class="seg mode-seg" id="rMode"><button data-m="party" aria-pressed="${!single}">🎉 Party</button><button data-m="single" aria-pressed="${single}">🎯 Single game</button></div>` + (single ?
       `<div class="label">Pick a game <small>play it once</small></div><div class="g-pick">${Object.entries(GAMES).map(([id, g]) => `<button class="gp cat-${g.cat} ${r.pick === id ? "on" : ""} ${g.solo ? "solo" : ""}" data-g="${id}"><span>${g.icon}</span>${g.name}${g.solo ? "<i>NEW</i>" : ""}</button>`).join("")}</div>
       <div class="set"><span>🌍 Public room</span><button class="sw" id="rPub" aria-checked="${!!r.pub}"></button></div>` : `<div class="label">Rounds</div><div class="seg" id="rRounds">${[5, 10, 15].map(n => `<button data-n="${n}" aria-pressed="${r.rounds === n}">${n}</button>`).join("")}</div>
@@ -2631,6 +3068,7 @@ function renderRoom(){
       <div class="label">Games (${Object.keys(GAMES).length - off.filter(x => GAMES[x]).length} on) <small>tap to turn off</small></div><div class="g-toggles">${Object.entries(GAMES).filter(([, g]) => !g.solo).map(([id, g]) => `<button class="gt cat-${g.cat} ${off.includes(id) ? "off" : ""}" data-g="${id}">${g.icon} ${g.name}</button>`).join("")}</div>`);
     $$("#rMode button").forEach(b => b.onclick = () => { send("settings", { mode:b.dataset.m }); sfx.click(); });
     $$(".gp").forEach(b => b.onclick = () => { send("settings", { pick:b.dataset.g }); sfx.pop(); });
+    if($(".g-pick")) $(".g-pick").scrollTop = keep; if(Math.abs(window.scrollY - py) > 2) window.scrollTo(0, py);
     $$("#rRounds button").forEach(b => b.onclick = () => { send("settings", { rounds:+b.dataset.n }); sfx.click(); });
     $("#rPub").onclick = () => send("settings", { pub:!r.pub });
     $$(".gt").forEach(b => b.onclick = () => { const id = b.dataset.g, o = off.includes(id) ? off.filter(x => x !== id) : off.concat(id); if(Object.keys(GAMES).every(k => o.includes(k))) return toast("Leave at least one game on"); send("settings", { off:o }); sfx.click(); });
@@ -2689,7 +3127,7 @@ function renderPass(scroll){
     ${P.prem ? `<p class="ps-prem on">⭐ Premium unlocked</p>` : `<div class="ps-buy"><div><b>⭐ Unlock Premium</b><small>9 exclusive items + loads more coins. Pays for itself!</small></div><button class="btn yellow" id="psBuy">🪙 ${fmt(PASSI.price)}</button></div>`}
     <div class="ps-wrap"><div class="ps-labels"><span>Free</span><span>⭐ Premium</span></div><div class="ps-track" id="psTrack">${PASSI.free.map((r, i) => `<div class="ps-col ${i + 1 <= t ? "reach" : ""} ${i + 1 === t + 1 ? "next" : ""}"><div class="ps-n">${i + 1}</div>${col(r, "free", i + 1)}${col(PASSI.prem[i], "prem", i + 1)}</div>`).join("")}</div></div>
     <p class="muted ps-note">Season 1 items will never come back after the season ends.</p>`;
-  if(scroll !== false){ const tr = $("#psTrack"), c = tr.children[Math.max(0, t - 1)]; if(c) tr.scrollLeft = c.offsetLeft - 60; }
+  const tr = $("#psTrack"); if(scroll !== false){ const c = tr.children[Math.max(0, t - 1)]; if(c) tr.scrollLeft = c.offsetLeft - 60; } else tr.scrollLeft = renderPass.sl || 0; tr.onscroll = () => renderPass.sl = tr.scrollLeft;
   const cb = $("#psClaim"); if(cb) cb.onclick = async () => { const j = await api("pass", { action:"claim" }); if(j.error) return toast(j.error); ME = j.me; sfx.coin(); confetti(); toast(gotText(j.got)); renderPass(false); renderHome(); };
   const bb = $("#psBuy"); if(bb) bb.onclick = async () => { if(bb.dataset.sure !== "1"){ bb.dataset.sure = "1"; bb.textContent = "Tap again to buy"; sfx.click(); return; }
     const j = await api("pass", { action:"buy" }); if(j.error){ sfx.wrong(); toast(j.error); return renderPass(false); } ME = j.me; sfx.crown(); confetti(); toast("⭐ Premium unlocked!" + (j.got.length ? " " + gotText(j.got) : "")); renderPass(false); renderHome(); };

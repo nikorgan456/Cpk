@@ -1,9 +1,11 @@
 // ===================== physics games: Sumo Ring, Falling Tiles, Hot Potato Bomb =====================
 function outRank(G){ const alive = G.ids.filter(id => G.B[id] && G.B[id].alive); return [alive].concat((G.outs || []).slice().reverse().map(id => [id])); }
 function physView(root, ctx, opts, build){
+  // wide arenas turn sideways on tall phone screens (and the stick turns with them)
+  if(opts.rot && !opts.portrait){ const c = opts.cam || [0, 17, 15]; opts.portrait = { cam:[-(c[2] + 5), c[1] + 3, 0], look:[1.5, 0, 0], a:.62 }; }
   const S = makeStage(root, opts), view = { S, fxSeen:0, destroy:() => S.destroy() }; ctlShow("stick", opts.btn || "DIVE", { jump:opts.jump }); build(S, view);
   const pred = ctx.host || opts.pred === false ? null : Object.assign({ speed:7, acc:90 }, opts.pred || {});
-  view.update = (snap, dt, t) => { if(view.tick) view.tick(snap, dt, t); physDraw(S, snap.B, dt, t, view.extra, pred); newFx(view, snap.fx, (a, b, c) => view.onFx ? view.onFx(a, b, c) : physFx(a, b)); S.render(t); };
+  view.update = (snap, dt, t) => { if(opts.rot) CTL.map = root.clientWidth < root.clientHeight ? (x, y) => [-y, x] : null; if(view.tick) view.tick(snap, dt, t); physDraw(S, snap.B, dt, t, view.extra, pred); newFx(view, snap.fx, (a, b, c) => view.onFx ? view.onFx(a, b, c) : physFx(a, b)); S.render(t); };
   return view;
 }
 const icingTex = (base, dots) => cTex(512, 512, (x, w) => { x.fillStyle = base; x.fillRect(0, 0, w, w); for(let i=0;i<260;i++){ x.save(); x.translate(rand()*w, rand()*w); x.rotate(rand()*3); x.fillStyle = pick(dots); x.beginPath(); x.roundRect ? x.roundRect(-9, -3, 18, 6, 3) : x.rect(-9, -3, 18, 6); x.fill(); x.restore(); } });

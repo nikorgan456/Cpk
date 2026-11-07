@@ -151,7 +151,7 @@ GAMES.red = {
   snap(G){ const o = {}; for(const id in G.res){ const r = G.res[id]; o[id] = [r.s, 3 - r.miss, r.out != null ? 1 : 0]; } return { r:o, t:+G.t.toFixed(1) }; },
   view(root, ctx){
     ctlShow(null); const seq = ctx.info.seq, v = { tapped:{}, out:false };
-    root.innerHTML = `<div class="red"><div class="red-top"><span id="redScore">0</span><span id="redLives">❤️❤️❤️</span></div><div class="red-grid" id="redGrid">${Array.from({ length:9 }, (_, i) => `<button class="rb" data-c="${i}"></button>`).join("")}</div><div class="red-board" id="redBoard"></div><div class="red-out" id="redOut" hidden></div></div>`;
+    root.innerHTML = `<div class="redg"><div class="red-top"><span id="redScore">0</span><span id="redLives">❤️❤️❤️</span></div><div class="red-grid" id="redGrid">${Array.from({ length:9 }, (_, i) => `<button class="rb" data-c="${i}"></button>`).join("")}</div><div class="red-board" id="redBoard"></div><div class="red-out" id="redOut" hidden></div></div>`;
     const cells = $$("#redGrid .rb");
     const active = tt => { const a = {}; seq.forEach((L, i) => { if(tt >= L[0] && tt < L[0] + L[3]) a[L[1]] = i; }); return a; };
     cells.forEach(b => b.addEventListener("pointerdown", e => { e.preventDefault(); if(CM.phase !== "play" || v.out) return; const tt = now() - CM.playT, c = +b.dataset.c, i = active(tt)[c]; if(i == null || v.tapped[i]) return;

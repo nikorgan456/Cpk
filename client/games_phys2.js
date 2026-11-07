@@ -19,7 +19,7 @@ GAMES.bumper = {
   bot(G, id){ const b = G.B[id]; if(!b || !b.alive || b.fall) return null; const r = physBot(G, id, { safe:4 }); if(!r) return r;
     const ex = Math.abs(b.x + b.vx*.3) > 10.2*G.k - 2, ez = Math.abs(b.z + b.vz*.3) > 7.2*G.k - 1.9; if((ex || ez) && rand() < .8){ r.x = ex ? -Math.sign(b.x) : r.x*.3; r.y = ez ? -Math.sign(b.z) : r.y*.3; r.a = 0; } return r; },
   snap(G){ return { B:physSnap(G.B), ko:G.ko, k:+G.k.toFixed(3), fx:G.fx }; },
-  view(root, ctx){ return physView(root, ctx, { sky:"#7ad0ff", sky2:"#d8f4ff", goo:"#3a8aff", fog:"#d8f4ff", cam:[0, 18, 15], btn:"BOOST", pred:{ speed:8.2, acc:20 } }, (S, v) => {
+  view(root, ctx){ return physView(root, ctx, { rot:true, sky:"#7ad0ff", sky2:"#d8f4ff", goo:"#3a8aff", fog:"#d8f4ff", cam:[0, 18, 15], btn:"BOOST", pred:{ speed:8.2, acc:20 } }, (S, v) => {
     const fl = cTex(512, 384, (x, w, h) => { x.fillStyle = "#2a2a4a"; x.fillRect(0, 0, w, h); x.strokeStyle = "rgba(255,255,255,.08)"; x.lineWidth = 2; for(let i=0;i<w;i+=32){ x.beginPath(); x.moveTo(i, 0); x.lineTo(i, h); x.stroke(); } for(let j=0;j<h;j+=32){ x.beginPath(); x.moveTo(0, j); x.lineTo(w, j); x.stroke(); }
       x.fillStyle = "rgba(255,210,58,.9)"; x.font = "bold 70px sans-serif"; x.textAlign = "center"; x.globalAlpha = .18; x.fillText("BUMP!", w/2, h/2 + 25); });
     const floor = new THREE.Mesh(new THREE.BoxGeometry(20.4, .6, 14.4), new THREE.MeshStandardMaterial({ map:fl, roughness:.4, metalness:.2 })); floor.position.y = -.3; floor.receiveShadow = true; S.scene.add(floor);
@@ -44,20 +44,25 @@ GAMES.bumper = {
 const DW = 19, DH = 13;
 GAMES.dodge = {
   name:"Dodgeball", icon:"🏐", cat:"phys", desc:"Grab a ball, throw it, don't get hit", dur:55,
-  how:["Run over a ball to pick it up","Tap <b>THROW</b> (or press <b>E</b>) to throw it the way you're facing. No ball? It's a dodge roll","3 hits and you're out. Last bean standing wins!"],
+  how:["Run over a ball to pick it up","<b>Hold THROW</b> (or E) to charge, let go to fire. Longer charge = faster ball! No ball? Tap it to dodge roll","3 hits and you're out. Last bean standing wins!"],
   init(ids){ const G = { B:physInit(ids, ringSpawn(4.6)), outs:[], balls:[], hp:{}, hold:{} }; ids.forEach(id => G.hp[id] = 3);
     const n = Math.max(3, Math.ceil(ids.length * .6)); for(let i=0;i<n;i++){ const a = i / n * Math.PI * 2; G.balls.push({ x:Math.cos(a)*1.6, z:Math.sin(a)*1.6, vx:0, vz:0, own:null, fly:0, by:null }); } return G; },
   tick(G, dt, inp, H){
+    // hold THROW to charge (slower while charging), let go to fire: longer charge = faster, further, harder hit
+    G.ids.forEach(id => G.B[id].boost = G.B[id].charging ? .55 : 1);
     physStep(G, dt, inp, { wall:{ w:DW, h:DH }, speed:6.8, act:(id, b) => {
-      if(G.hold[id] != null){ const bl = G.balls[G.hold[id]]; delete G.hold[id]; bl.by = null; bl.x = b.x + Math.sin(b.f)*.75; bl.z = b.z + Math.cos(b.f)*.75; bl.vx = Math.sin(b.f)*19; bl.vz = Math.cos(b.f)*19; bl.own = id; bl.fly = 1; fxp(G, "t", id); }
+      if(G.hold[id] != null){ b.charging = true; b.charge = 0; }
       else if(b.cd <= 0){ b.dash = .25; b.cd = 1; b.vx = Math.sin(b.f)*12; b.vz = Math.cos(b.f)*12; fxp(G, "d", id); } } });
+    G.ids.forEach(id => { const b = G.B[id]; if(!b.charging) return; if(G.hold[id] == null || !b.alive){ b.charging = false; return; }
+      if((inp[id] || {}).a){ b.charge = Math.min(1.2, b.charge + dt); return; }
+      const p = Math.min(1, b.charge), bl = G.balls[G.hold[id]], sp = 10 + p*15; delete G.hold[id]; b.charging = false; bl.by = null; bl.x = b.x + Math.sin(b.f)*.75; bl.z = b.z + Math.cos(b.f)*.75; bl.vx = Math.sin(b.f)*sp; bl.vz = Math.cos(b.f)*sp; bl.own = id; bl.fly = 1; bl.pow = p; fxp(G, "t", id, p > .8 ? 1 : 0); });
     G.balls.forEach((bl, k) => {
       if(bl.by){ const h = G.B[bl.by]; if(!h || !h.alive){ bl.by = null; delete G.hold[bl.by]; } else { bl.x = h.x + Math.sin(h.f + 1.2)*.55; bl.z = h.z + Math.cos(h.f + 1.2)*.55; return; } }
-      bl.x += bl.vx*dt; bl.z += bl.vz*dt; const f = bl.fly ? .35 : 2.2; bl.vx *= Math.max(0, 1 - f*dt); bl.vz *= Math.max(0, 1 - f*dt);
+      bl.x += bl.vx*dt; bl.z += bl.vz*dt; const f = bl.fly ? .3 : 2.2; bl.vx *= Math.max(0, 1 - f*dt); bl.vz *= Math.max(0, 1 - f*dt);
       const hx = DW/2 - .3, hz = DH/2 - .3; if(Math.abs(bl.x) > hx){ bl.x = Math.sign(bl.x)*hx; bl.vx *= -.6; bl.fly = 0; } if(Math.abs(bl.z) > hz){ bl.z = Math.sign(bl.z)*hz; bl.vz *= -.6; bl.fly = 0; }
-      if(bl.fly && Math.hypot(bl.vx, bl.vz) < 7) bl.fly = 0;
+      if(bl.fly && Math.hypot(bl.vx, bl.vz) < 6) bl.fly = 0;
       if(bl.fly){ for(const id of G.ids){ const b = G.B[id]; if(id === bl.own || !b.alive || b.fall || (b.inv || 0) > G.t) continue; if(Math.hypot(b.x - bl.x, b.z - bl.z) < .85){ b.inv = G.t + 1.2;
-            G.hp[id]--; b.vx += bl.vx*.45; b.vz += bl.vz*.45; b.hit = .5; b.stun = .3; bl.vx *= -.25; bl.vz *= -.25; bl.fly = 0; fxp(G, "h", id, bl.own); G.dirty = true;
+            G.hp[id]--; const kb = .3 + (bl.pow || 0)*.35; b.vx += bl.vx*kb; b.vz += bl.vz*kb; b.hit = .5; b.stun = .25 + (bl.pow || 0)*.25; bl.vx *= -.25; bl.vz *= -.25; bl.fly = 0; fxp(G, "h", id, bl.own); G.dirty = true;
             if(G.hp[id] <= 0){ b.alive = false; G.outs.push(id); fxp(G, "o", id); if(G.hold[id] != null){ const hb = G.balls[G.hold[id]]; hb.by = null; delete G.hold[id]; } } break; } } }
       else { for(const id of G.ids){ const b = G.B[id]; if(!b.alive || G.hold[id] != null || b.hit > 0) continue; if(Math.hypot(b.x - bl.x, b.z - bl.z) < .9){ bl.by = id; bl.own = null; bl.vx = bl.vz = 0; G.hold[id] = k; fxp(G, "g", id); break; } } }
     });
@@ -70,12 +75,12 @@ GAMES.dodge = {
       if(d < 5 && (dx*bl.vx + dz*bl.vz) / (d*sp) > .8 && rand() < .6) return { x:-bl.vz/sp, y:bl.vx/sp, a:d < 2.4 && rand() < .1 ? 1 : 0 }; }
     if(G.hold[id] != null){ let best = null, bd = 1e9; for(const k of G.ids){ const c = G.B[k]; if(k === id || !c.alive) continue; const d = Math.hypot(c.x - b.x, c.z - b.z); if(d < bd){ bd = d; best = c; } }
       if(!best) return { x:0, y:0 }; const dx = best.x + best.vx*(rand()*.4) - b.x + (rand() - .5)*1.6, dz = best.z + best.vz*(rand()*.4) - b.z + (rand() - .5)*1.6, m = Math.hypot(dx, dz) || 1;
-      if(bd < 3) return { x:-dx/m, y:-dz/m }; b.aimT = (b.aimT || 0) + .016; const fire = bd < 8 && b.aimT > 1.1 && rand() < .05; if(fire) b.aimT = 0; return { x:dx/m*(bd > 7 ? 1 : .25), y:dz/m*(bd > 7 ? 1 : .25), a:fire ? 1 : 0 }; }
+      if(bd < 3) return { x:-dx/m, y:-dz/m }; b.aimT = (b.aimT || 0) + .016; if(b.charging){ return { x:dx/m*.3, y:dz/m*.3, a:b.charge < (b.want || .5) ? 1 : 0 }; } const fire = bd < 10 && b.aimT > 1.1 && rand() < .05; if(fire){ b.aimT = 0; b.want = .25 + rand()*.85; } return { x:dx/m*(bd > 7 ? 1 : .25), y:dz/m*(bd > 7 ? 1 : .25), a:fire ? 1 : 0 }; }
     let tgt = null, td = 1e9; G.balls.forEach(bl => { if(bl.by || bl.fly) return; const d = Math.hypot(bl.x - b.x, bl.z - b.z); if(d < td){ td = d; tgt = bl; } });
     if(tgt){ const dx = tgt.x - b.x, dz = tgt.z - b.z, m = Math.hypot(dx, dz) || 1; return { x:dx/m, y:dz/m }; }
     return physBot(G, id, { flee:true, chase:false }); },
-  snap(G){ return { B:physSnap(G.B), bl:G.balls.map(b => [+b.x.toFixed(2), +b.z.toFixed(2), b.by ? 2 : b.fly ? 1 : 0]), hp:G.hp, fx:G.fx }; },
-  view(root, ctx){ return physView(root, ctx, { sky:"#ffb86a", sky2:"#ffe8c8", goo:"#ff8a3a", fog:"#ffe8c8", cam:[0, 18, 13], btn:"THROW", pred:{ speed:6.8 } }, (S, v) => {
+  snap(G){ const ch = {}; G.ids.forEach(id => { if(G.B[id].charging) ch[id] = +Math.min(1, G.B[id].charge).toFixed(2); }); return { B:physSnap(G.B), bl:G.balls.map(b => [+b.x.toFixed(2), +b.z.toFixed(2), b.by ? 2 : b.fly ? 1 : 0]), hp:G.hp, ch, fx:G.fx }; },
+  view(root, ctx){ return physView(root, ctx, { rot:true, sky:"#ffb86a", sky2:"#ffe8c8", goo:"#ff8a3a", fog:"#ffe8c8", cam:[0, 18, 13], btn:"THROW", pred:{ speed:6.8 } }, (S, v) => {
     const fl = cTex(512, 352, (x, w, h) => { x.fillStyle = "#f4c890"; x.fillRect(0, 0, w, h); for(let i=0;i<w;i+=24){ x.fillStyle = i % 48 ? "rgba(160,90,30,.08)" : "rgba(160,90,30,.14)"; x.fillRect(i, 0, 24, h); }
       x.strokeStyle = "#fff"; x.lineWidth = 6; x.strokeRect(12, 12, w - 24, h - 24); x.beginPath(); x.moveTo(w/2, 12); x.lineTo(w/2, h - 12); x.stroke(); x.beginPath(); x.arc(w/2, h/2, 46, 0, 7); x.stroke(); });
     const floor = new THREE.Mesh(new THREE.BoxGeometry(DW, .6, DH), new THREE.MeshStandardMaterial({ map:fl, roughness:.5 })); floor.position.y = -.3; floor.receiveShadow = true; S.scene.add(floor);
@@ -84,13 +89,17 @@ GAMES.dodge = {
     const bt = cTex(128, 64, (x, w, h) => { x.fillStyle = "#ff3a5a"; x.fillRect(0, 0, w, h); x.fillStyle = "#fff"; x.fillRect(0, h/2 - 5, w, 10); });
     const bm = new THREE.MeshStandardMaterial({ map:bt, roughness:.35 }), balls = [];
     const ballMesh = () => { const m = new THREE.Mesh(new THREE.SphereGeometry(.32, 16, 12), bm); m.castShadow = true; S.scene.add(m); return m; };
-    const hud = hudEl(root); let lastHp = "";
+    const hud = hudEl(root); let lastHp = ""; const arrows = {}, am = new THREE.MeshBasicMaterial({ color:"#ffe23a", transparent:true, opacity:.85, depthWrite:false });
+    const arrowOf = id => arrows[id] || (arrows[id] = (() => { const g = new THREE.Group(), sh = new THREE.Mesh(new THREE.PlaneGeometry(.22, 1), am), hd = new THREE.Mesh(new THREE.CircleGeometry(.32, 3), am); sh.rotation.x = -Math.PI/2; sh.position.z = .5; hd.rotation.x = -Math.PI/2; hd.rotation.z = Math.PI/2; hd.position.z = 1; g.add(sh); g.add(hd); g.userData = { sh, hd }; g.position.y = .06; S.scene.add(g); return g; })());
+    const meter = document.createElement("div"); meter.className = "charge-meter"; meter.innerHTML = "<i></i><span>CHARGE</span>"; meter.hidden = true; root.appendChild(meter);
     v.tick = (s, dt, t) => {
       s.bl.forEach((b, i) => { const m = balls[i] || (balls[i] = ballMesh()); const k = Math.min(1, dt*18); m.position.x = lerp(m.position.x, b[0], k); m.position.z = lerp(m.position.z, b[1], k); m.position.y = b[2] === 2 ? 1.05 : b[2] === 1 ? .7 : .32 + Math.abs(Math.sin(t*3 + i))*.12; m.rotation.x += dt*(b[2] === 1 ? 20 : 2); });
       const hk = JSON.stringify(s.hp); if(hk !== lastHp){ lastHp = hk; for(const id in s.hp){ const tag = S.tags.get(id); if(tag) tag.innerHTML = `${esc(id)} <span class="hearts">${"❤️".repeat(Math.max(0, s.hp[id]))}</span>`; }
-        const me = s.hp[ctx.me]; hud.innerHTML = me != null ? `<span>${me > 0 ? "❤️".repeat(me) + "🖤".repeat(3 - me) : "You're out 💀"}</span>` : ""; } };
-    v.onFx = (type, a, b) => { if(type === "t"){ sfx.whoosh(); } else if(type === "h"){ sfx.whack(); if(a === ctx.me) toast(`💥 ${b} hit you!`, 1200); if(b === ctx.me) sfx.coin(); } else if(type === "g"){ if(a === ctx.me) sfx.pop(); } else if(type === "o"){ sfx.lose(); } else physFx(type, a); };
-    const d0 = v.destroy; v.destroy = () => { hud.remove(); d0(); };
+        const me = s.hp[ctx.me]; hud.innerHTML = me != null ? `<span>${me > 0 ? "❤️".repeat(me) + "🖤".repeat(3 - me) : "You're out 💀"}</span>` : ""; }
+      for(const id in arrows) arrows[id].visible = false; for(const id in (s.ch || {})){ const c = s.ch[id], g = arrowOf(id), b = S.bean(id); g.visible = true; g.position.x = b.position.x; g.position.z = b.position.z; g.rotation.y = b.rotation.y; const L = 1 + c*3.2; g.userData.sh.scale.y = L; g.userData.sh.position.z = .45 + L/2; g.userData.hd.position.z = .45 + L; am.color.setHSL(.15 - c*.15, 1, .55); }
+      const mc = s.ch && s.ch[ctx.me]; meter.hidden = mc == null; if(mc != null){ meter.firstChild.style.width = (mc*100) + "%"; meter.classList.toggle("full", mc >= 1); if(mc >= 1 && !v.fullT){ v.fullT = 1; sfx.ding(); } } else v.fullT = 0; };
+    v.onFx = (type, a, b) => { if(type === "t"){ sfx.whoosh(); if(b) sfx.boom(); } else if(type === "h"){ sfx.whack(); if(a === ctx.me) toast(`💥 ${b} hit you!`, 1200); if(b === ctx.me) sfx.coin(); } else if(type === "g"){ if(a === ctx.me) sfx.pop(); } else if(type === "o"){ sfx.lose(); } else physFx(type, a); };
+    const d0 = v.destroy; v.destroy = () => { hud.remove(); meter.remove(); d0(); };
   }); }
 };
 
