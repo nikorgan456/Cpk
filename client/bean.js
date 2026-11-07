@@ -84,6 +84,7 @@ function beanMesh(bean, name){
   const s = SPECIAL[b.col], col = s ? (b.col === "c_candy" ? s[0] : s[1]) : (b.col || "#3ab8ff");
   const mat = new THREE.MeshPhysicalMaterial({ clearcoat:1, clearcoatRoughness:.18, color:col, roughness:.38, metalness: b.col === "c_gold" ? .7 : b.col === "c_ice" ? .3 : .05, emissive: b.col === "c_lava" ? "#ff3a00" : b.col === "c_galaxy" ? "#3a1aa8" : b.col === "c_neon" ? "#3aff6a" : "#000", emissiveIntensity: b.col === "c_lava" ? .4 : b.col === "c_neon" ? .55 : .25, transparent: b.col === "c_ghost", opacity: b.col === "c_ghost" ? .7 : 1 });
   if(b.col === "c_rainbow") g.userData.rainbow = mat;
+  if(MDL.ready && MDL.nodes.body) return beanKit(b, name, g, body, mat, s);
   const m = new THREE.Mesh(BEAN3D.geo, mat); m.castShadow = true; m.position.y = .08; body.add(m);
   // cartoon outline: a slightly bigger, inside-out copy in a darker shade
   const ol = new THREE.Mesh(BEAN3D.geo, new THREE.MeshBasicMaterial({ color:shade(s ? s[s.length - 1] : (b.col || "#3ab8ff"), -.55), side:THREE.BackSide, transparent:b.col === "c_ghost", opacity:b.col === "c_ghost" ? .5 : 1 })); ol.scale.set(1.055, 1.035, 1.055); ol.position.y = .065; body.add(ol); g.userData.outline = ol;
@@ -129,11 +130,24 @@ function beanMesh(bean, name){
   if(b.neck === "backpack") add(new THREE.BoxGeometry(.4, .46, .22), "#ff8a2a", 0, .5, -.56);
   g.userData.name = name; return g;
 }
+// the Blender-made bean: smoother body, proper face, little hands, and modelled outfits
+function beanKit(b, name, g, body, mat, s){
+  const N = MDL.nodes, m = new THREE.Mesh(N.body.geometry, mat); m.castShadow = true; body.add(m);
+  const ol = new THREE.Mesh(N.body.geometry, new THREE.MeshBasicMaterial({ color:shade(s ? s[s.length - 1] : (b.col || "#3ab8ff"), -.55), side:THREE.BackSide, transparent:b.col === "c_ghost", opacity:b.col === "c_ghost" ? .5 : 1 }));
+  ol.scale.set(1.05, 1.03, 1.05); ol.position.y = -.025; body.add(ol); g.userData.outline = ol;
+  if(b.face !== "visor") body.add(mdl("face"));
+  g.userData.hands = [-1, 1].map(sd => { const h = new THREE.Mesh(N.hand.geometry, mat); h.castShadow = true; h.position.set(sd*.57, .5, .02); h.rotation.z = sd*.35; body.add(h); return h; });
+  g.userData.feet = [-1, 1].map(sd => { const f = new THREE.Mesh(N.foot.geometry, mat); f.castShadow = true; f.position.set(sd*.2, .075, .05); g.add(f); return f; });
+  [["hat", b.hat], ["face", b.face], ["neck", b.neck]].forEach(([sl, id]) => { if(!id) return; const it = mdl(sl + "_" + id); if(!it) return; body.add(it);
+    it.traverse(o => { if(o.name === "prop") g.userData.prop = o; if(o.name === "cloth") g.userData.cape = o; if(o.name.startsWith("flame")) (g.userData.flames = g.userData.flames || []).push(o); }); });
+  g.userData.name = name; g.userData.kit = 1; return g;
+}
 function animBean(g, speed, t, alive = true){
   const U = g.userData, sw = Math.sin(t * 14) * Math.min(1, speed / 4);
   if(U.feet){ U.feet[0].position.z = .05 + sw*.16; U.feet[1].position.z = .05 - sw*.16; U.feet[0].position.y = .06 + Math.max(0, sw)*.08; U.feet[1].position.y = .06 + Math.max(0, -sw)*.08; }
   U.body.position.y = Math.abs(sw) * .06; U.body.rotation.z = sw * .06;
-  if(U.prop) U.prop.rotation.y = t * 20; if(U.cape) U.cape.rotation.x = .15 + Math.min(.9, speed * .15) + Math.sin(t*8)*.05;
+  if(U.hands){ const ih = speed < .5 ? Math.sin(t * 2.4) * .04 : 0; U.hands[0].position.z = .02 - sw*.14; U.hands[1].position.z = .02 + sw*.14; U.hands[0].position.y = U.hands[1].position.y = .5 + ih + Math.abs(sw)*.03; }
+  if(U.prop) U.prop.rotation.y = t * 20; if(U.cape) U.cape.rotation.x = (U.kit ? .05 : .15) + Math.min(.9, speed * .15) + Math.sin(t*8)*.05;
   if(U.rainbow) U.rainbow.color.setHSL((t * .2) % 1, .8, .6);
   if(U.flames) U.flames.forEach((f, i) => f.scale.y = .7 + Math.abs(Math.sin(t * 30 + i)) * .6);
 }

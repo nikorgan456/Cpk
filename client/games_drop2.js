@@ -118,7 +118,7 @@ GAMES.spin = {
   snap(G){ return { B:physSnap(G.B), R:+G.R.toFixed(2), fx:G.fx }; },
   view(root, ctx){ return physView(root, ctx, { sky:"#a8a0ff", sky2:"#ffe0f8", goo:"#9a6aff", fog:"#ffe0f8", cam:[0, 18, 15], jump:true, btn:"DIVE", pred:{ speed:6.4 } }, (S, v) => {
     const top = new THREE.MeshStandardMaterial({ map:icingTex("#ffe86a", ["#fff", "#ff7ab8", "#7ad8ff", "#9a6aff"]), roughness:.5 });
-    const pl = new THREE.Mesh(new THREE.CylinderGeometry(9.4, 9.4, 1, 64), [new THREE.MeshStandardMaterial({ color:"#e8a860" }), top, new THREE.MeshStandardMaterial({ color:"#e8a860" })]); pl.position.y = -.5; pl.receiveShadow = true; S.scene.add(pl);
+    const pl = new THREE.Mesh(new THREE.CylinderGeometry(9.4, 9.4, 1, 64), [new THREE.MeshStandardMaterial({ color:"#e8a860" }), top, new THREE.MeshStandardMaterial({ color:"#e8a860" })]); pl.position.y = -.5; pl.receiveShadow = true; { const d = dripRing(9.4, "#fff4fa"); if(d) S.scene.add(d); } S.scene.add(pl);
     const pole = new THREE.Mesh(new THREE.CylinderGeometry(.45, .55, 2.4, 16), new THREE.MeshStandardMaterial({ color:"#fff" })); pole.position.y = 1.2; S.scene.add(pole);
     const bar = (col, y) => { const g = new THREE.Group(), m = new THREE.Mesh(new THREE.CylinderGeometry(.32, .32, 19, 16), new THREE.MeshStandardMaterial({ color:col, roughness:.3, emissive:col, emissiveIntensity:.15 })); m.rotation.z = Math.PI/2; m.position.y = y; m.castShadow = true; g.add(m); S.scene.add(g); return g; };
     const low = bar("#ff4a8a", .38), high = bar("#3a9aff", 1.75);
@@ -233,7 +233,7 @@ GAMES.football = {
       [GOAL, -GOAL].forEach(z => { const p = new THREE.Mesh(new THREE.CylinderGeometry(.15, .15, 2.2, 10), gm); p.position.set(sd*FW/2, 1.1, z); S.scene.add(p); }); const cb = new THREE.Mesh(new THREE.CylinderGeometry(.15, .15, GOAL*2, 10), gm); cb.rotation.x = Math.PI/2; cb.position.set(sd*FW/2, 2.2, 0); S.scene.add(cb);
       const n = new THREE.Mesh(new THREE.PlaneGeometry(GOAL*2, 2.2), net); n.rotation.y = Math.PI/2; n.position.set(sd*(FW/2 + 1.4), 1.1, 0); S.scene.add(n); });
     const ballT = cTex(256, 128, (x, w, h) => { x.fillStyle = "#fff"; x.fillRect(0, 0, w, h); x.fillStyle = "#222"; for(let i=0;i<8;i++) for(let j=0;j<4;j++) if((i + j) % 2){ x.beginPath(); x.arc(i*32 + 16, j*32 + 16, 10, 0, 7); x.fill(); } });
-    const ball = new THREE.Mesh(new THREE.SphereGeometry(.8, 24, 18), new THREE.MeshStandardMaterial({ map:ballT, roughness:.4 })); ball.castShadow = true; ball.position.y = .8; S.scene.add(ball);
+    const ball = mdl("ball_football") || new THREE.Mesh(new THREE.SphereGeometry(.8, 24, 18), new THREE.MeshStandardMaterial({ map:ballT, roughness:.4 })); if(ball.isGroup || ball.geometry.type !== "SphereGeometry") ball.scale.setScalar(.8); ball.castShadow = true; ball.position.y = .8; S.scene.add(ball);
     const hud = scoreHud(root), big = document.createElement("div"); big.className = "goal-pop"; root.appendChild(big); let lx = 0, lz = 0;
     v.extra = (id, b) => teamMark(S, id, b, T[id]);
     v.tick = (s, dt) => { const k = Math.min(1, dt*14); ball.position.x = lerp(ball.position.x, s.b[0], k); ball.position.z = lerp(ball.position.z, s.b[1], k); const dx = ball.position.x - lx, dz = ball.position.z - lz; lx = ball.position.x; lz = ball.position.z; ball.rotation.z -= dx / .8; ball.rotation.x += dz / .8;

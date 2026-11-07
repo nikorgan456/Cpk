@@ -35,7 +35,7 @@ let wTab = "col", wSel = null;
 $("#hWardrobe").onclick = () => { wSel = Object.assign({}, ME.bean); modal("#wardModal"); renderWard(); };
 $("#wTabs").onclick = e => { const b = e.target.closest("button"); if(!b) return; wTab = b.dataset.s; $$("#wTabs button").forEach(x => x.setAttribute("aria-pressed", x === b)); renderWard(); };
 function renderWard(){
-  $("#wCoins").textContent = `🪙 ${fmt(ME.coins)}`; $("#wPrev").innerHTML = beanSVG(wSel, 150, { mood:"happy" }) + `<button class="btn green" id="wSave">Wear this</button>`;
+  $("#wCoins").textContent = `🪙 ${fmt(ME.coins)}`; $("#wPrev").innerHTML = `<div class="w3d"></div><button class="btn green" id="wSave">Wear this</button>`; { const small = innerWidth <= 560; if(!beanPreview($("#wPrev .w3d"), wSel, small ? 150 : 172, small ? 170 : 210)) $("#wPrev .w3d").innerHTML = beanSVG(wSel, 150, { mood:"happy" }); }
   let items = [];
   if(wTab === "col") items = FREE_COLS.map(c => ({ id:c, col:c, free:true })).concat(Object.keys(ITEMS).filter(k => ITEMS[k].s === "col").map(k => ({ id:k, col:k })));
   else items = [{ id:"", none:true }].concat(Object.keys(ITEMS).filter(k => ITEMS[k].s === wTab).map(k => ({ id:k })));

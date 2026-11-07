@@ -119,11 +119,13 @@ GAMES.bomb = {
     [[0, 8.7, 17.4, .5], [0, -8.7, 17.4, .5], [8.7, 0, .5, 17.4], [-8.7, 0, .5, 17.4]].forEach(([x, z, w, d]) => { const wall = new THREE.Mesh(new THREE.BoxGeometry(w, .9, d), caneM); wall.position.set(x, .45, z); wall.castShadow = true; S.scene.add(wall); });
     const bomb = new THREE.Group(), bm = new THREE.Mesh(new THREE.SphereGeometry(.42, 20, 16), new THREE.MeshStandardMaterial({ color:"#1a1a24", roughness:.3, metalness:.4, emissive:"#ff2a00", emissiveIntensity:0 })); bomb.add(bm);
     const cap = new THREE.Mesh(new THREE.CylinderGeometry(.12, .12, .14, 10), new THREE.MeshStandardMaterial({ color:"#888" })); cap.position.y = .42; bomb.add(cap);
-    const spark = new THREE.Mesh(new THREE.SphereGeometry(.09, 8, 6), new THREE.MeshBasicMaterial({ color:"#ffd23a" })); spark.position.y = .56; bomb.add(spark); bomb.visible = false; S.scene.add(bomb);
+    let spark = new THREE.Mesh(new THREE.SphereGeometry(.09, 8, 6), new THREE.MeshBasicMaterial({ color:"#ffd23a" })); spark.position.y = .56; bomb.add(spark); bomb.visible = false; S.scene.add(bomb);
+    let bmM = bm.material, bmS = bm; const BM = mdl("bomb");
+    if(BM){ bomb.clear(); bomb.add(BM); bmS = BM; spark = BM.getObjectByName("spark") || spark; BM.traverse(o => { if(o.isMesh && o.material.color.getHex() === 0x22222e){ o.material = bmM = o.material.clone(); bmM.emissive.set("#ff2a00"); bmM.emissiveIntensity = 0; } }); }
     const blast = new THREE.Mesh(new THREE.SphereGeometry(1, 20, 14), new THREE.MeshBasicMaterial({ color:"#ffb03a", transparent:true, opacity:0 })); S.scene.add(blast); let bt = 9;
     let beepT = 0, hud = document.createElement("div"); hud.className = "bomb-hud"; root.appendChild(hud);
     v.tick = (s, dt, t) => { bomb.visible = !!s.h; if(s.h){ const b = S.bean(s.h); bomb.position.set(b.position.x, b.position.y + 2.05 + Math.sin(t*10)*.05, b.position.z); const k = 1 - s.f / s.m;
-        bm.material.emissiveIntensity = k * (.5 + Math.sin(t * (6 + k*30)) * .5); bm.scale.setScalar(1 + k*.25 + Math.sin(t*(6 + k*30))*.04*k); spark.scale.setScalar(.6 + rand()*.8);
+        bmM.emissiveIntensity = k * (.5 + Math.sin(t * (6 + k*30)) * .5); bmS.scale.setScalar(1 + k*.25 + Math.sin(t*(6 + k*30))*.04*k); spark.scale.setScalar(.6 + rand()*.8);
         beepT -= dt; if(beepT <= 0){ sfx.tick(); beepT = Math.max(.08, s.f / s.m * .7); }
         hud.innerHTML = s.h === NET.me ? `<b>💣 YOU HAVE THE BOMB!</b><span>Touch someone!</span>` : `<span>💣 ${esc(s.h)} has the bomb</span>`; hud.className = "bomb-hud" + (s.h === NET.me ? " me" : ""); }
       else hud.innerHTML = "";

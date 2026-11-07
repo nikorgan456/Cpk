@@ -37,9 +37,9 @@ GAMES.eggs = {
     floorBox(S, 24, 18, new THREE.MeshStandardMaterial({ map:stripeTex("#a8e08a", "#98d07a", 10, [1, 1]), roughness:.85 })); wallRing(S, 24, 18, "#c88a4a");
     [0, 1].forEach(t => { const n = new THREE.Mesh(new THREE.TorusGeometry(NR, .35, 10, 32), new THREE.MeshStandardMaterial({ color:"#d8a050", roughness:.9 })); n.rotation.x = Math.PI/2; n.position.set(t ? NEST : -NEST, .2, 0); S.scene.add(n);
       const f = new THREE.Mesh(new THREE.CircleGeometry(NR, 32), new THREE.MeshStandardMaterial({ color:TEAM_COL[t], transparent:true, opacity:.45 })); f.rotation.x = -Math.PI/2; f.position.set(t ? NEST : -NEST, .02, 0); S.scene.add(f); });
-    const eg = new THREE.SphereGeometry(.32, 14, 10), em = new THREE.MeshStandardMaterial({ color:"#fff6ea", roughness:.4 }), gm = new THREE.MeshStandardMaterial({ color:"#ffd23a", metalness:.7, roughness:.25, emissive:"#a86a00", emissiveIntensity:.25 }), meshes = [], hud = scoreHud(root);
+    const EGN = MDL.ready && MDL.nodes.egg, EGG = EGN && EGN.children.find(c => c.material && c.material.color.getHex() === 0xfff6ea), eg = EGG ? EGG.geometry : new THREE.SphereGeometry(.32, 14, 10), em = new THREE.MeshStandardMaterial({ color:"#fff6ea", roughness:.4 }), gm = new THREE.MeshStandardMaterial({ color:"#ffd23a", metalness:.7, roughness:.25, emissive:"#a86a00", emissiveIntensity:.25 }), meshes = [], hud = scoreHud(root);
     v.extra = (id, b) => teamMark(S, id, b, T[id]);
-    v.tick = (s, dt, t) => { s.e.forEach((e, i) => { const m = meshes[i] || (meshes[i] = (() => { const q = new THREE.Mesh(eg, em); q.scale.set(1, 1.3, 1); q.castShadow = true; S.scene.add(q); return q; })()); m.material = e[3] ? gm : em;
+    v.tick = (s, dt, t) => { s.e.forEach((e, i) => { const m = meshes[i] || (meshes[i] = (() => { const q = new THREE.Mesh(eg, em); if(EGG) q.scale.setScalar(1.25); else q.scale.set(1, 1.3, 1); q.castShadow = true; S.scene.add(q); return q; })()); m.material = e[3] ? gm : em;
         if(e[2] === 2){ const holder = Object.entries(s.B).find(([, b]) => Math.abs(b[0] - e[0]) < .01 && Math.abs(b[1] - e[1]) < .01); const bb = holder ? S.bean(holder[0]) : null; if(bb) m.position.set(bb.position.x, bb.position.y + 1.7, bb.position.z); else m.position.set(e[0], 1.7, e[1]); }
         else { m.position.x = lerp(m.position.x, e[0], .3); m.position.z = lerp(m.position.z, e[1], .3); m.position.y = .4 + (e[2] ? 0 : Math.abs(Math.sin(t*3 + i))*.15); } m.visible = true; });
       for(let i = s.e.length; i < meshes.length; i++) meshes[i].visible = false; hud.innerHTML = teamScoreHTML(s.c[0] + " 🥚", s.c[1] + " 🥚"); };
@@ -71,8 +71,8 @@ GAMES.coins = {
     floorBox(S, 22, 16, new THREE.MeshStandardMaterial({ map:cTex(256, 256, (x, w) => { for(let i=0;i<8;i++) for(let j=0;j<8;j++){ x.fillStyle = (i + j) % 2 ? "#ffe8b0" : "#ffd890"; x.fillRect(i*32, j*32, 32, 32); } }, [3, 2]), roughness:.6 })); wallRing(S, 22, 16, "#ff8a3a");
     const cg = new THREE.CylinderGeometry(.32, .32, .08, 18), cm = new THREE.MeshStandardMaterial({ color:"#ffd23a", metalness:.8, roughness:.25, emissive:"#a87000", emissiveIntensity:.3 }), meshes = [], hud = scoreHud(root);
     v.extra = (id, b) => teamMark(S, id, b, T[id]);
-    v.tick = (s, dt, t) => { s.c.forEach((c, i) => { const m = meshes[i] || (meshes[i] = (() => { const q = new THREE.Mesh(cg, cm); q.castShadow = true; S.scene.add(q); return q; })()); m.visible = true; const k = c[3] ? 2 : 1; m.scale.set(k, k, k);
-        m.position.set(c[0], c[2] < .6 ? .5 + (.6 - c[2]) * 14 : .5 + Math.sin(t*4 + i)*.08, c[1]); m.rotation.x = Math.PI/2; m.rotation.z = t*3 + i; });
+    v.tick = (s, dt, t) => { s.c.forEach((c, i) => { const m = meshes[i] || (meshes[i] = (() => { const q = mdl("coin") || new THREE.Mesh(cg, cm); q.userData.mdl = !q.isMesh || q.geometry !== cg; q.castShadow = true; S.scene.add(q); return q; })()); m.visible = true; const k = c[3] ? 2 : 1; m.scale.set(k, k, k);
+        m.position.set(c[0], c[2] < .6 ? .5 + (.6 - c[2]) * 14 : .5 + Math.sin(t*4 + i)*.08, c[1]); if(m.userData.mdl) m.rotation.y = t*3 + i; else { m.rotation.x = Math.PI/2; m.rotation.z = t*3 + i; } });
       for(let i = s.c.length; i < meshes.length; i++) meshes[i].visible = false; hud.innerHTML = teamScoreHTML(s.s[0], s.s[1], `You: ${s.h[ctx.me] || 0} 🪙`); };
     v.onFx = (type, a, b) => { if(type === "c"){ if(a === ctx.me) b ? sfx.win() : sfx.coin(); } else if(type === "spill"){ sfx.bump(); if(a === ctx.me) toast(`💸 ${b} knocked your coins loose!`, 1100); } else physFx(type, a); };
     const d0 = v.destroy; v.destroy = () => { hud.remove(); d0(); };

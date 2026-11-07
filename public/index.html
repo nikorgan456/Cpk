@@ -542,6 +542,7 @@ body.dark .modal{background:rgba(5,3,12,.6)}
 .ww-p small{font-size:.7rem;color:var(--muted);min-height:1em}.ww-p.dead{opacity:.45;filter:grayscale(.8)}.ww-p.mine{border-color:var(--pink)}.ww-v{display:flex;flex-wrap:wrap;justify-content:center}
 .ww-log{width:min(640px,100%);background:rgba(0,0,0,.35);color:#fff;border-radius:14px;padding:6px 12px;font-size:.88rem}.ww-log p{margin:4px 0}.ww-log:empty{display:none}
 .gfx-seg{width:140px}
+.w3d{display:flex;justify-content:center}.w3d canvas.bean3d{display:block;cursor:grab;touch-action:none}.w3d canvas.bean3d:active{cursor:grabbing}
 </style></head><body>
 <div class="bg-blobs" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
 
@@ -814,6 +815,7 @@ function beanMesh(bean, name){
   const s = SPECIAL[b.col], col = s ? (b.col === "c_candy" ? s[0] : s[1]) : (b.col || "#3ab8ff");
   const mat = new THREE.MeshPhysicalMaterial({ clearcoat:1, clearcoatRoughness:.18, color:col, roughness:.38, metalness: b.col === "c_gold" ? .7 : b.col === "c_ice" ? .3 : .05, emissive: b.col === "c_lava" ? "#ff3a00" : b.col === "c_galaxy" ? "#3a1aa8" : b.col === "c_neon" ? "#3aff6a" : "#000", emissiveIntensity: b.col === "c_lava" ? .4 : b.col === "c_neon" ? .55 : .25, transparent: b.col === "c_ghost", opacity: b.col === "c_ghost" ? .7 : 1 });
   if(b.col === "c_rainbow") g.userData.rainbow = mat;
+  if(MDL.ready && MDL.nodes.body) return beanKit(b, name, g, body, mat, s);
   const m = new THREE.Mesh(BEAN3D.geo, mat); m.castShadow = true; m.position.y = .08; body.add(m);
   // cartoon outline: a slightly bigger, inside-out copy in a darker shade
   const ol = new THREE.Mesh(BEAN3D.geo, new THREE.MeshBasicMaterial({ color:shade(s ? s[s.length - 1] : (b.col || "#3ab8ff"), -.55), side:THREE.BackSide, transparent:b.col === "c_ghost", opacity:b.col === "c_ghost" ? .5 : 1 })); ol.scale.set(1.055, 1.035, 1.055); ol.position.y = .065; body.add(ol); g.userData.outline = ol;
@@ -859,14 +861,100 @@ function beanMesh(bean, name){
   if(b.neck === "backpack") add(new THREE.BoxGeometry(.4, .46, .22), "#ff8a2a", 0, .5, -.56);
   g.userData.name = name; return g;
 }
+// the Blender-made bean: smoother body, proper face, little hands, and modelled outfits
+function beanKit(b, name, g, body, mat, s){
+  const N = MDL.nodes, m = new THREE.Mesh(N.body.geometry, mat); m.castShadow = true; body.add(m);
+  const ol = new THREE.Mesh(N.body.geometry, new THREE.MeshBasicMaterial({ color:shade(s ? s[s.length - 1] : (b.col || "#3ab8ff"), -.55), side:THREE.BackSide, transparent:b.col === "c_ghost", opacity:b.col === "c_ghost" ? .5 : 1 }));
+  ol.scale.set(1.05, 1.03, 1.05); ol.position.y = -.025; body.add(ol); g.userData.outline = ol;
+  if(b.face !== "visor") body.add(mdl("face"));
+  g.userData.hands = [-1, 1].map(sd => { const h = new THREE.Mesh(N.hand.geometry, mat); h.castShadow = true; h.position.set(sd*.57, .5, .02); h.rotation.z = sd*.35; body.add(h); return h; });
+  g.userData.feet = [-1, 1].map(sd => { const f = new THREE.Mesh(N.foot.geometry, mat); f.castShadow = true; f.position.set(sd*.2, .075, .05); g.add(f); return f; });
+  [["hat", b.hat], ["face", b.face], ["neck", b.neck]].forEach(([sl, id]) => { if(!id) return; const it = mdl(sl + "_" + id); if(!it) return; body.add(it);
+    it.traverse(o => { if(o.name === "prop") g.userData.prop = o; if(o.name === "cloth") g.userData.cape = o; if(o.name.startsWith("flame")) (g.userData.flames = g.userData.flames || []).push(o); }); });
+  g.userData.name = name; g.userData.kit = 1; return g;
+}
 function animBean(g, speed, t, alive = true){
   const U = g.userData, sw = Math.sin(t * 14) * Math.min(1, speed / 4);
   if(U.feet){ U.feet[0].position.z = .05 + sw*.16; U.feet[1].position.z = .05 - sw*.16; U.feet[0].position.y = .06 + Math.max(0, sw)*.08; U.feet[1].position.y = .06 + Math.max(0, -sw)*.08; }
   U.body.position.y = Math.abs(sw) * .06; U.body.rotation.z = sw * .06;
-  if(U.prop) U.prop.rotation.y = t * 20; if(U.cape) U.cape.rotation.x = .15 + Math.min(.9, speed * .15) + Math.sin(t*8)*.05;
+  if(U.hands){ const ih = speed < .5 ? Math.sin(t * 2.4) * .04 : 0; U.hands[0].position.z = .02 - sw*.14; U.hands[1].position.z = .02 + sw*.14; U.hands[0].position.y = U.hands[1].position.y = .5 + ih + Math.abs(sw)*.03; }
+  if(U.prop) U.prop.rotation.y = t * 20; if(U.cape) U.cape.rotation.x = (U.kit ? .05 : .15) + Math.min(.9, speed * .15) + Math.sin(t*8)*.05;
   if(U.rainbow) U.rainbow.color.setHSL((t * .2) % 1, .8, .6);
   if(U.flames) U.flames.forEach((f, i) => f.scale.y = .7 + Math.abs(Math.sin(t * 30 + i)) * .6);
 }
+
+// ===================== Blender-made models (public/models/*.cpkm = gzipped, quantised meshes) =====================
+// Loaded once in the background. Anything that wants a model checks MDL.ready and falls back to the old shapes if not.
+const MDL = { ready:false, nodes:{}, mats:{} };
+function cpkmParse(buf){
+  const dv = new DataView(buf), jl = dv.getUint32(0, true), J = JSON.parse(new TextDecoder().decode(new Uint8Array(buf, 4, jl))), b0 = (4 + jl + 3) & ~3;
+  const mats = J.mats.map(m => { if(m.n === "TINT") return null; const mt = new THREE.MeshStandardMaterial({ color:m.c, roughness:m.r, metalness:Math.min(m.m, .45) });
+    if(m.e){ mt.emissive.set(m.e); mt.emissiveIntensity = Math.min(1.2, m.ei * .5); }
+    if(m.a < 1){ mt.transparent = true; mt.opacity = m.a; mt.depthWrite = false; }
+    return mt; });
+  const meshes = J.meshes.map(prims => prims.map(p => {
+    const g = new THREE.BufferGeometry(), q = new Uint16Array(buf, b0 + p.po, p.vc*3), pos = new Float32Array(p.vc*3), n8 = new Int8Array(buf, b0 + p.no, p.vc*4), nor = new Float32Array(p.vc*3);
+    for(let i=0;i<p.vc;i++) for(let k=0;k<3;k++){ pos[i*3+k] = p.lo[k] + q[i*3+k] / 65535 * (p.hi[k] - p.lo[k]); nor[i*3+k] = n8[i*4+k] / 127; }
+    g.setAttribute("position", new THREE.BufferAttribute(pos, 3)); g.setAttribute("normal", new THREE.BufferAttribute(nor, 3));
+    g.setIndex(new THREE.BufferAttribute(p.i32 ? new Uint32Array(buf.slice(b0 + p.io, b0 + p.io + p.ic*4)) : new Uint16Array(buf, b0 + p.io, p.ic), 1));
+    g.computeBoundingSphere(); return { g, mat:p.mat }; }));
+  const objs = J.nodes.map(n => { let o;
+    if(n.m != null){ const pr = meshes[n.m]; const mk = x => { const me = new THREE.Mesh(x.g, mats[x.mat] || TINT0); me.castShadow = true; if(!mats[x.mat]) me.userData.tint = 1; return me; };
+      if(pr.length === 1) o = mk(pr[0]); else { o = new THREE.Group(); pr.forEach(x => o.add(mk(x))); } }
+    else o = new THREE.Group();
+    o.name = n.n; if(n.t) o.position.fromArray(n.t); if(n.r) o.quaternion.fromArray(n.r); if(n.s) o.scale.fromArray(n.s); return o; });
+  J.nodes.forEach((n, i) => { if(n.p >= 0) objs[n.p].add(objs[i]); else MDL.nodes[n.n] = objs[i]; });
+}
+let TINT0 = null;
+async function loadModels(){
+  if(MDL.ready || MDL.loading || typeof DecompressionStream === "undefined" || typeof THREE === "undefined") return; MDL.loading = 1;
+  try{ TINT0 = new THREE.MeshStandardMaterial({ color:"#3ab8ff" });
+    const get = async n => { const r = await fetch("/models/" + n + ".cpkm"); if(!r.ok) throw 0; return new Response(r.body.pipeThrough(new DecompressionStream("gzip"))).arrayBuffer(); };
+    const bufs = await Promise.all(["bean", "props"].map(get)); bufs.forEach(cpkmParse); MDL.ready = true;
+  }catch(e){ console.warn("models", e); MDL.loading = 0; }
+}
+// copy of a model, with every TINT part using `tint` (a material or a colour)
+function mdl(name, tint){
+  const src = MDL.ready && MDL.nodes[name]; if(!src) return null;
+  const o = src.clone(true); if(tint != null){ const tm = tint.isMaterial ? tint : new THREE.MeshStandardMaterial({ color:tint, roughness:.35, metalness:.1 }); o.traverse(c => { if(c.userData.tint) c.material = tm; }); }
+  return o;
+}
+const mdlGeo = name => { const n = MDL.ready && MDL.nodes[name]; return n && n.isMesh ? n.geometry : null; };
+// icing drips for a round platform of radius R whose top is at local y=0
+function dripRing(R, col){
+  const g0 = mdlGeo("drip") || (MDL.nodes.drip && MDL.nodes.drip.children[0] && MDL.nodes.drip.children[0].geometry); if(!g0) return null;
+  const g = g0.clone(), p = g.attributes.position;
+  for(let i=0;i<p.count;i++){ const x = p.getX(i), z = p.getZ(i), r = Math.hypot(x, z) || 1, nr = R + (r - 1) * 2.2; p.setX(i, x / r * nr); p.setZ(i, z / r * nr); p.setY(i, p.getY(i) * 1.7); }
+  p.needsUpdate = true; g.computeBoundingSphere();
+  const m = new THREE.Mesh(g, new THREE.MeshPhysicalMaterial({ color:col, roughness:.25, clearcoat:.8, clearcoatRoughness:.2 })); return m;
+}
+// spinning 3D bean for the wardrobe (drag to turn it). Returns false if it can't (then the caller shows the flat bean)
+const PV = { rot:0, vel:0 };
+function beanPreview(host, bean, w, h){
+  if(!MDL.ready || !host) return false;
+  try{
+    if(!PV.r){ const r = PV.r = new THREE.WebGLRenderer({ antialias:true, alpha:true }); r.setPixelRatio(Math.min(2, window.devicePixelRatio || 1)); r.setClearColor(0, 0);
+      const sc = PV.scene = new THREE.Scene(); sc.add(new THREE.HemisphereLight("#ffffff", "#ffc8ea", .75)); const sun = new THREE.DirectionalLight("#fff4e4", .85); sun.position.set(3, 6, 5); sc.add(sun); const rim = new THREE.DirectionalLight("#c8e0ff", .5); rim.position.set(-4, 3, -5); sc.add(rim);
+      const es = new THREE.Scene(); es.add(new THREE.Mesh(new THREE.SphereGeometry(10, 16, 8), new THREE.MeshBasicMaterial({ color:"#4a4058", side:THREE.BackSide })));
+      [[0, 9, 0, 2.6, "#ffffff"], [7, 3, 5, 1.6, "#fff4e0"], [-6, 4, -6, 1.4, "#ffe0f4"]].forEach(([x, y, z, rr, c]) => { const m = new THREE.Mesh(new THREE.SphereGeometry(rr, 12, 8), new THREE.MeshBasicMaterial({ color:c })); m.position.set(x, y, z); es.add(m); });
+      const pm = new THREE.PMREMGenerator(r); sc.environment = pm.fromScene(es, .04).texture; pm.dispose();
+      const sh = new THREE.Mesh(new THREE.CircleGeometry(.75, 32), new THREE.MeshBasicMaterial({ color:"#000", transparent:true, opacity:.12 })); sh.rotation.x = -Math.PI/2; sh.position.y = .005; sc.add(sh);
+      PV.cam = new THREE.PerspectiveCamera(30, 1, .1, 50); PV.cam.position.set(0, 1.05, 4.1); PV.cam.lookAt(0, .74, 0);
+      const cv = r.domElement; cv.className = "bean3d"; cv.style.touchAction = "none";
+      cv.onpointerdown = e => { PV.drag = e.clientX; PV.vel = 0; cv.setPointerCapture(e.pointerId); };
+      cv.onpointermove = e => { if(PV.drag == null) return; const d = (e.clientX - PV.drag) * .012; PV.rot += d; PV.vel = d * 30; PV.drag = e.clientX; };
+      cv.onpointerup = cv.onpointercancel = () => { PV.drag = null; }; }
+    PV.r.setSize(w, h); PV.cam.aspect = w / h; PV.cam.updateProjectionMatrix(); host.appendChild(PV.r.domElement);
+    if(PV.bean) PV.scene.remove(PV.bean); PV.bean = beanMesh(bean, ""); PV.scene.add(PV.bean);
+    if(!PV.raf){ let last = performance.now(); const loop = now => { const dt = Math.min(.05, (now - last) / 1000); last = now;
+        if(!PV.r.domElement.isConnected){ PV.raf = 0; return; }
+        if(PV.drag == null){ PV.rot += PV.vel * dt; PV.vel *= Math.max(0, 1 - dt * 2.5); if(Math.abs(PV.vel) < .4){ PV.rot = Math.atan2(Math.sin(PV.rot), Math.cos(PV.rot)); PV.rot += (Math.sin(now / 1400) * .6 - PV.rot) * Math.min(1, dt * 1.6); } }
+        PV.bean.rotation.y = PV.rot; animBean(PV.bean, 0, now / 1000); PV.bean.position.y = Math.abs(Math.sin(now / 400)) * .08; PV.r.render(PV.scene, PV.cam); PV.raf = requestAnimationFrame(loop); };
+      PV.raf = requestAnimationFrame(loop); }
+    return true;
+  }catch(e){ console.warn(e); return false; }
+}
+loadModels();
 
 // ===================== room connection =====================
 const NET = { ws:null, code:null, me:null, room:null, host:false, tries:0, closing:false, h:{} };
@@ -968,6 +1056,7 @@ function makeStage(root, o = {}){
   for(let i=0;i<14;i++){ const an = i / 14 * Math.PI * 2, r = 22 + rand()*8, m = new THREE.MeshPhysicalMaterial({ color:pick(cols), roughness:.25, clearcoat:.8, clearcoatRoughness:.2 }); let d;
     if(i % 3 === 0){ d = new THREE.Group(); const st = new THREE.Mesh(new THREE.CylinderGeometry(.15, .15, 5, 8), new THREE.MeshStandardMaterial({ color:"#fff" })); st.position.y = -2.5; d.add(st); const top = new THREE.Mesh(new THREE.TorusGeometry(1.2, .45, 12, 24), m); d.add(top); }
     else if(i % 3 === 1) d = new THREE.Mesh(new THREE.SphereGeometry(1.4, 16, 12), m); else d = new THREE.Mesh(new THREE.ConeGeometry(1.2, 3, 16), m);
+    const md = mdl(["deco_donut", "deco_lolli", "deco_cupcake", "deco_gumdrop", "deco_candy", "deco_cone", "deco_star"][i % 7], m); if(md){ d = md; d.scale.setScalar(1.1 + rand()*.4); d.rotation.set((rand() - .5)*.6, rand()*6, (rand() - .5)*.6); }
     d.position.set(Math.cos(an)*r, -2 + rand()*4, Math.sin(an)*r); d.userData.ph = rand()*6; deco.add(d); }
   const labels = document.createElement("div"); labels.className = "labels3d"; root.appendChild(labels);
   const S = { scene, cam, renderer, root, beans:new Map(), labels, deco, goo, gooM, tags:new Map(), emotes:new Map(), camPos:o.cam || [0, 17, 15], look:o.look || [0, 0, 1], parts:[], lastT:0 };
@@ -1403,11 +1492,13 @@ GAMES.bomb = {
     [[0, 8.7, 17.4, .5], [0, -8.7, 17.4, .5], [8.7, 0, .5, 17.4], [-8.7, 0, .5, 17.4]].forEach(([x, z, w, d]) => { const wall = new THREE.Mesh(new THREE.BoxGeometry(w, .9, d), caneM); wall.position.set(x, .45, z); wall.castShadow = true; S.scene.add(wall); });
     const bomb = new THREE.Group(), bm = new THREE.Mesh(new THREE.SphereGeometry(.42, 20, 16), new THREE.MeshStandardMaterial({ color:"#1a1a24", roughness:.3, metalness:.4, emissive:"#ff2a00", emissiveIntensity:0 })); bomb.add(bm);
     const cap = new THREE.Mesh(new THREE.CylinderGeometry(.12, .12, .14, 10), new THREE.MeshStandardMaterial({ color:"#888" })); cap.position.y = .42; bomb.add(cap);
-    const spark = new THREE.Mesh(new THREE.SphereGeometry(.09, 8, 6), new THREE.MeshBasicMaterial({ color:"#ffd23a" })); spark.position.y = .56; bomb.add(spark); bomb.visible = false; S.scene.add(bomb);
+    let spark = new THREE.Mesh(new THREE.SphereGeometry(.09, 8, 6), new THREE.MeshBasicMaterial({ color:"#ffd23a" })); spark.position.y = .56; bomb.add(spark); bomb.visible = false; S.scene.add(bomb);
+    let bmM = bm.material, bmS = bm; const BM = mdl("bomb");
+    if(BM){ bomb.clear(); bomb.add(BM); bmS = BM; spark = BM.getObjectByName("spark") || spark; BM.traverse(o => { if(o.isMesh && o.material.color.getHex() === 0x22222e){ o.material = bmM = o.material.clone(); bmM.emissive.set("#ff2a00"); bmM.emissiveIntensity = 0; } }); }
     const blast = new THREE.Mesh(new THREE.SphereGeometry(1, 20, 14), new THREE.MeshBasicMaterial({ color:"#ffb03a", transparent:true, opacity:0 })); S.scene.add(blast); let bt = 9;
     let beepT = 0, hud = document.createElement("div"); hud.className = "bomb-hud"; root.appendChild(hud);
     v.tick = (s, dt, t) => { bomb.visible = !!s.h; if(s.h){ const b = S.bean(s.h); bomb.position.set(b.position.x, b.position.y + 2.05 + Math.sin(t*10)*.05, b.position.z); const k = 1 - s.f / s.m;
-        bm.material.emissiveIntensity = k * (.5 + Math.sin(t * (6 + k*30)) * .5); bm.scale.setScalar(1 + k*.25 + Math.sin(t*(6 + k*30))*.04*k); spark.scale.setScalar(.6 + rand()*.8);
+        bmM.emissiveIntensity = k * (.5 + Math.sin(t * (6 + k*30)) * .5); bmS.scale.setScalar(1 + k*.25 + Math.sin(t*(6 + k*30))*.04*k); spark.scale.setScalar(.6 + rand()*.8);
         beepT -= dt; if(beepT <= 0){ sfx.tick(); beepT = Math.max(.08, s.f / s.m * .7); }
         hud.innerHTML = s.h === NET.me ? `<b>💣 YOU HAVE THE BOMB!</b><span>Touch someone!</span>` : `<span>💣 ${esc(s.h)} has the bomb</span>`; hud.className = "bomb-hud" + (s.h === NET.me ? " me" : ""); }
       else hud.innerHTML = "";
@@ -1446,7 +1537,8 @@ GAMES.bumper = {
     [[0, 7.25, 20.6, .14], [0, -7.25, 20.6, .14], [10.25, 0, .14, 14.6], [-10.25, 0, .14, 14.6]].forEach(([x, z, w, d]) => { const e = new THREE.Mesh(new THREE.BoxGeometry(w, .1, d), edgeM); e.position.set(x, .02, z); rink.add(e); });
     const lights = []; for(let i=0;i<12;i++){ const m = new THREE.Mesh(new THREE.SphereGeometry(.18, 8, 6), new THREE.MeshBasicMaterial({ color:"#fff" })); const a = i / 12; m.position.set(i < 6 ? -10 + i*4 : -10 + (i - 6)*4, .1, i < 6 ? 7.4 : -7.4); rink.add(m); lights.push(m); }
     const hud = hudEl(root);
-    v.extra = (id, b) => { if(b.userData.car) return; const c = new THREE.Group(), col = hashCol(id);
+    v.extra = (id, b) => { if(b.userData.car) return; const c = new THREE.Group(), col = hashCol(id), CAR = mdl("car_bumper", new THREE.MeshPhysicalMaterial({ color:col, roughness:.2, metalness:.2, clearcoat:1, clearcoatRoughness:.1 }));
+      if(CAR){ c.add(CAR); c.traverse(o => o.castShadow = true); b.add(c); b.userData.car = c; return; }
       const body = new THREE.Mesh(new THREE.BoxGeometry(1.25, .42, 1.55), new THREE.MeshStandardMaterial({ color:col, roughness:.25, metalness:.3 })); body.position.y = .22; c.add(body);
       const bump = new THREE.Mesh(new THREE.TorusGeometry(.82, .13, 8, 24), new THREE.MeshStandardMaterial({ color:"#222", roughness:.8 })); bump.rotation.x = Math.PI/2; bump.scale.set(1, 1.2, 1); bump.position.y = .15; c.add(bump);
       const pole = new THREE.Mesh(new THREE.CylinderGeometry(.03, .03, 1.6, 6), new THREE.MeshStandardMaterial({ color:"#aaa" })); pole.position.set(0, 1.1, -.62); c.add(pole);
@@ -1507,7 +1599,7 @@ GAMES.dodge = {
     [[0, DH/2 + .2, DW + .8, .4], [0, -DH/2 - .2, DW + .8, .4], [DW/2 + .2, 0, .4, DH], [-DW/2 - .2, 0, .4, DH]].forEach(([x, z, w, d]) => { const m = new THREE.Mesh(new THREE.BoxGeometry(w, .8, d), wm); m.position.set(x, .4, z); m.castShadow = true; S.scene.add(m); });
     const bt = cTex(128, 64, (x, w, h) => { x.fillStyle = "#ff3a5a"; x.fillRect(0, 0, w, h); x.fillStyle = "#fff"; x.fillRect(0, h/2 - 5, w, 10); });
     const bm = new THREE.MeshStandardMaterial({ map:bt, roughness:.35 }), balls = [];
-    const ballMesh = () => { const m = new THREE.Mesh(new THREE.SphereGeometry(.32, 16, 12), bm); m.castShadow = true; S.scene.add(m); return m; };
+    const ballMesh = () => { const m = mdl("ball_dodge", "#ff3a5a") || new THREE.Mesh(new THREE.SphereGeometry(.32, 16, 12), bm); m.castShadow = true; S.scene.add(m); return m; };
     const hud = hudEl(root); let lastHp = ""; const arrows = {}, am = new THREE.MeshBasicMaterial({ color:"#ffe23a", transparent:true, opacity:.85, depthWrite:false });
     const arrowOf = id => arrows[id] || (arrows[id] = (() => { const g = new THREE.Group(), sh = new THREE.Mesh(new THREE.PlaneGeometry(.22, 1), am), hd = new THREE.Mesh(new THREE.CircleGeometry(.32, 3), am); sh.rotation.x = -Math.PI/2; sh.position.z = .5; hd.rotation.x = -Math.PI/2; hd.rotation.z = Math.PI/2; hd.position.z = 1; g.add(sh); g.add(hd); g.userData = { sh, hd }; g.position.y = .06; S.scene.add(g); return g; })());
     const meter = document.createElement("div"); meter.className = "charge-meter"; meter.innerHTML = "<i></i><span>CHARGE</span>"; meter.hidden = true; root.appendChild(meter);
@@ -1539,12 +1631,12 @@ GAMES.koth = {
   snap(G){ const p = {}; for(const id in G.pts) p[id] = +G.pts[id].toFixed(1); return { B:physSnap(G.B), hx:+G.hx.toFixed(2), hz:+G.hz.toFixed(2), p, in:G.in, fx:G.fx }; },
   view(root, ctx){ return physView(root, ctx, { sky:"#b89aff", sky2:"#ffe0f8", goo:"#9a5aff", fog:"#ffe0f8", cam:[0, 19, 15] }, (S, v) => {
     const top = new THREE.MeshStandardMaterial({ map:icingTex("#9ae8a0", ["#fff","#ffd23a","#ff7ab8","#7ad8ff"]), roughness:.55 }), side = new THREE.MeshStandardMaterial({ color:"#c88a50", roughness:.7 });
-    const plat = new THREE.Mesh(new THREE.CylinderGeometry(10, 10, 1.2, 72), [side, top, side]); plat.position.y = -.6; plat.receiveShadow = true; S.scene.add(plat);
+    const plat = new THREE.Mesh(new THREE.CylinderGeometry(10, 10, 1.2, 72), [side, top, side]); plat.position.y = -.6; plat.receiveShadow = true; S.scene.add(plat); const drip = dripRing(10, "#8ae094"); if(drip) S.scene.add(drip);
     const zone = new THREE.Group(); const zr = new THREE.Mesh(new THREE.RingGeometry(2.15, 2.4, 48), new THREE.MeshBasicMaterial({ color:"#ffe23a", side:THREE.DoubleSide })); zr.rotation.x = -Math.PI/2; zr.position.y = .03; zone.add(zr);
     const zf = new THREE.Mesh(new THREE.CircleGeometry(2.15, 48), new THREE.MeshBasicMaterial({ color:"#ffe23a", transparent:true, opacity:.25 })); zf.rotation.x = -Math.PI/2; zf.position.y = .02; zone.add(zf);
     const beam = new THREE.Mesh(new THREE.CylinderGeometry(2.3, 2.3, 7, 40, 1, true), new THREE.MeshBasicMaterial({ color:"#fff6a0", transparent:true, opacity:.15, side:THREE.DoubleSide, depthWrite:false })); beam.position.y = 3.5; zone.add(beam); S.scene.add(zone);
     const crown = new THREE.Group(), cm = new THREE.MeshStandardMaterial({ color:"#ffd23a", metalness:.8, roughness:.25, emissive:"#a86a00", emissiveIntensity:.3 });
-    const band = new THREE.Mesh(new THREE.CylinderGeometry(.32, .32, .2, 16, 1, true), cm); crown.add(band); for(let i=0;i<5;i++){ const sp = new THREE.Mesh(new THREE.ConeGeometry(.08, .22, 6), cm); const a = i / 5 * Math.PI * 2; sp.position.set(Math.cos(a)*.3, .2, Math.sin(a)*.3); crown.add(sp); } crown.visible = false; S.scene.add(crown);
+    const band = new THREE.Mesh(new THREE.CylinderGeometry(.32, .32, .2, 16, 1, true), cm); crown.add(band); for(let i=0;i<5;i++){ const sp = new THREE.Mesh(new THREE.ConeGeometry(.08, .22, 6), cm); const a = i / 5 * Math.PI * 2; sp.position.set(Math.cos(a)*.3, .2, Math.sin(a)*.3); crown.add(sp); } const CM = mdl("crown"); if(CM){ crown.clear(); CM.scale.setScalar(1.15); crown.add(CM); } crown.visible = false; S.scene.add(crown);
     const hud = hudEl(root);
     v.tick = (s, dt, t) => { zone.position.x = lerp(zone.position.x, s.hx, Math.min(1, dt*3)); zone.position.z = lerp(zone.position.z, s.hz, Math.min(1, dt*3));
       const busy = s.in.length; zr.material.color.set(busy > 1 ? "#ff5a7a" : busy === 1 ? "#5ae07a" : "#ffe23a"); zf.material.color.copy(zr.material.color); beam.material.opacity = .12 + Math.sin(t*4)*.05;
@@ -1743,9 +1835,10 @@ GAMES.kart = {
     const curbM = new THREE.MeshStandardMaterial({ map:cTex(64, 16, (x) => { for(let i=0;i<4;i++){ x.fillStyle = i % 2 ? "#fff" : "#ff3a5a"; x.fillRect(i*16, 0, 16, 16); } }, [40, 1]) });
     [KR + 2.6, KR - 2.6].forEach(r => { const pts = []; for(let i=0;i<=160;i++){ const [x, z] = kartPt(i / 160 * KP, r - KR); pts.push(new THREE.Vector3(x, .25, z)); } const tube = new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts, true), 200, .22, 6, true), curbM); tube.castShadow = true; S.scene.add(tube); });
     const line = new THREE.Mesh(new THREE.PlaneGeometry(1, 5.2), new THREE.MeshStandardMaterial({ map:cTex(32, 160, (x) => { for(let i=0;i<2;i++) for(let j=0;j<10;j++){ x.fillStyle = (i + j) % 2 ? "#fff" : "#222"; x.fillRect(i*16, j*16, 16, 16); } }) })); line.rotation.x = -Math.PI/2; line.position.set(-KS + .5, .03, -KR); S.scene.add(line);
-    const tree = (x, z) => { const g = new THREE.Group(); const tr = new THREE.Mesh(new THREE.CylinderGeometry(.15, .2, 1.4, 6), new THREE.MeshStandardMaterial({ color:"#fff" })); tr.position.y = .7; g.add(tr); const top = new THREE.Mesh(new THREE.SphereGeometry(.9, 12, 10), new THREE.MeshStandardMaterial({ color:pick(["#ff7ab8", "#ffd23a", "#9a6aff"]) })); top.position.y = 1.8; g.add(top); g.position.set(x, 0, z); g.traverse(o => o.castShadow = true); S.scene.add(g); };
+    const tree = (x, z) => { const T2 = mdl("tree_lolli", pick(["#ff7ab8", "#ffd23a", "#9a6aff", "#3ad8ff"])); if(T2){ T2.position.set(x, 0, z); T2.rotation.y = rand()*6; T2.traverse(o => o.castShadow = true); S.scene.add(T2); return; } const g = new THREE.Group(); const tr = new THREE.Mesh(new THREE.CylinderGeometry(.15, .2, 1.4, 6), new THREE.MeshStandardMaterial({ color:"#fff" })); tr.position.y = .7; g.add(tr); const top = new THREE.Mesh(new THREE.SphereGeometry(.9, 12, 10), new THREE.MeshStandardMaterial({ color:pick(["#ff7ab8", "#ffd23a", "#9a6aff"]) })); top.position.y = 1.8; g.add(top); g.position.set(x, 0, z); g.traverse(o => o.castShadow = true); S.scene.add(g); };
     [[-6, 0], [0, 0], [6, 0], [-20, 9], [20, -9], [-20, -9], [20, 9]].forEach(([x, z]) => tree(x, z));
-    v.extra = (id, b) => { if(b.userData.kart) return; const k = new THREE.Group(), col = hashCol(id), cm = new THREE.MeshStandardMaterial({ color:col, roughness:.25, metalness:.3 });
+    v.extra = (id, b) => { if(b.userData.kart) return; const k = new THREE.Group(), col = hashCol(id), cm = new THREE.MeshStandardMaterial({ color:col, roughness:.25, metalness:.3 }), KM = mdl("kart", new THREE.MeshPhysicalMaterial({ color:col, roughness:.2, metalness:.2, clearcoat:1, clearcoatRoughness:.1 }));
+      if(KM){ k.add(KM); k.traverse(o => o.castShadow = true); b.add(k); b.userData.kart = k; return; }
       const body = new THREE.Mesh(new THREE.BoxGeometry(.95, .3, 1.7), cm); body.position.y = .25; k.add(body); const nose = new THREE.Mesh(new THREE.BoxGeometry(.7, .22, .5), cm); nose.position.set(0, .22, 1); k.add(nose);
       const wm = new THREE.MeshStandardMaterial({ color:"#1a1a1a" }); [[-.55, .55], [.55, .55], [-.55, -.6], [.55, -.6]].forEach(([x, z]) => { const w = new THREE.Mesh(new THREE.CylinderGeometry(.22, .22, .2, 12), wm); w.rotation.z = Math.PI/2; w.position.set(x, .2, z); k.add(w); });
       const sp = new THREE.Mesh(new THREE.BoxGeometry(1.1, .08, .3), cm); sp.position.set(0, .6, -.8); k.add(sp); k.traverse(o => o.castShadow = true); b.add(k); b.userData.kart = k; };
@@ -2553,7 +2646,7 @@ GAMES.spin = {
   snap(G){ return { B:physSnap(G.B), R:+G.R.toFixed(2), fx:G.fx }; },
   view(root, ctx){ return physView(root, ctx, { sky:"#a8a0ff", sky2:"#ffe0f8", goo:"#9a6aff", fog:"#ffe0f8", cam:[0, 18, 15], jump:true, btn:"DIVE", pred:{ speed:6.4 } }, (S, v) => {
     const top = new THREE.MeshStandardMaterial({ map:icingTex("#ffe86a", ["#fff", "#ff7ab8", "#7ad8ff", "#9a6aff"]), roughness:.5 });
-    const pl = new THREE.Mesh(new THREE.CylinderGeometry(9.4, 9.4, 1, 64), [new THREE.MeshStandardMaterial({ color:"#e8a860" }), top, new THREE.MeshStandardMaterial({ color:"#e8a860" })]); pl.position.y = -.5; pl.receiveShadow = true; S.scene.add(pl);
+    const pl = new THREE.Mesh(new THREE.CylinderGeometry(9.4, 9.4, 1, 64), [new THREE.MeshStandardMaterial({ color:"#e8a860" }), top, new THREE.MeshStandardMaterial({ color:"#e8a860" })]); pl.position.y = -.5; pl.receiveShadow = true; { const d = dripRing(9.4, "#fff4fa"); if(d) S.scene.add(d); } S.scene.add(pl);
     const pole = new THREE.Mesh(new THREE.CylinderGeometry(.45, .55, 2.4, 16), new THREE.MeshStandardMaterial({ color:"#fff" })); pole.position.y = 1.2; S.scene.add(pole);
     const bar = (col, y) => { const g = new THREE.Group(), m = new THREE.Mesh(new THREE.CylinderGeometry(.32, .32, 19, 16), new THREE.MeshStandardMaterial({ color:col, roughness:.3, emissive:col, emissiveIntensity:.15 })); m.rotation.z = Math.PI/2; m.position.y = y; m.castShadow = true; g.add(m); S.scene.add(g); return g; };
     const low = bar("#ff4a8a", .38), high = bar("#3a9aff", 1.75);
@@ -2668,7 +2761,7 @@ GAMES.football = {
       [GOAL, -GOAL].forEach(z => { const p = new THREE.Mesh(new THREE.CylinderGeometry(.15, .15, 2.2, 10), gm); p.position.set(sd*FW/2, 1.1, z); S.scene.add(p); }); const cb = new THREE.Mesh(new THREE.CylinderGeometry(.15, .15, GOAL*2, 10), gm); cb.rotation.x = Math.PI/2; cb.position.set(sd*FW/2, 2.2, 0); S.scene.add(cb);
       const n = new THREE.Mesh(new THREE.PlaneGeometry(GOAL*2, 2.2), net); n.rotation.y = Math.PI/2; n.position.set(sd*(FW/2 + 1.4), 1.1, 0); S.scene.add(n); });
     const ballT = cTex(256, 128, (x, w, h) => { x.fillStyle = "#fff"; x.fillRect(0, 0, w, h); x.fillStyle = "#222"; for(let i=0;i<8;i++) for(let j=0;j<4;j++) if((i + j) % 2){ x.beginPath(); x.arc(i*32 + 16, j*32 + 16, 10, 0, 7); x.fill(); } });
-    const ball = new THREE.Mesh(new THREE.SphereGeometry(.8, 24, 18), new THREE.MeshStandardMaterial({ map:ballT, roughness:.4 })); ball.castShadow = true; ball.position.y = .8; S.scene.add(ball);
+    const ball = mdl("ball_football") || new THREE.Mesh(new THREE.SphereGeometry(.8, 24, 18), new THREE.MeshStandardMaterial({ map:ballT, roughness:.4 })); if(ball.isGroup || ball.geometry.type !== "SphereGeometry") ball.scale.setScalar(.8); ball.castShadow = true; ball.position.y = .8; S.scene.add(ball);
     const hud = scoreHud(root), big = document.createElement("div"); big.className = "goal-pop"; root.appendChild(big); let lx = 0, lz = 0;
     v.extra = (id, b) => teamMark(S, id, b, T[id]);
     v.tick = (s, dt) => { const k = Math.min(1, dt*14); ball.position.x = lerp(ball.position.x, s.b[0], k); ball.position.z = lerp(ball.position.z, s.b[1], k); const dx = ball.position.x - lx, dz = ball.position.z - lz; lx = ball.position.x; lz = ball.position.z; ball.rotation.z -= dx / .8; ball.rotation.x += dz / .8;
@@ -2788,9 +2881,9 @@ GAMES.eggs = {
     floorBox(S, 24, 18, new THREE.MeshStandardMaterial({ map:stripeTex("#a8e08a", "#98d07a", 10, [1, 1]), roughness:.85 })); wallRing(S, 24, 18, "#c88a4a");
     [0, 1].forEach(t => { const n = new THREE.Mesh(new THREE.TorusGeometry(NR, .35, 10, 32), new THREE.MeshStandardMaterial({ color:"#d8a050", roughness:.9 })); n.rotation.x = Math.PI/2; n.position.set(t ? NEST : -NEST, .2, 0); S.scene.add(n);
       const f = new THREE.Mesh(new THREE.CircleGeometry(NR, 32), new THREE.MeshStandardMaterial({ color:TEAM_COL[t], transparent:true, opacity:.45 })); f.rotation.x = -Math.PI/2; f.position.set(t ? NEST : -NEST, .02, 0); S.scene.add(f); });
-    const eg = new THREE.SphereGeometry(.32, 14, 10), em = new THREE.MeshStandardMaterial({ color:"#fff6ea", roughness:.4 }), gm = new THREE.MeshStandardMaterial({ color:"#ffd23a", metalness:.7, roughness:.25, emissive:"#a86a00", emissiveIntensity:.25 }), meshes = [], hud = scoreHud(root);
+    const EGN = MDL.ready && MDL.nodes.egg, EGG = EGN && EGN.children.find(c => c.material && c.material.color.getHex() === 0xfff6ea), eg = EGG ? EGG.geometry : new THREE.SphereGeometry(.32, 14, 10), em = new THREE.MeshStandardMaterial({ color:"#fff6ea", roughness:.4 }), gm = new THREE.MeshStandardMaterial({ color:"#ffd23a", metalness:.7, roughness:.25, emissive:"#a86a00", emissiveIntensity:.25 }), meshes = [], hud = scoreHud(root);
     v.extra = (id, b) => teamMark(S, id, b, T[id]);
-    v.tick = (s, dt, t) => { s.e.forEach((e, i) => { const m = meshes[i] || (meshes[i] = (() => { const q = new THREE.Mesh(eg, em); q.scale.set(1, 1.3, 1); q.castShadow = true; S.scene.add(q); return q; })()); m.material = e[3] ? gm : em;
+    v.tick = (s, dt, t) => { s.e.forEach((e, i) => { const m = meshes[i] || (meshes[i] = (() => { const q = new THREE.Mesh(eg, em); if(EGG) q.scale.setScalar(1.25); else q.scale.set(1, 1.3, 1); q.castShadow = true; S.scene.add(q); return q; })()); m.material = e[3] ? gm : em;
         if(e[2] === 2){ const holder = Object.entries(s.B).find(([, b]) => Math.abs(b[0] - e[0]) < .01 && Math.abs(b[1] - e[1]) < .01); const bb = holder ? S.bean(holder[0]) : null; if(bb) m.position.set(bb.position.x, bb.position.y + 1.7, bb.position.z); else m.position.set(e[0], 1.7, e[1]); }
         else { m.position.x = lerp(m.position.x, e[0], .3); m.position.z = lerp(m.position.z, e[1], .3); m.position.y = .4 + (e[2] ? 0 : Math.abs(Math.sin(t*3 + i))*.15); } m.visible = true; });
       for(let i = s.e.length; i < meshes.length; i++) meshes[i].visible = false; hud.innerHTML = teamScoreHTML(s.c[0] + " 🥚", s.c[1] + " 🥚"); };
@@ -2822,8 +2915,8 @@ GAMES.coins = {
     floorBox(S, 22, 16, new THREE.MeshStandardMaterial({ map:cTex(256, 256, (x, w) => { for(let i=0;i<8;i++) for(let j=0;j<8;j++){ x.fillStyle = (i + j) % 2 ? "#ffe8b0" : "#ffd890"; x.fillRect(i*32, j*32, 32, 32); } }, [3, 2]), roughness:.6 })); wallRing(S, 22, 16, "#ff8a3a");
     const cg = new THREE.CylinderGeometry(.32, .32, .08, 18), cm = new THREE.MeshStandardMaterial({ color:"#ffd23a", metalness:.8, roughness:.25, emissive:"#a87000", emissiveIntensity:.3 }), meshes = [], hud = scoreHud(root);
     v.extra = (id, b) => teamMark(S, id, b, T[id]);
-    v.tick = (s, dt, t) => { s.c.forEach((c, i) => { const m = meshes[i] || (meshes[i] = (() => { const q = new THREE.Mesh(cg, cm); q.castShadow = true; S.scene.add(q); return q; })()); m.visible = true; const k = c[3] ? 2 : 1; m.scale.set(k, k, k);
-        m.position.set(c[0], c[2] < .6 ? .5 + (.6 - c[2]) * 14 : .5 + Math.sin(t*4 + i)*.08, c[1]); m.rotation.x = Math.PI/2; m.rotation.z = t*3 + i; });
+    v.tick = (s, dt, t) => { s.c.forEach((c, i) => { const m = meshes[i] || (meshes[i] = (() => { const q = mdl("coin") || new THREE.Mesh(cg, cm); q.userData.mdl = !q.isMesh || q.geometry !== cg; q.castShadow = true; S.scene.add(q); return q; })()); m.visible = true; const k = c[3] ? 2 : 1; m.scale.set(k, k, k);
+        m.position.set(c[0], c[2] < .6 ? .5 + (.6 - c[2]) * 14 : .5 + Math.sin(t*4 + i)*.08, c[1]); if(m.userData.mdl) m.rotation.y = t*3 + i; else { m.rotation.x = Math.PI/2; m.rotation.z = t*3 + i; } });
       for(let i = s.c.length; i < meshes.length; i++) meshes[i].visible = false; hud.innerHTML = teamScoreHTML(s.s[0], s.s[1], `You: ${s.h[ctx.me] || 0} 🪙`); };
     v.onFx = (type, a, b) => { if(type === "c"){ if(a === ctx.me) b ? sfx.win() : sfx.coin(); } else if(type === "spill"){ sfx.bump(); if(a === ctx.me) toast(`💸 ${b} knocked your coins loose!`, 1100); } else physFx(type, a); };
     const d0 = v.destroy; v.destroy = () => { hud.remove(); d0(); };
@@ -3510,7 +3603,7 @@ let wTab = "col", wSel = null;
 $("#hWardrobe").onclick = () => { wSel = Object.assign({}, ME.bean); modal("#wardModal"); renderWard(); };
 $("#wTabs").onclick = e => { const b = e.target.closest("button"); if(!b) return; wTab = b.dataset.s; $$("#wTabs button").forEach(x => x.setAttribute("aria-pressed", x === b)); renderWard(); };
 function renderWard(){
-  $("#wCoins").textContent = `🪙 ${fmt(ME.coins)}`; $("#wPrev").innerHTML = beanSVG(wSel, 150, { mood:"happy" }) + `<button class="btn green" id="wSave">Wear this</button>`;
+  $("#wCoins").textContent = `🪙 ${fmt(ME.coins)}`; $("#wPrev").innerHTML = `<div class="w3d"></div><button class="btn green" id="wSave">Wear this</button>`; { const small = innerWidth <= 560; if(!beanPreview($("#wPrev .w3d"), wSel, small ? 150 : 172, small ? 170 : 210)) $("#wPrev .w3d").innerHTML = beanSVG(wSel, 150, { mood:"happy" }); }
   let items = [];
   if(wTab === "col") items = FREE_COLS.map(c => ({ id:c, col:c, free:true })).concat(Object.keys(ITEMS).filter(k => ITEMS[k].s === "col").map(k => ({ id:k, col:k })));
   else items = [{ id:"", none:true }].concat(Object.keys(ITEMS).filter(k => ITEMS[k].s === wTab).map(k => ({ id:k })));

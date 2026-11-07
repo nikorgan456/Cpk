@@ -39,6 +39,7 @@ function makeStage(root, o = {}){
   for(let i=0;i<14;i++){ const an = i / 14 * Math.PI * 2, r = 22 + rand()*8, m = new THREE.MeshPhysicalMaterial({ color:pick(cols), roughness:.25, clearcoat:.8, clearcoatRoughness:.2 }); let d;
     if(i % 3 === 0){ d = new THREE.Group(); const st = new THREE.Mesh(new THREE.CylinderGeometry(.15, .15, 5, 8), new THREE.MeshStandardMaterial({ color:"#fff" })); st.position.y = -2.5; d.add(st); const top = new THREE.Mesh(new THREE.TorusGeometry(1.2, .45, 12, 24), m); d.add(top); }
     else if(i % 3 === 1) d = new THREE.Mesh(new THREE.SphereGeometry(1.4, 16, 12), m); else d = new THREE.Mesh(new THREE.ConeGeometry(1.2, 3, 16), m);
+    const md = mdl(["deco_donut", "deco_lolli", "deco_cupcake", "deco_gumdrop", "deco_candy", "deco_cone", "deco_star"][i % 7], m); if(md){ d = md; d.scale.setScalar(1.1 + rand()*.4); d.rotation.set((rand() - .5)*.6, rand()*6, (rand() - .5)*.6); }
     d.position.set(Math.cos(an)*r, -2 + rand()*4, Math.sin(an)*r); d.userData.ph = rand()*6; deco.add(d); }
   const labels = document.createElement("div"); labels.className = "labels3d"; root.appendChild(labels);
   const S = { scene, cam, renderer, root, beans:new Map(), labels, deco, goo, gooM, tags:new Map(), emotes:new Map(), camPos:o.cam || [0, 17, 15], look:o.look || [0, 0, 1], parts:[], lastT:0 };

@@ -27,7 +27,8 @@ GAMES.bumper = {
     [[0, 7.25, 20.6, .14], [0, -7.25, 20.6, .14], [10.25, 0, .14, 14.6], [-10.25, 0, .14, 14.6]].forEach(([x, z, w, d]) => { const e = new THREE.Mesh(new THREE.BoxGeometry(w, .1, d), edgeM); e.position.set(x, .02, z); rink.add(e); });
     const lights = []; for(let i=0;i<12;i++){ const m = new THREE.Mesh(new THREE.SphereGeometry(.18, 8, 6), new THREE.MeshBasicMaterial({ color:"#fff" })); const a = i / 12; m.position.set(i < 6 ? -10 + i*4 : -10 + (i - 6)*4, .1, i < 6 ? 7.4 : -7.4); rink.add(m); lights.push(m); }
     const hud = hudEl(root);
-    v.extra = (id, b) => { if(b.userData.car) return; const c = new THREE.Group(), col = hashCol(id);
+    v.extra = (id, b) => { if(b.userData.car) return; const c = new THREE.Group(), col = hashCol(id), CAR = mdl("car_bumper", new THREE.MeshPhysicalMaterial({ color:col, roughness:.2, metalness:.2, clearcoat:1, clearcoatRoughness:.1 }));
+      if(CAR){ c.add(CAR); c.traverse(o => o.castShadow = true); b.add(c); b.userData.car = c; return; }
       const body = new THREE.Mesh(new THREE.BoxGeometry(1.25, .42, 1.55), new THREE.MeshStandardMaterial({ color:col, roughness:.25, metalness:.3 })); body.position.y = .22; c.add(body);
       const bump = new THREE.Mesh(new THREE.TorusGeometry(.82, .13, 8, 24), new THREE.MeshStandardMaterial({ color:"#222", roughness:.8 })); bump.rotation.x = Math.PI/2; bump.scale.set(1, 1.2, 1); bump.position.y = .15; c.add(bump);
       const pole = new THREE.Mesh(new THREE.CylinderGeometry(.03, .03, 1.6, 6), new THREE.MeshStandardMaterial({ color:"#aaa" })); pole.position.set(0, 1.1, -.62); c.add(pole);
@@ -88,7 +89,7 @@ GAMES.dodge = {
     [[0, DH/2 + .2, DW + .8, .4], [0, -DH/2 - .2, DW + .8, .4], [DW/2 + .2, 0, .4, DH], [-DW/2 - .2, 0, .4, DH]].forEach(([x, z, w, d]) => { const m = new THREE.Mesh(new THREE.BoxGeometry(w, .8, d), wm); m.position.set(x, .4, z); m.castShadow = true; S.scene.add(m); });
     const bt = cTex(128, 64, (x, w, h) => { x.fillStyle = "#ff3a5a"; x.fillRect(0, 0, w, h); x.fillStyle = "#fff"; x.fillRect(0, h/2 - 5, w, 10); });
     const bm = new THREE.MeshStandardMaterial({ map:bt, roughness:.35 }), balls = [];
-    const ballMesh = () => { const m = new THREE.Mesh(new THREE.SphereGeometry(.32, 16, 12), bm); m.castShadow = true; S.scene.add(m); return m; };
+    const ballMesh = () => { const m = mdl("ball_dodge", "#ff3a5a") || new THREE.Mesh(new THREE.SphereGeometry(.32, 16, 12), bm); m.castShadow = true; S.scene.add(m); return m; };
     const hud = hudEl(root); let lastHp = ""; const arrows = {}, am = new THREE.MeshBasicMaterial({ color:"#ffe23a", transparent:true, opacity:.85, depthWrite:false });
     const arrowOf = id => arrows[id] || (arrows[id] = (() => { const g = new THREE.Group(), sh = new THREE.Mesh(new THREE.PlaneGeometry(.22, 1), am), hd = new THREE.Mesh(new THREE.CircleGeometry(.32, 3), am); sh.rotation.x = -Math.PI/2; sh.position.z = .5; hd.rotation.x = -Math.PI/2; hd.rotation.z = Math.PI/2; hd.position.z = 1; g.add(sh); g.add(hd); g.userData = { sh, hd }; g.position.y = .06; S.scene.add(g); return g; })());
     const meter = document.createElement("div"); meter.className = "charge-meter"; meter.innerHTML = "<i></i><span>CHARGE</span>"; meter.hidden = true; root.appendChild(meter);
@@ -120,12 +121,12 @@ GAMES.koth = {
   snap(G){ const p = {}; for(const id in G.pts) p[id] = +G.pts[id].toFixed(1); return { B:physSnap(G.B), hx:+G.hx.toFixed(2), hz:+G.hz.toFixed(2), p, in:G.in, fx:G.fx }; },
   view(root, ctx){ return physView(root, ctx, { sky:"#b89aff", sky2:"#ffe0f8", goo:"#9a5aff", fog:"#ffe0f8", cam:[0, 19, 15] }, (S, v) => {
     const top = new THREE.MeshStandardMaterial({ map:icingTex("#9ae8a0", ["#fff","#ffd23a","#ff7ab8","#7ad8ff"]), roughness:.55 }), side = new THREE.MeshStandardMaterial({ color:"#c88a50", roughness:.7 });
-    const plat = new THREE.Mesh(new THREE.CylinderGeometry(10, 10, 1.2, 72), [side, top, side]); plat.position.y = -.6; plat.receiveShadow = true; S.scene.add(plat);
+    const plat = new THREE.Mesh(new THREE.CylinderGeometry(10, 10, 1.2, 72), [side, top, side]); plat.position.y = -.6; plat.receiveShadow = true; S.scene.add(plat); const drip = dripRing(10, "#8ae094"); if(drip) S.scene.add(drip);
     const zone = new THREE.Group(); const zr = new THREE.Mesh(new THREE.RingGeometry(2.15, 2.4, 48), new THREE.MeshBasicMaterial({ color:"#ffe23a", side:THREE.DoubleSide })); zr.rotation.x = -Math.PI/2; zr.position.y = .03; zone.add(zr);
     const zf = new THREE.Mesh(new THREE.CircleGeometry(2.15, 48), new THREE.MeshBasicMaterial({ color:"#ffe23a", transparent:true, opacity:.25 })); zf.rotation.x = -Math.PI/2; zf.position.y = .02; zone.add(zf);
     const beam = new THREE.Mesh(new THREE.CylinderGeometry(2.3, 2.3, 7, 40, 1, true), new THREE.MeshBasicMaterial({ color:"#fff6a0", transparent:true, opacity:.15, side:THREE.DoubleSide, depthWrite:false })); beam.position.y = 3.5; zone.add(beam); S.scene.add(zone);
     const crown = new THREE.Group(), cm = new THREE.MeshStandardMaterial({ color:"#ffd23a", metalness:.8, roughness:.25, emissive:"#a86a00", emissiveIntensity:.3 });
-    const band = new THREE.Mesh(new THREE.CylinderGeometry(.32, .32, .2, 16, 1, true), cm); crown.add(band); for(let i=0;i<5;i++){ const sp = new THREE.Mesh(new THREE.ConeGeometry(.08, .22, 6), cm); const a = i / 5 * Math.PI * 2; sp.position.set(Math.cos(a)*.3, .2, Math.sin(a)*.3); crown.add(sp); } crown.visible = false; S.scene.add(crown);
+    const band = new THREE.Mesh(new THREE.CylinderGeometry(.32, .32, .2, 16, 1, true), cm); crown.add(band); for(let i=0;i<5;i++){ const sp = new THREE.Mesh(new THREE.ConeGeometry(.08, .22, 6), cm); const a = i / 5 * Math.PI * 2; sp.position.set(Math.cos(a)*.3, .2, Math.sin(a)*.3); crown.add(sp); } const CM = mdl("crown"); if(CM){ crown.clear(); CM.scale.setScalar(1.15); crown.add(CM); } crown.visible = false; S.scene.add(crown);
     const hud = hudEl(root);
     v.tick = (s, dt, t) => { zone.position.x = lerp(zone.position.x, s.hx, Math.min(1, dt*3)); zone.position.z = lerp(zone.position.z, s.hz, Math.min(1, dt*3));
       const busy = s.in.length; zr.material.color.set(busy > 1 ? "#ff5a7a" : busy === 1 ? "#5ae07a" : "#ffe23a"); zf.material.color.copy(zr.material.color); beam.material.opacity = .12 + Math.sin(t*4)*.05;
