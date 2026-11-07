@@ -144,3 +144,92 @@ GAMES.likely = {
       $("#lkT").textContent = s.ph === "q" ? `${Math.max(0, Math.ceil(s.pe - tt))}s · ${s.voted.length} voted` : "Results!"; };
     v.destroy = () => {}; return v; }
 };
+
+// ---------- IMPOSTER (single game only) ----------
+// everyone gets the same word except one player, who gets a close-but-different word and doesn't know they're the imposter
+const IMP_PAIRS = [
+  ["pizza","burger",["cheese","slice","italy","oven","pepperoni"],["bun","beef","fries","patty","grill"]],
+  ["cat","dog",["purr","whiskers","meow","kitten","litter"],["bark","bone","walkies","puppy","fetch"]],
+  ["beach","pool",["sand","waves","shells","sea","seagull"],["chlorine","diving","lanes","goggles","lifeguard"]],
+  ["football","basketball",["goal","pitch","kick","striker","offside"],["hoop","dunk","court","bounce","nba"]],
+  ["coffee","tea",["beans","latte","espresso","barista","starbucks"],["teabag","kettle","biscuit","brew","british"]],
+  ["phone","laptop",["call","pocket","selfie","ringtone","text"],["keyboard","trackpad","charger","homework","typing"]],
+  ["snow","rain",["snowman","white","sledge","flakes","frozen"],["umbrella","puddle","wet","drizzle","drops"]],
+  ["vampire","zombie",["blood","fangs","bat","coffin","garlic"],["brains","undead","shuffle","groan","apocalypse"]],
+  ["pirate","ninja",["ship","treasure","parrot","eyepatch","arrr"],["sword","stealth","shadow","dojo","silent"]],
+  ["guitar","piano",["strings","strum","pick","amp","rock"],["keys","pedals","grand","ivory","sheet"]],
+  ["apple","orange",["crunch","pie","red","newton","core"],["juice","peel","citrus","segments","zest"]],
+  ["rocket","plane",["space","launch","astronaut","countdown","moon"],["airport","pilot","runway","holiday","seatbelt"]],
+  ["castle","palace",["knight","moat","drawbridge","siege","dungeon"],["queen","royal","ballroom","guards","chandelier"]],
+  ["youtube","tiktok",["subscribe","vlog","long","creator","thumbnail"],["dance","scroll","trend","short","fyp"]],
+  ["shark","dolphin",["teeth","jaws","bite","scary","hunt"],["clever","smile","flipper","friendly","clicks"]],
+  ["christmas","halloween",["santa","presents","elf","tinsel","reindeer"],["pumpkin","costume","spooky","ghost","trick"]],
+  ["netflix","cinema",["binge","series","sofa","remote","subscription"],["popcorn","tickets","seats","trailer","bigscreen"]],
+  ["minecraft","roblox",["blocks","creeper","mining","crafting","diamond"],["obby","robux","avatar","oof","tycoon"]],
+  ["train","bus",["tracks","station","carriage","tunnel","platform"],["busstop","doubledecker","driver","route","bell"]],
+  ["icecream","cake",["cone","scoop","melt","freezer","sprinkles"],["birthday","candles","icing","bake","slice"]],
+  ["dragon","dinosaur",["fire","myth","knight","treasure","wings"],["fossil","extinct","trex","bones","jurassic"]],
+  ["lion","tiger",["mane","pride","king","savanna","roar"],["stripes","jungle","india","prowl","orange"]],
+  ["gym","park",["weights","treadmill","muscles","protein","reps"],["swings","grass","bench","picnic","ducks"]],
+  ["wizard","witch",["wand","beard","robe","spellbook","staff"],["broom","cauldron","potion","cackle","pointy"]],
+  ["sun","moon",["hot","daytime","bright","summer","sunburn"],["night","craters","tide","werewolf","full"]],
+  ["tennis","badminton",["wimbledon","racket","serve","clay","yellow"],["shuttlecock","feather","birdie","smash","indoor"]],
+  ["sushi","sandwich",["rice","raw","chopsticks","japan","seaweed"],["bread","lunchbox","filling","crusts","toastie"]],
+  ["teacher","doctor",["lesson","homework","classroom","detention","marking"],["patient","stethoscope","medicine","surgery","appointment"]]
+];
+const IT = 15, IV = 32, IR = 10;
+GAMES.imposter = {
+  name:"Imposter", icon:"🤫", cat:"social", desc:"Who has the different word? It might be you…", dur:300, rate:5, min:3, minHumans:1, solo:true, noClock:true,
+  how:["Everyone gets a secret word, but one player's word is <b>slightly different</b>, and they don't know it!","Take turns typing ONE word clue. Too obvious and the imposter catches on…","Argue in 💬 chat, then vote. Wrong person gets fired out of the candy cannon!"],
+  init(ids, ctx){ const P = pick(IMP_PAIRS), flip = rand() < .5, main = flip ? 1 : 0, imp = pick(ids), order = shuffle(ids), rounds = ids.length <= 5 ? 2 : 1, turns = [];
+    for(let r=0;r<rounds;r++) order.forEach(id => turns.push(id)); const clues = {}; ids.forEach(id => clues[id] = []);
+    return { P, main, imp, turns, ti:0, tEnd:IT + .5, clues, votes:{}, ph:"clue", sent:false, bots:{}, used:{}, dur:turns.length*IT + IV + IR + 6, info:{ order, rounds } }; },
+  wordOf(G, id){ return G.P[id === G.imp ? 1 - G.main : G.main]; },
+  cluesOf(G, id){ return G.P[id === G.imp ? 3 - G.main : 2 + G.main]; },
+  introNote(){ return "You'll get your word when it starts. Remember: the imposter doesn't know it's them 👀"; },
+  tick(G, dt, inp, H){
+    if(!G.sent){ G.sent = true; G.ids.forEach(id => H.to(id, { t:"word", w:this.wordOf(G, id) })); }
+    if(G.ph === "clue"){ const cur = G.turns[G.ti];
+      if(cur && playerOf(cur)?.bot && !G.bots["c" + G.ti] && G.t > G.tEnd - IT + 1.8 + rand()*2){ G.bots["c" + G.ti] = 1; const list = this.cluesOf(G, cur).filter(c => !(G.used[cur] || []).includes(c)); this.onEvent(G, cur, { e:"clue", text:pick(list.length ? list : this.cluesOf(G, cur)) }, H); }
+      if(G.t >= G.tEnd || cur && !playerOf(cur)){ if(cur && playerOf(cur) && G.clues[cur].length < G.turns.slice(0, G.ti + 1).filter(x => x === cur).length){ G.clues[cur].push("🤐"); }
+        G.ti++; G.tEnd = G.t + IT; G.dirty = true; fxp(G, "turn", G.turns[G.ti] || ""); if(G.ti >= G.turns.length){ G.ph = "vote"; G.vStart = G.t; G.vEnd = G.t + IV; fxp(G, "vote"); } } }
+    if(G.ph === "vote"){
+      G.ids.forEach(id => { if(!playerOf(id)?.bot || G.votes[id] != null || G.t < G.vStart + 3 + (G.bots["v" + id] || (G.bots["v" + id] = rand()*9))) return;
+        const others = G.ids.filter(k => k !== id), decoy = G.P[id === G.imp ? 2 + G.main : 3 - G.main], sus = others.filter(k => G.clues[k].some(c => decoy.includes(normW(c))));
+        G.votes[id] = id !== G.imp && sus.length && rand() < .75 ? pick(sus) : pick(others); G.dirty = true; });
+      const all = G.ids.every(id => G.votes[id] != null || !playerOf(id));
+      if(G.t >= G.vEnd || all && G.t > G.vStart + 6){ G.ph = "rev"; G.rEnd = G.t + IR; const c = {}; Object.values(G.votes).forEach(v => c[v] = (c[v] || 0) + 1); const top = Math.max(0, ...Object.values(c)), most = Object.keys(c).filter(k => c[k] === top);
+        G.ej = most.length === 1 ? most[0] : null; G.caught = G.ej === G.imp; G.res = { ej:G.ej, imp:G.imp, caught:G.caught, main:G.P[G.main], decoy:G.P[1 - G.main], c }; G.dirty = true; fxp(G, "rev"); } }
+    if(G.ph === "rev" && G.t >= G.rEnd) H.end(this.rankOf(G)); },
+  onEvent(G, id, d, H){
+    if(d.e === "clue" && G.ph === "clue" && G.turns[G.ti] === id && G.said !== G.ti){ let w = String(d.text || "").trim().split(/\s+/)[0].slice(0, 20); if(!w) return;
+      const mine = normW(this.wordOf(G, id)); if(mine && normW(w).includes(mine)){ H.to(id, { t:"nope" }); return; }
+      G.said = G.ti; G.clues[id].push(w); (G.used[id] = G.used[id] || []).push(normW(w)); G.tEnd = Math.min(G.tEnd, G.t + .9); G.dirty = true; fxp(G, "clue", id); }
+    if(d.e === "vote" && G.ph === "vote" && G.ids.includes(d.who) && d.who !== id){ G.votes[id] = d.who; G.dirty = true; } },
+  rankOf(G){ if(G.caught == null) return [G.ids]; const civ = G.ids.filter(id => id !== G.imp); if(!G.caught) return [[G.imp], civ];
+    return [civ.filter(id => G.votes[id] === G.imp), civ.filter(id => G.votes[id] !== G.imp), [G.imp]].filter(g => g.length); },
+  timeout(G){ if(G.caught == null) G.caught = false; return this.rankOf(G); },
+  bot(){ return null; }, drop(G, id){},
+  snap(G){ return { ph:G.ph, cur:G.turns[G.ti] || null, ti:G.ti, n:G.turns.length, te:+(G.tEnd || 0).toFixed(1), ve:+(G.vEnd || 0).toFixed(1), clues:G.clues, votes:G.ph === "clue" ? {} : G.votes, res:G.res || null, fx:G.fx }; },
+  view(root, ctx){ ctlShow(null); const me = ctx.me, order = ctx.info.order, v = { fxSeen:0, word:null, k:"" };
+    root.innerHTML = `<div class="im"><div class="im-word" id="imWord">🤫 Getting your word…</div><div class="im-turn" id="imTurn"></div><div class="im-grid" id="imGrid"></div>
+      <form class="dg-in im-in" id="imForm" hidden><input id="imIn" maxlength="20" placeholder="Type ONE word clue…" autocomplete="off"><button class="btn small pink">Say it</button></form></div>`;
+    const grid = $("#imGrid");
+    $("#imForm").onsubmit = e => { e.preventDefault(); const t = $("#imIn").value.trim(); if(!t) return; ctx.input({ e:"clue", text:t }); $("#imIn").value = ""; };
+    grid.onclick = e => { const b = e.target.closest("[data-w]"); if(!b || v.ph !== "vote" || b.dataset.w === me) return; ctx.input({ e:"vote", who:b.dataset.w }); v.my = b.dataset.w; sfx.vote(); };
+    v.ev = e => { if(e.t === "word"){ v.word = e.w; $("#imWord").innerHTML = `Your word: <b class="dg-word">${esc(e.w)}</b><small>Someone has a different word… it could be you!</small>`; sfx.ding(); }
+      if(e.t === "nope"){ toast("You can't say your own word! 🙊"); sfx.wrong(); } };
+    v.update = s => { const tt = CM.phase === "play" ? now() - CM.playT : 0; v.ph = s.ph;
+      newFx(v, s.fx, (type, a) => { if(type === "turn" && a === me){ sfx.go(); toast("💬 Your turn! One word", 1500); setTimeout(() => { const i = $("#imIn"); if(i) i.focus(); }, 50); } if(type === "clue") sfx.pop(); if(type === "vote"){ sfx.whistle(); SND.say("Who's the imposter?"); } if(type === "rev") sfx.boom(); });
+      const myTurn = s.ph === "clue" && s.cur === me; $("#imForm").hidden = !myTurn;
+      const th = s.ph === "clue" ? (myTurn ? `<b>Your turn!</b> Give a clue · ${Math.max(0, Math.ceil(s.te - tt))}s` : s.cur ? `${nameChip(s.cur)} is thinking… ${Math.max(0, Math.ceil(s.te - tt))}s` : "") : s.ph === "vote" ? `🗳️ Vote for the imposter! Argue in 💬 chat · ${Math.max(0, Math.ceil(s.ve - tt))}s` : "";
+      const te = $("#imTurn"); if(te.dataset.h !== th){ te.dataset.h = th; te.innerHTML = th; }
+      const k = JSON.stringify([s.ph, s.cur, s.clues, s.votes, v.my]); if(k !== v.k){ v.k = k;
+        grid.innerHTML = order.filter(id => playerOf(id)).map(id => { const vs = Object.entries(s.votes).filter(([, w]) => w === id).map(([p]) => beanSVG(playerOf(p)?.bean, 16)).join("");
+          return `<button class="im-p ${s.cur === id && s.ph === "clue" ? "cur" : ""} ${id === me ? "self" : ""} ${v.my === id ? "mine" : ""} ${s.ph === "vote" && id !== me ? "votable" : ""}" data-w="${esc(id)}">${beanSVG(playerOf(id)?.bean, 40)}<div class="im-pi"><b>${esc(id)}${id === me ? " (you)" : ""}</b><div class="im-cl">${(s.clues[id] || []).map(c => `<span>${esc(c)}</span>`).join("") || `<i>…</i>`}</div>${vs ? `<div class="im-vs">${vs}</div>` : ""}</div></button>`; }).join(""); }
+      if(s.res && !v.shown){ v.shown = true; const R = s.res, ov = document.createElement("div"); ov.className = "im-rev";
+        ov.innerHTML = R.ej ? `<div class="im-cannon">🎉</div><div class="im-fly">${beanSVG(playerOf(R.ej)?.bean, 90, { mood:"sad" })}</div><h2>${esc(R.ej)} ${R.caught ? "WAS the imposter! 🚨" : "was NOT the imposter… 😬"}</h2>` : `<h2>It's a tie! Nobody got launched 🤷</h2>`;
+        ov.innerHTML += `<div class="im-words"><p>Everyone had <b class="dg-word">${esc(R.main)}</b></p><p>${nameChip(R.imp, 22)} had <b class="dg-word">${esc(R.decoy)}</b></p></div><p class="im-win">${R.caught ? "🎉 Crew wins!" : `😈 ${esc(R.imp)} wins!`}</p>`;
+        $(".im").appendChild(ov); } };
+    v.destroy = () => {}; return v; }
+};

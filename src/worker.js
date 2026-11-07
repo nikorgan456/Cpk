@@ -19,6 +19,18 @@ const SHOP = {
   // colours (free ones are not listed)
   c_gold: 1000, c_galaxy: 2000, c_rainbow: 2500, c_ghost: 1500, c_lava: 1200
 };
+// ---------- Season 1 pass + daily spin ----------
+const PASS = { season: 1, tiers: 30, txp: 300, price: 1500 };
+const PASS_ITEMS = { free: { 5: "s1_flower", 10: "s1_heart", 20: "s1_lei", 30: "c_ice" },
+  prem: { 1: "s1_star", 4: "s1_pirate", 8: "s1_goggles", 12: "s1_horns", 16: "s1_jetpack", 20: "c_candy", 24: "s1_astro", 27: "s1_wizard", 30: "c_neon" } };
+const passReward = (track, t) => PASS_ITEMS[track][t] ? { item: PASS_ITEMS[track][t] } : { coins: track === "free" ? 40 + t * 3 : 90 + t * 6 };
+const PASS_INFO = Object.assign({}, PASS, { free: [], prem: [] });
+for (let t = 1; t <= PASS.tiers; t++) { PASS_INFO.free.push(passReward("free", t)); PASS_INFO.prem.push(passReward("prem", t)); }
+const SPIN = [{ coins: 25, w: 25 }, { coins: 50, w: 22 }, { coins: 75, w: 16 }, { coins: 100, w: 14 }, { coins: 150, w: 9 }, { coins: 250, w: 6 }, { coins: 500, w: 2 }, { pxp: 300, w: 6 }];
+const passOf = a => a.pass || (a.pass = { xp: 0, prem: false, cf: 0, cp: 0 });
+const tierOf = p => Math.min(PASS.tiers, Math.floor(p.xp / PASS.txp));
+const today = () => new Date().toISOString().slice(0, 10);
+function giveReward(a, r) { if (r.coins) a.coins += r.coins; if (r.item) a.own[r.item] = 1; if (r.pxp) passOf(a).xp += r.pxp; }
 const FREE_COLS = ["#ff5a8a", "#ffb03a", "#ffe03a", "#5ae07a", "#3ab8ff", "#9a6aff", "#ff7ad8", "#ffffff", "#2a2a3a", "#ff6a3a"];
 
 export class Hub extends DurableObject {
@@ -28,7 +40,7 @@ export class Hub extends DurableObject {
   async who(token) { if (!token || typeof token !== "string") return null; const n = await this.ctx.storage.get("s:" + token); return n ? await this.acc(n) : null; }
   pub(a, full) {
     const o = { name: a.name, bean: a.bean, lvl: a.lvl, xp: a.xp, wins: a.wins, matches: a.matches, rounds: a.rounds || 0, games: a.games || {}, created: a.created, seen: a.seen || 0, room: a.room || null };
-    if (full) Object.assign(o, { coins: a.coins, own: a.own, friends: a.friends, reqs: a.reqs || [], hist: a.hist || [] });
+    if (full) Object.assign(o, { coins: a.coins, own: a.own, friends: a.friends, reqs: a.reqs || [], hist: a.hist || [], pass: passOf(a), spun: a.spin === today() });
     return o;
   }
   async fetch(req) {
@@ -42,8 +54,9 @@ export class Hub extends DurableObject {
       // b.results: [{name, place, pts, rounds:[{game, place}]}], b.n players
       for (const r of b.results || []) {
         const a = await this.acc(r.name); if (!a) continue;
-        const coins = [60, 40, 30, 20, 15, 12, 10, 10][r.place - 1] || 10, xp = 120 + (r.wonRounds || 0) * 30 + (r.place === 1 ? 80 : 0);
-        a.coins += coins; a.xp += xp; a.matches++; if (r.place === 1) a.wins++; a.rounds = (a.rounds || 0) + (r.rounds || []).length;
+        const k = Math.min(1, Math.max(.2, (r.rounds || []).length / 5));
+        const coins = Math.round(([60, 40, 30, 20, 15, 12, 10, 10][r.place - 1] || 10) * k), xp = Math.round((120 + (r.wonRounds || 0) * 30 + (r.place === 1 ? 80 : 0)) * k);
+        a.coins += coins; a.xp += xp; passOf(a).xp += xp; a.matches++; if (r.place === 1) a.wins++; a.rounds = (a.rounds || 0) + (r.rounds || []).length;
         while (a.xp >= lvlNeed(a.lvl)) { a.xp -= lvlNeed(a.lvl); a.lvl++; a.coins += 100; }
         a.games = a.games || {};
         for (const g of r.rounds || []) { const s = a.games[g.game] || (a.games[g.game] = { p: 0, w: 0 }); s.p++; if (g.place === 1) s.w++; }
@@ -73,7 +86,16 @@ export class Hub extends DurableObject {
     const a = await this.who(b.token); if (!a) return json({ error: "Log in again", auth: true });
     if (op === "me") { a.seen = Date.now(); if (b.away) a.room = null; await this.put(a);
       const fr = []; for (const f of a.friends) { const x = await this.acc(f); if (x) fr.push({ name: x.name, bean: x.bean, lvl: x.lvl, online: Date.now() - (x.seen || 0) < 70000, room: Date.now() - (x.seen || 0) < 70000 ? x.room : null }); }
-      return json({ me: this.pub(a, true), friends: fr, shop: SHOP, free: FREE_COLS }); }
+      return json({ me: this.pub(a, true), friends: fr, shop: SHOP, free: FREE_COLS, passInfo: PASS_INFO, spin: SPIN.map(x => ({ coins: x.coins, pxp: x.pxp })) }); }
+    if (op === "pass") { const p = passOf(a), tier = tierOf(p), got = [];
+      if (b.action === "buy") { if (p.prem) return json({ error: "You already have premium" }); if (a.coins < PASS.price) return json({ error: "Not enough coins" }); a.coins -= PASS.price; p.prem = true; }
+      // claim everything unlocked so far (buying premium also claims the premium rewards you've already reached)
+      for (let t = p.cf + 1; t <= tier; t++) { const r = passReward("free", t); giveReward(a, r); got.push(r); } p.cf = Math.max(p.cf, tier);
+      if (p.prem) { for (let t = p.cp + 1; t <= tier; t++) { const r = passReward("prem", t); giveReward(a, r); got.push(r); } p.cp = Math.max(p.cp, tier); }
+      await this.put(a); return json({ me: this.pub(a, true), got }); }
+    if (op === "spin") { if (a.spin === today()) return json({ error: "You've spun today. Come back tomorrow!" });
+      let r = Math.random() * SPIN.reduce((s, x) => s + x.w, 0), i = 0; while (r >= SPIN[i].w) { r -= SPIN[i].w; i++; }
+      a.spin = today(); giveReward(a, SPIN[i]); await this.put(a); return json({ me: this.pub(a, true), i }); }
     if (op === "logout") { await this.ctx.storage.delete("s:" + b.token); return json({ ok: true }); }
     if (op === "buy") { const p = SHOP[b.item]; if (!p) return json({ error: "Not in the shop" }); if (a.own[b.item]) return json({ error: "You already own it" });
       if (a.coins < p) return json({ error: "Not enough coins" }); a.coins -= p; a.own[b.item] = 1; await this.put(a); return json({ me: this.pub(a, true) }); }
@@ -105,7 +127,7 @@ const lvlNeed = l => 300 + l * 150;
 export class Room extends DurableObject {
   constructor(ctx, env) { super(ctx, env); this.socks = new Map(); this.r = null; }
   hub() { return this.env.HUB.get(this.env.HUB.idFromName("hub")); }
-  snap() { const r = this.r; return { t: "room", code: r.code, pub: r.pub, locked: r.locked, host: r.host, rounds: r.rounds, off: r.off, status: r.status,
+  snap() { const r = this.r; return { t: "room", code: r.code, pub: r.pub, locked: r.locked, host: r.host, rounds: r.rounds, off: r.off, status: r.status, mode: r.mode || "party", pick: r.pick || "",
     players: r.order.map(id => { const p = r.players.get(id); return { id, name: p.name, bean: p.bean, lvl: p.lvl, bot: !!p.bot }; }) }; }
   send(ws, m) { try { ws.send(typeof m === "string" ? m : JSON.stringify(m)); } catch (e) {} }
   all(m, except) { const s = typeof m === "string" ? m : JSON.stringify(m); for (const [ws, id] of this.socks) if (id !== except) this.send(ws, s); }
@@ -175,7 +197,8 @@ export class Room extends DurableObject {
     }
     if (!host) return;
     // host-only controls
-    if (m.t === "settings") { if (m.rounds === 5 || m.rounds === 10 || m.rounds === 15) r.rounds = m.rounds; if (Array.isArray(m.off)) r.off = m.off.slice(0, 40).map(String); if (typeof m.pub === "boolean") r.pub = m.pub; }
+    if (m.t === "settings") { if (m.rounds === 5 || m.rounds === 10 || m.rounds === 15) r.rounds = m.rounds; if (Array.isArray(m.off)) r.off = m.off.slice(0, 40).map(String); if (typeof m.pub === "boolean") r.pub = m.pub;
+      if (m.mode === "party" || m.mode === "single") r.mode = m.mode; if (typeof m.pick === "string" && /^[a-z0-9]{1,16}$/.test(m.pick)) r.pick = m.pick; }
     if (m.t === "lock") r.locked = !!m.on;
     if (m.t === "kick" && m.id !== id && r.players.has(m.id)) { const p = r.players.get(m.id); r.players.delete(m.id); r.order = r.order.filter(x => x !== m.id);
       if (!p.bot) { r.kicked.add(m.id); for (const [w, i] of this.socks) if (i === m.id) { this.send(w, { t: "kicked" }); try { w.close(4002, "kicked"); } catch (e) {} this.socks.delete(w); } this.all({ t: "sys", msg: `${m.id} was kicked` }); }

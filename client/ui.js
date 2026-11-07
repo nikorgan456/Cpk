@@ -16,6 +16,7 @@ function renderHome(){
   $("#hCoins").textContent = `🪙 ${fmt(ME.coins)}`;
   $("#meCard").innerHTML = `<div class="mc-bean">${beanSVG(ME.bean, 78)}</div><div class="mc-info"><h2>${esc(ME.name)}</h2><span class="lvl">Level ${ME.lvl}</span><div class="xpbar"><i style="width:${ME.xp / need * 100}%"></i></div><small>${fmt(ME.xp)} / ${fmt(need)} XP · ${ME.wins} wins from ${ME.matches} matches</small></div>`;
   const reqs = (ME.reqs || []).length; $("#hReq").hidden = !reqs; $("#hReq").textContent = reqs;
+  const pc = passClaimable(); $("#hPassN").hidden = !pc; $("#hPassN").textContent = pc; $("#hSpinN").hidden = !!ME.spun;
   const on = FRIENDS.filter(f => f.online);
   $("#hFriendsMini").innerHTML = `<div class="label">Friends online (${on.length})</div>` + (on.length ? on.map(f => `<div class="fm">${beanSVG(f.bean, 28)}<b>${esc(f.name)}</b>${f.room ? `<button class="btn small blue" data-join="${f.room}">Join ${f.room}</button>` : `<span class="dot on">online</span>`}</div>`).join("") : `<p class="muted">Nobody online right now. Add friends from the Friends button.</p>`);
 }
@@ -40,10 +41,12 @@ function renderWard(){
   else items = [{ id:"", none:true }].concat(Object.keys(ITEMS).filter(k => ITEMS[k].s === wTab).map(k => ({ id:k })));
   $("#wGrid").innerHTML = items.map(it => { const owned = it.free || it.none || ME.own[it.id], on = wTab === "col" ? wSel.col === it.id : (wSel[wTab] || "") === it.id;
     const prevBean = Object.assign({}, wSel, wTab === "col" ? { col:it.id } : { [wTab]:it.id });
-    return `<button class="wi ${on ? "on" : ""} ${owned ? "" : "locked"}" data-id="${it.id}">${beanSVG(prevBean, 46)}<b>${it.none ? "None" : it.free ? "" : ITEMS[it.id].n}</b>${owned ? "" : `<span>🪙 ${fmt(PRICE(it.id) || 0)}</span>`}</button>`; }).join("");
+    const ex = !it.free && !it.none && ITEMS[it.id] && ITEMS[it.id].ex;
+    return `<button class="wi ${on ? "on" : ""} ${owned ? "" : "locked"} ${ex ? "ex" : ""}" data-id="${it.id}">${ex ? `<i class="wi-ex">S1</i>` : ""}${beanSVG(prevBean, 46)}<b>${it.none ? "None" : it.free ? "" : ITEMS[it.id].n}</b>${owned ? "" : `<span>${ex ? "🎟️ Pass" : `🪙 ${fmt(PRICE(it.id) || 0)}`}</span>`}</button>`; }).join("");
   $("#wSave").onclick = async () => { const j = await api("bean", { bean:wSel }); if(j.error) return toast(j.error); ME = j.me; sfx.win(); toast("Looking good!"); renderHome(); modal("#wardModal", false); if(NET.room) toast("Rejoin the room to show your new look to everyone"); };
 }
 $("#wGrid").onclick = async e => { const b = e.target.closest(".wi"); if(!b) return; const id = b.dataset.id;
+  if(b.classList.contains("locked") && ITEMS[id] && ITEMS[id].ex){ sfx.wrong(); return toast("Season 1 pass reward. Earn it in 🎟️ Season pass!"); }
   if(b.classList.contains("locked")){ if(b.dataset.sure !== "1"){ $$(".wi").forEach(x => delete x.dataset.sure); b.dataset.sure = "1"; b.querySelector("span").textContent = "Tap to buy"; sfx.click(); return; }
     const j = await api("buy", { item:id }); if(j.error){ sfx.wrong(); return toast(j.error); } ME = j.me; sfx.coin(); toast(`Bought ${ITEMS[id].n}!`); }
   if(wTab === "col") wSel.col = id; else wSel[wTab] = id; sfx.pop(); renderWard(); };
@@ -88,17 +91,24 @@ function renderRoom(){
   $("#rPlayers").innerHTML = r.players.map(p => `<button class="pl ${p.id === NET.me ? "me" : ""}" data-p="${esc(p.id)}">${p.id === r.host ? `<span class="crown">👑</span>` : ""}${beanSVG(p.bean, 54)}<b>${esc(p.name)}</b><small>${p.bot ? "🤖 bot" : "Lv " + p.lvl}</small></button>`).join("") + Array.from({ length:Math.max(0, 8 - r.players.length) }, () => `<div class="pl empty"><span>?</span></div>`).join("");
   $("#rHostRow").innerHTML = host ? `<button class="btn small blue" id="rBotAdd" ${r.players.length >= 8 ? "disabled" : ""}>🤖 Add bot</button><button class="btn small ghost" id="rBotRem" ${r.players.some(p => p.bot) ? "" : "disabled"}>Remove bot</button><button class="btn small ${r.locked ? "yellow" : "ghost"}" id="rLock">${r.locked ? "🔒 Locked" : "🔓 Open"}</button>` : `<small class="muted">${esc(r.host)} is the host · ${r.pub ? "🌍 public room" : "🔒 private room"}</small>`;
   $("#rSettings").hidden = !host;
+  const single = r.mode === "single", pg = GAMES[r.pick];
   if(host){ const off = r.off || [];
-    $("#rSettings").innerHTML = `<div class="label">Rounds</div><div class="seg" id="rRounds">${[5, 10, 15].map(n => `<button data-n="${n}" aria-pressed="${r.rounds === n}">${n}</button>`).join("")}</div>
+    $("#rSettings").innerHTML = `<div class="seg mode-seg" id="rMode"><button data-m="party" aria-pressed="${!single}">🎉 Party</button><button data-m="single" aria-pressed="${single}">🎯 Single game</button></div>` + (single ?
+      `<div class="label">Pick a game <small>play it once</small></div><div class="g-pick">${Object.entries(GAMES).map(([id, g]) => `<button class="gp cat-${g.cat} ${r.pick === id ? "on" : ""} ${g.solo ? "solo" : ""}" data-g="${id}"><span>${g.icon}</span>${g.name}${g.solo ? "<i>NEW</i>" : ""}</button>`).join("")}</div>
+      <div class="set"><span>🌍 Public room</span><button class="sw" id="rPub" aria-checked="${!!r.pub}"></button></div>` : `<div class="label">Rounds</div><div class="seg" id="rRounds">${[5, 10, 15].map(n => `<button data-n="${n}" aria-pressed="${r.rounds === n}">${n}</button>`).join("")}</div>
       <div class="set"><span>🌍 Public room</span><button class="sw" id="rPub" aria-checked="${!!r.pub}"></button></div>
-      <div class="label">Games (${Object.keys(GAMES).length - off.filter(x => GAMES[x]).length} on) <small>tap to turn off</small></div><div class="g-toggles">${Object.entries(GAMES).map(([id, g]) => `<button class="gt cat-${g.cat} ${off.includes(id) ? "off" : ""}" data-g="${id}">${g.icon} ${g.name}</button>`).join("")}</div>`;
+      <div class="label">Games (${Object.keys(GAMES).length - off.filter(x => GAMES[x]).length} on) <small>tap to turn off</small></div><div class="g-toggles">${Object.entries(GAMES).filter(([, g]) => !g.solo).map(([id, g]) => `<button class="gt cat-${g.cat} ${off.includes(id) ? "off" : ""}" data-g="${id}">${g.icon} ${g.name}</button>`).join("")}</div>`);
+    $$("#rMode button").forEach(b => b.onclick = () => { send("settings", { mode:b.dataset.m }); sfx.click(); });
+    $$(".gp").forEach(b => b.onclick = () => { send("settings", { pick:b.dataset.g }); sfx.pop(); });
     $$("#rRounds button").forEach(b => b.onclick = () => { send("settings", { rounds:+b.dataset.n }); sfx.click(); });
     $("#rPub").onclick = () => send("settings", { pub:!r.pub });
     $$(".gt").forEach(b => b.onclick = () => { const id = b.dataset.g, o = off.includes(id) ? off.filter(x => x !== id) : off.concat(id); if(Object.keys(GAMES).every(k => o.includes(k))) return toast("Leave at least one game on"); send("settings", { off:o }); sfx.click(); });
     $("#rBotAdd").onclick = () => send("bot", { add:true }); $("#rBotRem").onclick = () => send("bot", { add:false });
     $("#rLock").onclick = () => send("lock", { on:!r.locked }); }
   $("#rStart").hidden = !host; $("#rWait").hidden = host || r.status === "playing"; $("#rStart").disabled = r.players.length < 2 || r.status === "playing";
-  $("#rStart").textContent = r.players.length < 2 ? "Need 2+ players (add a bot!)" : "▶ Start the party";
+  $("#rStart").textContent = r.players.length < 2 ? "Need 2+ players (add a bot!)" : single ? (pg ? `▶ Play ${pg.name}` : "Pick a game above") : "▶ Start the party";
+  if(single && !pg && host) $("#rStart").disabled = true;
+  $("#rWait").textContent = single ? (pg ? `🎯 Next up: ${pg.icon} ${pg.name}. Waiting for the host…` : "🎯 The host is picking a game…") : "Waiting for the host to start…";
 }
 $("#rStart").onclick = () => { sfx.click(); startMatch(); };
 $("#rPlayers").onclick = e => { const b = e.target.closest("[data-p]"); if(!b) return; const id = b.dataset.p, p = playerOf(id); if(!p) return;
@@ -131,3 +141,42 @@ setInterval(() => { if(ME && !document.hidden) refreshMe(); }, 30000);
   if(!STORE.token){ if(linkCode){ STORE.pendingCode = linkCode; saveStore(); } showAuth(); return; }
   const j = await refreshMe(); if(j.error){ showAuth(); return; } afterLogin();
 })();
+
+// ---------- season pass ----------
+function passTier(){ return PASSI && ME.pass ? Math.min(PASSI.tiers, Math.floor(ME.pass.xp / PASSI.txp)) : 0; }
+function passClaimable(){ if(!PASSI || !ME.pass) return 0; const t = passTier(); return Math.max(0, t - ME.pass.cf) + (ME.pass.prem ? Math.max(0, t - ME.pass.cp) : 0); }
+function rewardHTML(r){ if(r.item){ const it = ITEMS[r.item], bean = Object.assign({}, ME.bean, it.s === "col" ? { col:r.item } : { [it.s]:r.item }); return `${beanSVG(bean, 40)}<b>${esc(it.n)}</b>`; }
+  if(r.pxp) return `<span class="ps-big">⭐</span><b>${r.pxp} pass XP</b>`; return `<span class="ps-big">🪙</span><b>${fmt(r.coins)}</b>`; }
+function renderPass(scroll){
+  if(!PASSI) return; const P = ME.pass, t = passTier(), into = P.xp - t * PASSI.txp, maxed = t >= PASSI.tiers, cl = passClaimable();
+  $("#psCoins").textContent = `🪙 ${fmt(ME.coins)}`;
+  const col = (r, tr, n) => { const reached = n <= t, got = tr === "free" ? n <= P.cf : P.prem && n <= P.cp, lock = tr === "prem" && !P.prem;
+    return `<div class="ps-r ${tr} ${reached ? "reach" : ""} ${got ? "got" : ""} ${lock ? "lock" : ""} ${r.item ? "item" : ""}">${rewardHTML(r)}${got ? `<i class="ps-ok">✓</i>` : lock ? `<i class="ps-lk">🔒</i>` : ""}</div>`; };
+  $("#passBody").innerHTML = `<div class="ps-head"><div class="ps-tier"><small>Tier</small><b>${t}</b><small>/ ${PASSI.tiers}</small></div>
+      <div class="ps-prog"><div class="xpbar"><i style="width:${maxed ? 100 : into / PASSI.txp * 100}%"></i></div><small>${maxed ? "Pass complete! 🎉" : `${fmt(into)} / ${PASSI.txp} XP to tier ${t + 1}. Play matches to earn XP`}</small></div>
+      ${cl ? `<button class="btn green" id="psClaim">Claim ${cl} reward${cl === 1 ? "" : "s"}</button>` : ""}</div>
+    ${P.prem ? `<p class="ps-prem on">⭐ Premium unlocked</p>` : `<div class="ps-buy"><div><b>⭐ Unlock Premium</b><small>9 exclusive items + loads more coins. Pays for itself!</small></div><button class="btn yellow" id="psBuy">🪙 ${fmt(PASSI.price)}</button></div>`}
+    <div class="ps-wrap"><div class="ps-labels"><span>Free</span><span>⭐ Premium</span></div><div class="ps-track" id="psTrack">${PASSI.free.map((r, i) => `<div class="ps-col ${i + 1 <= t ? "reach" : ""} ${i + 1 === t + 1 ? "next" : ""}"><div class="ps-n">${i + 1}</div>${col(r, "free", i + 1)}${col(PASSI.prem[i], "prem", i + 1)}</div>`).join("")}</div></div>
+    <p class="muted ps-note">Season 1 items will never come back after the season ends.</p>`;
+  if(scroll !== false){ const tr = $("#psTrack"), c = tr.children[Math.max(0, t - 1)]; if(c) tr.scrollLeft = c.offsetLeft - 60; }
+  const cb = $("#psClaim"); if(cb) cb.onclick = async () => { const j = await api("pass", { action:"claim" }); if(j.error) return toast(j.error); ME = j.me; sfx.coin(); confetti(); toast(gotText(j.got)); renderPass(false); renderHome(); };
+  const bb = $("#psBuy"); if(bb) bb.onclick = async () => { if(bb.dataset.sure !== "1"){ bb.dataset.sure = "1"; bb.textContent = "Tap again to buy"; sfx.click(); return; }
+    const j = await api("pass", { action:"buy" }); if(j.error){ sfx.wrong(); toast(j.error); return renderPass(false); } ME = j.me; sfx.crown(); confetti(); toast("⭐ Premium unlocked!" + (j.got.length ? " " + gotText(j.got) : "")); renderPass(false); renderHome(); };
+}
+function gotText(got){ const c = got.reduce((s, r) => s + (r.coins || 0), 0), items = got.filter(r => r.item).map(r => ITEMS[r.item].n); return [c ? `+${fmt(c)} coins` : "", items.length ? "New: " + items.join(", ") : ""].filter(Boolean).join(" · ") || "Claimed!"; }
+$("#hPass").onclick = async () => { sfx.click(); if(!PASSI) await refreshMe(); modal("#passModal"); renderPass(); };
+// ---------- daily spin ----------
+const SPIN_COLS = ["#ff4a8a", "#ffd23a", "#3ab8ff", "#5ae07a", "#9a6aff", "#ff8a3a", "#ff3a5a", "#2ad8c8"];
+function wheelSVG(){ const n = SPINL.length, a = 360 / n, P = (deg, r) => [100 + Math.sin(deg * Math.PI / 180) * r, 100 - Math.cos(deg * Math.PI / 180) * r];
+  return `<svg viewBox="0 0 200 200">${SPINL.map((x, i) => { const [x1, y1] = P(i * a, 96), [x2, y2] = P((i + 1) * a, 96), [tx, ty] = P(i * a + a/2, 64);
+    return `<path d="M100 100 L${x1} ${y1} A96 96 0 0 1 ${x2} ${y2} Z" fill="${SPIN_COLS[i % 8]}" stroke="#fff" stroke-width="2"/><text x="${tx}" y="${ty}" transform="rotate(${i * a + a/2} ${tx} ${ty})" text-anchor="middle" dominant-baseline="middle" font-family="Lilita One, sans-serif" font-size="${x.pxp ? 11 : 14}" fill="#fff" stroke="rgba(0,0,0,.25)" stroke-width=".6">${x.pxp ? "⭐ " + x.pxp + "XP" : "🪙" + x.coins}</text>`; }).join("")}<circle cx="100" cy="100" r="16" fill="#fff" stroke="#2a1a4a" stroke-width="3"/><text x="100" y="101" text-anchor="middle" dominant-baseline="middle" font-size="13">🎉</text></svg>`; }
+let spinRot = 0;
+function renderSpin(){ $("#spinWheel").innerHTML = wheelSVG(); const done = !!ME.spun; $("#spinGo").disabled = done;
+  if(done){ const n = new Date(), m = (24*60) - (n.getUTCHours()*60 + n.getUTCMinutes()); $("#spinNote").textContent = `Next spin in ${Math.floor(m / 60)}h ${m % 60}m`; } else $("#spinNote").textContent = "One free spin every day!"; }
+$("#hSpin").onclick = async () => { sfx.click(); if(!SPINL.length) await refreshMe(); modal("#spinModal"); renderSpin(); };
+$("#spinGo").onclick = async () => { const go = $("#spinGo"); if(go.disabled) return; go.disabled = true;
+  const j = await api("spin"); if(j.error){ toast(j.error); go.disabled = false; return; }
+  const n = SPINL.length, a = 360 / n, w = $("#spinWheel"); spinRot += 360 * 6 + (360 - (j.i * a + a/2) - (spinRot % 360)) + (rand() - .5) * a * .6;
+  w.style.transition = "transform 4.2s cubic-bezier(.17,.67,.2,1)"; w.style.transform = `rotate(${spinRot}deg)`;
+  let tk = 0; const tick = () => { if(tk > 4100) return; sfx.tick(); tk += 60 + tk * .08; setTimeout(tick, 60 + tk * .08); }; tick();
+  setTimeout(() => { ME = j.me; const p = SPINL[j.i]; sfx.win(); confetti(); toast(p.pxp ? `⭐ +${p.pxp} season pass XP!` : `🪙 You won ${p.coins} coins!`, 3200); SND.say(p.coins >= 250 ? "Jackpot!" : "Nice!"); renderSpin(); renderHome(); }, 4400); };

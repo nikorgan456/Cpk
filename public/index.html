@@ -68,14 +68,14 @@ h1,h2,h3{font-family:var(--display);font-weight:400;margin:0;letter-spacing:.01e
 .mc-info small{color:var(--muted);font-weight:700}
 .play-btns{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .join{display:flex;gap:8px}.join input{text-align:center;font-family:var(--display);font-size:1.5rem;letter-spacing:.2em;text-transform:uppercase}
-.tiles4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.tiles4{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
 .tile{position:relative;background:#fff;border-radius:20px;padding:14px 6px;box-shadow:var(--shadow);font-weight:900;display:flex;flex-direction:column;align-items:center;gap:4px;font-size:.88rem}
 .tile span{font-size:2rem}.tile:active{transform:translateY(3px)}
 .tile em{position:absolute;top:6px;right:8px;background:var(--red);color:#fff;font-style:normal;border-radius:99px;min-width:20px;padding:0 6px;font-size:.75rem}
 .t1{background:linear-gradient(160deg,#fff,#e0f4ff)}.t2{background:linear-gradient(160deg,#fff,#ffe0f2)}.t3{background:linear-gradient(160deg,#fff,#fff4cc)}.t4{background:linear-gradient(160deg,#fff,#e4ffe8)}
 .fm{display:flex;align-items:center;gap:10px}.fm>div{flex:1;min-width:0;display:flex;flex-direction:column}.fm small{color:var(--muted);font-weight:700}.fm b{flex:1}
 .dot.on{color:var(--green);font-weight:900;font-size:.8rem}
-@media (max-width:560px){.play-btns{grid-template-columns:1fr}.tiles4{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:560px){.play-btns{grid-template-columns:1fr}.tiles4{grid-template-columns:repeat(3,1fr)}.tile{font-size:.78rem;padding:12px 4px}.tile span{font-size:1.7rem}}
 /* room */
 .room-code{flex:1;text-align:center;font-family:var(--display);font-size:2.2rem;letter-spacing:.18em;color:#fff;text-shadow:0 4px 0 var(--purple)}
 .players{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
@@ -104,7 +104,7 @@ h1,h2,h3{font-family:var(--display);font-weight:400;margin:0;letter-spacing:.01e
 .ward{display:grid;grid-template-columns:200px 1fr;gap:14px}.ward-prev{display:flex;flex-direction:column;align-items:center;gap:10px;background:radial-gradient(circle at 50% 40%,#fff,#f2e4ff);border-radius:20px;padding:14px}
 .ward-prev svg{animation:bob 2.4s ease-in-out infinite}.ward-shop{display:flex;flex-direction:column;gap:10px;min-width:0}
 .ward-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(86px,1fr));gap:8px}
-.wi{background:#fbf7ff;border:3px solid var(--line);border-radius:16px;padding:6px 4px;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:.75rem;font-weight:800}
+.wi{position:relative;background:#fbf7ff;border:3px solid var(--line);border-radius:16px;padding:6px 4px;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:.75rem;font-weight:800}
 .wi.on{border-color:var(--green);background:#eafff2}.wi.locked{background:#f6f2fa}.wi.locked svg{opacity:.6}.wi span{color:#b07a00;font-weight:900}.wi[data-sure="1"]{border-color:var(--yellow);background:#fff8dc}
 @media (max-width:560px){.ward{grid-template-columns:1fr}.ward-prev svg{width:110px;height:143px}}
 .add-friend{display:flex;gap:8px}.f-list{display:flex;flex-direction:column;gap:8px}
@@ -323,6 +323,59 @@ input,textarea,.chat-msgs,.chat-msgs *{-webkit-user-select:text;user-select:text
 .qd-me{position:relative}.qd-hat{position:absolute;top:-24px;left:50%;transform:translateX(-50%);font-size:3rem}
 .qd .mash{background:#3a2a1a;box-shadow:0 8px 0 #1a1008}
 .race-hud:empty,.bomb-hud:empty{display:none}
+
+/* ===== season pass ===== */
+.wi.ex{background:linear-gradient(160deg,#fff,#fff2c8)}.wi-ex{position:absolute;top:4px;left:4px;font-style:normal;font-size:.62rem;font-weight:900;background:var(--purple);color:#fff;border-radius:6px;padding:0 4px}
+.ps-head{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.ps-tier{display:flex;flex-direction:column;align-items:center;background:var(--purple);color:#fff;border-radius:18px;padding:6px 14px;line-height:1}.ps-tier b{font-family:var(--display);font-weight:400;font-size:2.2rem}.ps-tier small{font-weight:800;font-size:.7rem;opacity:.85}
+.ps-prog{flex:1;min-width:160px}.ps-prog small{font-weight:700;color:var(--muted)}
+.ps-buy{display:flex;align-items:center;justify-content:space-between;gap:10px;background:linear-gradient(90deg,#fff4c8,#ffe0f2);border-radius:16px;padding:10px 12px;margin:10px 0}.ps-buy div{display:flex;flex-direction:column}.ps-buy small{color:var(--muted);font-weight:700}
+.ps-prem{margin:10px 0;font-weight:900}.ps-prem.on{color:#b07800}
+.ps-wrap{display:flex;gap:6px;align-items:stretch}
+.ps-labels{display:flex;flex-direction:column;justify-content:flex-end;gap:6px;padding-bottom:10px;font-weight:900;font-size:.72rem;color:var(--muted)}.ps-labels span{height:96px;display:flex;align-items:center;writing-mode:vertical-rl;transform:rotate(180deg)}
+.ps-track{flex:1;min-width:0;display:flex;gap:8px;overflow-x:auto;padding:4px 2px 10px;scroll-behavior:smooth}
+.ps-col{flex:none;width:92px;display:flex;flex-direction:column;gap:6px;align-items:stretch}
+.ps-n{text-align:center;font-family:var(--display);color:var(--muted);font-size:1.1rem}.ps-col.reach .ps-n{color:var(--purple)}.ps-col.next .ps-n{color:var(--pink)}
+.ps-r{position:relative;height:96px;border-radius:14px;background:#f4eefc;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;text-align:center;font-size:.72rem;padding:4px;border:3px solid transparent}
+.ps-r b{line-height:1.1}.ps-big{font-size:1.8rem;line-height:1}
+.ps-r.prem{background:linear-gradient(170deg,#fff6d0,#ffe2f2)}.ps-r.item{border-color:#e8d8ff}.ps-r.prem.item{border-color:#ffd23a}
+.ps-r.reach{box-shadow:0 0 0 2px var(--green) inset}.ps-r.got{opacity:.55}.ps-r.lock>*:not(.ps-lk){filter:grayscale(.6);opacity:.7}
+.ps-ok{position:absolute;top:2px;right:4px;font-style:normal;color:var(--green);font-weight:900}.ps-lk{position:absolute;top:2px;right:4px;font-style:normal;font-size:.8rem}
+.ps-note{font-size:.8rem;margin:6px 0 0}
+/* ===== daily spin ===== */
+.spin-wrap{position:relative;width:min(300px,78vw);aspect-ratio:1;margin:8px auto 14px}
+.spin-wheel{width:100%;height:100%;border-radius:50%;box-shadow:0 8px 0 rgba(90,30,140,.25),0 0 0 6px #fff,0 0 0 10px var(--pink)}.spin-wheel svg{width:100%;height:100%;display:block}
+.spin-ptr{position:absolute;top:-18px;left:50%;transform:translateX(-50%);z-index:2;font-size:2rem;color:var(--ink);text-shadow:0 2px 0 #fff}
+.spin-note{text-align:center;font-weight:800}
+#spinGo{width:100%}#spinGo:disabled{opacity:.5}
+
+/* ===== single game mode ===== */
+.mode-seg{margin-bottom:10px}
+.g-pick{display:grid;grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:8px;max-height:300px;overflow-y:auto;padding:2px}
+.gp{position:relative;background:#fbf7ff;border:3px solid var(--line);border-radius:14px;padding:8px 4px;font-weight:900;font-size:.78rem;display:flex;flex-direction:column;align-items:center;gap:2px;line-height:1.1}
+.gp span{font-size:1.6rem}.gp.on{border-color:var(--pink);background:#ffe8f4;transform:scale(1.03)}
+.gp i{position:absolute;top:-6px;right:-4px;font-style:normal;background:var(--red);color:#fff;border-radius:8px;padding:0 5px;font-size:.6rem}
+.gp.solo{background:linear-gradient(160deg,#fff,#ffe0e8)}
+
+/* ===== imposter ===== */
+.im{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;gap:8px;padding:58px 12px 12px;overflow-y:auto}
+.im-word{background:#fff;border-radius:18px;padding:10px 18px;font-weight:900;text-align:center;box-shadow:0 5px 0 rgba(90,30,140,.18);display:flex;flex-direction:column;align-items:center}.im-word small{color:var(--muted);font-weight:700;font-size:.78rem}
+.im-turn{min-height:26px;font-weight:900;color:#fff;text-shadow:0 2px 0 rgba(0,0,0,.3);text-align:center}
+.im-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(260px,100%),1fr));gap:8px;width:min(820px,100%)}
+.im-p{display:flex;align-items:center;gap:8px;background:#fff;border-radius:16px;padding:6px 10px;text-align:left;box-shadow:0 4px 0 rgba(90,30,140,.15);border:3px solid transparent;color:var(--ink)}
+.im-p.cur{border-color:var(--yellow);animation:pulse 1s infinite}.im-p.self{background:#fff8e0}.im-p.votable{cursor:pointer}.im-p.votable:hover{border-color:var(--pink2)}.im-p.mine{border-color:var(--pink)}
+@keyframes pulse{50%{transform:scale(1.02)}}
+.im-pi{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}.im-cl{display:flex;flex-wrap:wrap;gap:4px}.im-cl span{background:#efe4ff;border-radius:8px;padding:1px 8px;font-weight:800;font-size:.9rem}.im-cl i{color:var(--muted)}
+.im-vs{display:flex;flex-wrap:wrap}
+.im-in{width:min(460px,100%);position:sticky;bottom:0}
+.im-rev{position:absolute;inset:0;z-index:6;background:rgba(42,26,74,.7);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;color:#fff;text-align:center;padding:60px 16px 16px;overflow:hidden}
+.im-rev h2{font-size:clamp(1.4rem,6vw,2.2rem);text-shadow:0 3px 0 rgba(0,0,0,.3)}
+.im-fly{animation:launch 2.4s cubic-bezier(.3,.1,.6,1) forwards}
+@keyframes launch{0%{transform:translate(0,40vh) scale(.6) rotate(0)}35%{transform:translate(0,0) scale(1) rotate(200deg)}100%{transform:translate(60vw,-60vh) scale(.4) rotate(900deg)}}
+.im-cannon{font-size:3rem;animation:pop .5s}
+.im-words{background:#fff;color:var(--ink);border-radius:18px;padding:8px 18px}.im-words p{margin:4px 0;font-weight:800}
+.im-win{font-family:var(--display);font-size:1.8rem;margin:0;color:#ffe23a}
+#mRound:empty{display:none}
 </style></head><body>
 <div class="bg-blobs" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
 
@@ -355,6 +408,8 @@ input,textarea,.chat-msgs,.chat-msgs *{-webkit-user-select:text;user-select:text
       <button class="tile t2" id="hWardrobe"><span>👕</span>Wardrobe</button>
       <button class="tile t3" id="hFriends"><span>👯</span>Friends<em id="hReq" hidden></em></button>
       <button class="tile t4" id="hStats"><span>📊</span>Stats</button>
+      <button class="tile t5" id="hPass"><span>🎟️</span>Season pass<em id="hPassN" hidden></em></button>
+      <button class="tile t6" id="hSpin"><span>🎡</span>Daily spin<em id="hSpinN" hidden>!</em></button>
     </div>
     <div class="card" id="hFriendsMini"></div>
   </div>
@@ -402,6 +457,8 @@ input,textarea,.chat-msgs,.chat-msgs *{-webkit-user-select:text;user-select:text
   <div class="set"><span>Announcer voice</span><button class="sw" id="sVoice"></button></div>
   <div class="set"><span>Volume</span><input type="range" id="sVol" min="0" max="100"></div>
   <button class="btn red" id="sLogout">Log out</button></div></div>
+<div class="modal" id="passModal" hidden><div class="panel wide"><div class="ph"><h2>🎟️ Season 1 pass</h2><span class="coins" id="psCoins"></span><button class="icon sm" data-close>✕</button></div><div id="passBody"></div></div></div>
+<div class="modal" id="spinModal" hidden><div class="panel"><div class="ph"><h2>🎡 Daily spin</h2><button class="icon sm" data-close>✕</button></div><div class="spin-wrap"><div class="spin-ptr">▼</div><div class="spin-wheel" id="spinWheel"></div></div><button class="btn big pink" id="spinGo">SPIN!</button><p class="muted spin-note" id="spinNote"></p></div></div>
 <div class="modal" id="pMenu" hidden><div class="panel"><div id="pMenuBody"></div></div></div>
 
 <div class="toast" id="toast" hidden></div>
@@ -422,14 +479,14 @@ const STORE = (() => { let s = {}; try{ s = JSON.parse(localStorage.getItem("cpk
 function saveStore(){ try{ localStorage.setItem("cpk", JSON.stringify(STORE)); }catch(e){} }
 if(STORE.music === undefined) STORE.music = true; if(STORE.sound === undefined) STORE.sound = true; if(STORE.voice === undefined) STORE.voice = true; if(STORE.vol === undefined) STORE.vol = .7;
 
-let ME = null, FRIENDS = [], SHOP = {}, FREE_COLS = [];
+let ME = null, FRIENDS = [], SHOP = {}, FREE_COLS = [], PASSI = null, SPINL = [];
 async function api(op, body = {}){
   try{
     const r = await fetch("/api", { method:"POST", headers:{ "content-type":"application/json" }, body:JSON.stringify(Object.assign({ op, token:STORE.token }, body)) });
     const j = await r.json(); if(j.auth){ STORE.token = null; saveStore(); showAuth(); } return j;
   }catch(e){ return { error:"Can't reach the server. Check your internet." }; }
 }
-async function refreshMe(away){ const j = await api("me", away ? { away:true } : {}); if(j.me){ ME = j.me; FRIENDS = j.friends || []; SHOP = j.shop || SHOP; FREE_COLS = j.free || FREE_COLS; renderHome(); } return j; }
+async function refreshMe(away){ const j = await api("me", away ? { away:true } : {}); if(j.me){ ME = j.me; FRIENDS = j.friends || []; SHOP = j.shop || SHOP; FREE_COLS = j.free || FREE_COLS; PASSI = j.passInfo || PASSI; SPINL = j.spin || SPINL; renderHome(); } return j; }
 
 function toast(msg, ms = 2600){ const t = $("#toast"); t.textContent = msg; t.hidden = false; t.classList.remove("show"); void t.offsetWidth; t.classList.add("show"); clearTimeout(toast._t); toast._t = setTimeout(() => { t.hidden = true; }, ms); }
 function show(id){ $$(".screen").forEach(s => s.hidden = s.id !== id); window.scrollTo(0, 0); }
@@ -504,21 +561,29 @@ const ITEMS = {
   viking:{ n:"Viking helmet", s:"hat" }, chef:{ n:"Chef hat", s:"hat" }, halo:{ n:"Halo", s:"hat" }, bunny:{ n:"Bunny ears", s:"hat" }, frog:{ n:"Frog hat", s:"hat" }, propeller:{ n:"Propeller cap", s:"hat" },
   shades:{ n:"Shades", s:"face" }, nerd:{ n:"Nerd glasses", s:"face" }, monocle:{ n:"Monocle", s:"face" }, visor:{ n:"Cyber visor", s:"face" }, mask:{ n:"Hero mask", s:"face" },
   scarf:{ n:"Scarf", s:"neck" }, bowtie:{ n:"Bow tie", s:"neck" }, cape:{ n:"Cape", s:"neck" }, wings:{ n:"Angel wings", s:"neck" }, backpack:{ n:"Backpack", s:"neck" }, medal:{ n:"Gold medal", s:"neck" },
-  c_gold:{ n:"Solid gold", s:"col" }, c_galaxy:{ n:"Galaxy", s:"col" }, c_rainbow:{ n:"Rainbow", s:"col" }, c_ghost:{ n:"Ghost", s:"col" }, c_lava:{ n:"Lava", s:"col" }
+  c_gold:{ n:"Solid gold", s:"col" }, c_galaxy:{ n:"Galaxy", s:"col" }, c_rainbow:{ n:"Rainbow", s:"col" }, c_ghost:{ n:"Ghost", s:"col" }, c_lava:{ n:"Lava", s:"col" },
+  // Season 1 pass exclusives (can't be bought, never coming back)
+  s1_flower:{ n:"Flower crown", s:"hat", ex:"s1" }, s1_pirate:{ n:"Pirate hat", s:"hat", ex:"s1" }, s1_horns:{ n:"Dragon horns", s:"hat", ex:"s1" }, s1_astro:{ n:"Space helmet", s:"hat", ex:"s1" }, s1_wizard:{ n:"Wizard hat", s:"hat", ex:"s1" },
+  s1_star:{ n:"Star glasses", s:"face", ex:"s1" }, s1_heart:{ n:"Heart glasses", s:"face", ex:"s1" }, s1_goggles:{ n:"Ski goggles", s:"face", ex:"s1" },
+  s1_jetpack:{ n:"Jetpack", s:"neck", ex:"s1" }, s1_lei:{ n:"Flower lei", s:"neck", ex:"s1" },
+  c_ice:{ n:"Ice", s:"col", ex:"s1" }, c_candy:{ n:"Candy", s:"col", ex:"s1" }, c_neon:{ n:"Neon", s:"col", ex:"s1" }
 };
-const SPECIAL = { c_gold:["#ffe27a","#e0a020","#a86a00"], c_galaxy:["#7a3aff","#2a1a6a","#ff4ab8"], c_rainbow:["#ff4a6a","#ffd23a","#3ad87a","#3ab8ff","#9a5aff"], c_ghost:["#ffffff","#d8e8ff","#b8c8ff"], c_lava:["#ffd23a","#ff6a1a","#a01a00"] };
+const SPECIAL = { c_gold:["#ffe27a","#e0a020","#a86a00"], c_galaxy:["#7a3aff","#2a1a6a","#ff4ab8"], c_rainbow:["#ff4a6a","#ffd23a","#3ad87a","#3ab8ff","#9a5aff"], c_ghost:["#ffffff","#d8e8ff","#b8c8ff"], c_lava:["#ffd23a","#ff6a1a","#a01a00"],
+  c_ice:["#f0fcff","#9ae0ff","#3a98d8"], c_candy:["#ff8ac4","#ffffff","#ff8ac4","#ffffff","#ff4a9a"], c_neon:["#d8ff3a","#3aff8a","#00d8c8"] };
 let beanUid = 0;
 function beanFill(col, id){
   const s = SPECIAL[col]; if(!s) return { fill:col, defs:"", dark:shade(col, -.25) };
   const stops = s.map((c, i) => `<stop offset="${i / (s.length - 1)}" stop-color="${c}"/>`).join("");
   return { fill:`url(#bg${id})`, defs:`<linearGradient id="bg${id}" x1="0" y1="0" x2="${col === "c_rainbow" ? 1 : .3}" y2="1">${stops}</linearGradient>`, dark:shade(s[s.length - 1], -.1), ghost:col === "c_ghost" };
 }
+function starPath(cx, cy, R, r){ let d = ""; for(let i=0;i<10;i++){ const a = -Math.PI/2 + i * Math.PI/5, q = i % 2 ? r : R; d += (i ? "L" : "M") + (cx + Math.cos(a)*q).toFixed(1) + " " + (cy + Math.sin(a)*q).toFixed(1); } return d + "Z"; }
 function shade(hex, k){ const n = parseInt(hex.slice(1), 16); let r = n >> 16, g = n >> 8 & 255, b = n & 255; const f = v => clamp(Math.round(k < 0 ? v * (1 + k) : v + (255 - v) * k), 0, 255); return "#" + [f(r), f(g), f(b)].map(v => v.toString(16).padStart(2, "0")).join(""); }
 function beanSVG(bean, size = 64, opts = {}){
   const b = bean || {}, id = ++beanUid, F = beanFill(b.col || "#3ab8ff", id), hat = b.hat, face = b.face, neck = b.neck;
   let back = "", front = "", top = "";
   if(neck === "cape") back += `<path d="M20 72 Q50 80 80 72 L92 114 Q50 122 8 114 Z" fill="#d82a4a" stroke="#8a1028" stroke-width="2"/>`;
   if(neck === "wings") back += `<path d="M24 60 Q2 40 4 74 Q10 66 14 78 Q16 70 24 80 Z M76 60 Q98 40 96 74 Q90 66 86 78 Q84 70 76 80 Z" fill="#fff" stroke="#c8d8f0" stroke-width="2"/>`;
+  if(neck === "s1_jetpack") back += `<rect x="70" y="56" width="14" height="40" rx="7" fill="#b8c0d0" stroke="#6a7890" stroke-width="2"/><rect x="16" y="56" width="14" height="40" rx="7" fill="#b8c0d0" stroke="#6a7890" stroke-width="2"/><path d="M71 96 L77 116 L83 96 Z M17 96 L23 116 L29 96 Z" fill="#ff8a1a"/><path d="M74 96 L77 108 L80 96 Z M20 96 L23 108 L26 96 Z" fill="#ffe23a"/>`;
   if(neck === "backpack") back += `<rect x="74" y="60" width="20" height="36" rx="7" fill="#ff8a2a" stroke="#c05a10" stroke-width="2"/>`;
   const body = `<ellipse cx="34" cy="111" rx="11" ry="6" fill="${F.dark}"/><ellipse cx="66" cy="111" rx="11" ry="6" fill="${F.dark}"/>
     <ellipse cx="15" cy="80" rx="7" ry="10" fill="${F.fill}" stroke="${F.dark}" stroke-width="3" transform="rotate(20 15 80)"/><ellipse cx="85" cy="80" rx="7" ry="10" fill="${F.fill}" stroke="${F.dark}" stroke-width="3" transform="rotate(-20 85 80)"/>
@@ -535,11 +600,16 @@ function beanSVG(bean, size = 64, opts = {}){
   if(face === "shades") front += `<rect x="25" y="44" width="25" height="15" rx="5" fill="#111"/><rect x="51" y="44" width="25" height="15" rx="5" fill="#111"/><rect x="47" y="48" width="7" height="3" fill="#111"/><rect x="29" y="47" width="8" height="3" rx="1.5" fill="#fff" opacity=".5"/>`;
   if(face === "nerd") front += `<circle cx="38" cy="52" r="12.5" fill="none" stroke="#3a2a1a" stroke-width="3.5"/><circle cx="62" cy="52" r="12.5" fill="none" stroke="#3a2a1a" stroke-width="3.5"/><path d="M48 50 L52 50" stroke="#3a2a1a" stroke-width="3.5"/>`;
   if(face === "monocle") front += `<circle cx="62" cy="52" r="12.5" fill="rgba(255,255,255,.15)" stroke="#d8a020" stroke-width="3"/><path d="M71 61 Q76 76 70 88" stroke="#d8a020" stroke-width="1.5" fill="none"/>`;
+  if(face === "s1_star") front += [38, 62].map(x => `<path d="${starPath(x, 52, 14, 6)}" fill="#ff4ab8" stroke="#a01a6a" stroke-width="2" opacity=".95"/>`).join("") + `<path d="M48 50 L52 50" stroke="#a01a6a" stroke-width="3"/>`;
+  if(face === "s1_heart") front += [38, 62].map(x => `<path d="M${x} 62 L${x - 12} 50 Q${x - 14} 40 ${x - 6} 40 Q${x} 40 ${x} 46 Q${x} 40 ${x + 6} 40 Q${x + 14} 40 ${x + 12} 50 Z" fill="#ff2a5a" stroke="#a0103a" stroke-width="2" opacity=".95"/>`).join("") + `<path d="M48 48 L52 48" stroke="#a0103a" stroke-width="3"/>`;
+  if(face === "s1_goggles") front += `<path d="M14 50 L86 50" stroke="#2a2a3a" stroke-width="6"/><rect x="22" y="40" width="56" height="24" rx="12" fill="url(#gg${id})" stroke="#fff" stroke-width="3"/><defs><linearGradient id="gg${id}" x1="0" x2="1"><stop offset="0" stop-color="#ffb02a"/><stop offset=".5" stop-color="#ff4a8a"/><stop offset="1" stop-color="#9a4aff"/></linearGradient></defs><rect x="28" y="44" width="16" height="4" rx="2" fill="#fff" opacity=".7"/>`;
   if(face === "mask") front += `<path d="M18 44 Q50 34 82 44 L82 60 Q68 64 58 57 Q50 54 42 57 Q32 64 18 60 Z" fill="#2a2aa8"/><ellipse cx="38" cy="52" rx="6" ry="4" fill="#fff"/><ellipse cx="62" cy="52" rx="6" ry="4" fill="#fff"/>`;
   
   if(neck === "scarf") neckF += `<path d="M22 66 Q50 76 78 66 L78 74 Q50 84 22 74 Z" fill="#e83a3a"/><path d="M62 74 L66 94 L58 94 L56 76 Z" fill="#e83a3a"/><path d="M24 70 L76 70" stroke="#fff" stroke-width="2" stroke-dasharray="4 4"/>`;
   if(neck === "bowtie") neckF += `<path d="M50 70 L38 63 L38 77 Z M50 70 L62 63 L62 77 Z" fill="#e83a6a" stroke="#a01a40" stroke-width="1.5"/><circle cx="50" cy="70" r="3.5" fill="#a01a40"/>`;
   if(neck === "medal") neckF += `<path d="M42 64 L50 80 L58 64" stroke="#3a6aff" stroke-width="4" fill="none"/><circle cx="50" cy="84" r="7" fill="#ffd23a" stroke="#c08a00" stroke-width="2"/>`;
+  if(neck === "s1_lei") neckF += [22, 32, 42, 50, 58, 68, 78].map((x, i) => `<circle cx="${x}" cy="${66 + Math.sin(i / 6 * Math.PI) * 9}" r="6" fill="${["#ff4a8a", "#ffd23a", "#ff8a3a", "#ff4ab8", "#ffd23a", "#ff8a3a", "#ff4a8a"][i]}"/><circle cx="${x}" cy="${66 + Math.sin(i / 6 * Math.PI) * 9}" r="2" fill="#fff6c8"/>`).join("");
+  if(neck === "s1_jetpack") front += `<path d="M24 64 L30 98 M76 64 L70 98" stroke="#6a7890" stroke-width="4"/>`;
   if(neck === "cape") front += `<circle cx="22" cy="74" r="3.5" fill="#ffd23a"/><circle cx="78" cy="74" r="3.5" fill="#ffd23a"/>`;
   if(neck === "backpack") front += `<path d="M72 66 L76 98" stroke="#c05a10" stroke-width="4"/>`;
   if(hat === "cap") top = `<path d="M24 34 Q26 12 50 12 Q74 12 76 34 Z" fill="#e83a3a"/><path d="M50 30 L92 34 Q90 40 74 38 L50 36 Z" fill="#c02020"/><circle cx="50" cy="13" r="3" fill="#c02020"/>`;
@@ -554,6 +624,11 @@ function beanSVG(bean, size = 64, opts = {}){
   if(hat === "bunny") top = `<ellipse cx="38" cy="2" rx="8" ry="22" fill="#fff" stroke="#e8c8d8" stroke-width="2"/><ellipse cx="62" cy="2" rx="8" ry="22" fill="#fff" stroke="#e8c8d8" stroke-width="2"/><ellipse cx="38" cy="4" rx="4" ry="15" fill="#ffb8d8"/><ellipse cx="62" cy="4" rx="4" ry="15" fill="#ffb8d8"/>`;
   if(hat === "frog") top = `<path d="M22 34 Q22 10 50 10 Q78 10 78 34 Z" fill="#5ad85a"/><circle cx="36" cy="10" r="9" fill="#5ad85a"/><circle cx="64" cy="10" r="9" fill="#5ad85a"/><circle cx="36" cy="10" r="5" fill="#fff"/><circle cx="64" cy="10" r="5" fill="#fff"/><circle cx="37" cy="11" r="2.5" fill="#111"/><circle cx="65" cy="11" r="2.5" fill="#111"/>`;
   if(hat === "propeller") top = `<path d="M24 34 Q26 12 50 12 Q74 12 76 34 Z" fill="#3ad8ff"/><path d="M24 30 Q50 18 76 30" stroke="#ffe23a" stroke-width="4" fill="none"/><rect x="48" y="2" width="4" height="12" fill="#666"/><ellipse cx="50" cy="2" rx="18" ry="3.5" fill="#e83a3a"/>`;
+  if(hat === "s1_flower") top = `<path d="M20 30 Q50 18 80 30" stroke="#5ab84a" stroke-width="5" fill="none"/>` + [24, 36, 50, 64, 76].map((x, i) => `<g transform="translate(${x} ${30 - Math.sin(i / 4 * Math.PI) * 10})">${[0, 72, 144, 216, 288].map(a => `<ellipse cx="0" cy="-5" rx="3.5" ry="5" fill="${["#ff7ab8", "#fff", "#ffd23a", "#c79aff", "#ff8a6a"][i]}" transform="rotate(${a})"/>`).join("")}<circle r="2.5" fill="#ffb02a"/></g>`).join("");
+  if(hat === "s1_pirate") top = `<path d="M8 30 Q20 8 50 4 Q80 8 92 30 Q70 22 50 26 Q30 22 8 30 Z" fill="#1a1a24" stroke="#ffd23a" stroke-width="2.5"/><circle cx="50" cy="14" r="6" fill="#fff"/><circle cx="48" cy="13" r="1.4" fill="#1a1a24"/><circle cx="52" cy="13" r="1.4" fill="#1a1a24"/><path d="M42 22 L58 26 M58 22 L42 26" stroke="#fff" stroke-width="2"/>`;
+  if(hat === "s1_horns") top = `<path d="M30 30 Q18 18 22 -6 Q30 10 40 24 Z M70 30 Q82 18 78 -6 Q70 10 60 24 Z" fill="#ff8a2a" stroke="#a84a00" stroke-width="2"/><path d="M44 22 L48 10 L52 22 Z M54 20 L58 8 L62 22 Z M36 24 L40 12 L44 24 Z" fill="#ffd23a"/>`;
+  if(hat === "s1_astro") top = `<ellipse cx="50" cy="56" rx="47" ry="47" fill="rgba(170,225,255,.22)" stroke="#e8f4ff" stroke-width="4"/><path d="M18 34 Q26 16 44 12" stroke="#fff" stroke-width="5" fill="none" stroke-linecap="round" opacity=".8"/><rect x="47" y="-10" width="6" height="18" fill="#b8c0d0"/><circle cx="50" cy="-10" r="5" fill="#ff4a5a"/>`;
+  if(hat === "s1_wizard") top = `<path d="M18 30 Q50 40 82 30 Q72 24 66 24 L52 -12 Q48 -14 44 -6 L34 24 Q26 24 18 30 Z" fill="#5a2ad8" stroke="#2a1a6a" stroke-width="2"/><path d="${starPath(50, 10, 6, 2.6)}" fill="#ffe23a"/><path d="${starPath(40, 20, 3.5, 1.5)}" fill="#ffe23a"/><circle cx="58" cy="2" r="2" fill="#fff"/><path d="M30 26 Q50 32 70 26" stroke="#ffd23a" stroke-width="3" fill="none"/>`;
   const sz = size; return `<svg class="bean" viewBox="0 -14 100 130" width="${sz}" height="${sz * 1.3}" aria-hidden="true"><defs>${F.defs}</defs>${back}${body}${eyes}${front}<g transform="translate(0 12)">${neckF}</g>${top}</svg>`;
 }
 
@@ -563,8 +638,8 @@ function beanMesh(bean, name){
   const b = bean || {}, g = new THREE.Group(), body = new THREE.Group(); g.add(body); g.userData.body = body;
   if(!BEAN3D.geo){ const P = [[.001,0],[.36,.02],[.48,.1],[.53,.25],[.53,.42],[.49,.65],[.41,.88],[.29,1.07],[.14,1.2],[.001,1.25]];
     BEAN3D.geo = new THREE.LatheGeometry(P.map(p => new THREE.Vector2(p[0], p[1])), 28); BEAN3D.foot = new THREE.SphereGeometry(.14, 12, 8); BEAN3D.eye = new THREE.SphereGeometry(.17, 16, 12); BEAN3D.pupil = new THREE.SphereGeometry(.085, 12, 8); }
-  const s = SPECIAL[b.col], col = s ? s[1] : (b.col || "#3ab8ff");
-  const mat = new THREE.MeshStandardMaterial({ color:col, roughness:.4, metalness: b.col === "c_gold" ? .7 : .05, emissive: b.col === "c_lava" ? "#ff3a00" : b.col === "c_galaxy" ? "#3a1aa8" : "#000", emissiveIntensity: b.col === "c_lava" ? .4 : .25, transparent: b.col === "c_ghost", opacity: b.col === "c_ghost" ? .7 : 1 });
+  const s = SPECIAL[b.col], col = s ? (b.col === "c_candy" ? s[0] : s[1]) : (b.col || "#3ab8ff");
+  const mat = new THREE.MeshStandardMaterial({ color:col, roughness:.4, metalness: b.col === "c_gold" ? .7 : b.col === "c_ice" ? .3 : .05, emissive: b.col === "c_lava" ? "#ff3a00" : b.col === "c_galaxy" ? "#3a1aa8" : b.col === "c_neon" ? "#3aff6a" : "#000", emissiveIntensity: b.col === "c_lava" ? .4 : b.col === "c_neon" ? .55 : .25, transparent: b.col === "c_ghost", opacity: b.col === "c_ghost" ? .7 : 1 });
   if(b.col === "c_rainbow") g.userData.rainbow = mat;
   const m = new THREE.Mesh(BEAN3D.geo, mat); m.castShadow = true; m.position.y = .08; body.add(m);
   if(b.face === "visor"){ const vz = new THREE.Mesh(new THREE.BoxGeometry(.62, .16, .1), new THREE.MeshStandardMaterial({ color:"#2affd8", emissive:"#1a8a7a", roughness:.1 })); vz.position.set(0, .82, .44); body.add(vz); }
@@ -587,7 +662,16 @@ function beanMesh(bean, name){
     case "bunny": [-1, 1].forEach(sd => add(new THREE.SphereGeometry(.1, 10, 8), "#fff", sd*.16, H + .3, 0, 0, 0, sd*.15, 1, 3.2, .6)); break;
     case "frog": add(new THREE.SphereGeometry(.44, 16, 8, 0, Math.PI*2, 0, Math.PI/2), "#5ad85a", 0, H - .14, 0); [-1, 1].forEach(sd => { add(new THREE.SphereGeometry(.13, 10, 8), "#5ad85a", sd*.2, H + .2, .12); add(new THREE.SphereGeometry(.07, 8, 6), "#fff", sd*.2, H + .24, .22); }); break;
     case "propeller": { add(new THREE.SphereGeometry(.4, 16, 8, 0, Math.PI*2, 0, Math.PI/2), "#3ad8ff", 0, H - .08, 0); const p = add(new THREE.BoxGeometry(.7, .02, .09), "#e83a3a", 0, H + .4, 0); g.userData.prop = p; add(new THREE.CylinderGeometry(.02, .02, .1, 6), "#666", 0, H + .35, 0); break; }
+    case "s1_flower": for(let k=0;k<7;k++){ const a = k/7*Math.PI*2; add(new THREE.SphereGeometry(.09, 8, 6), ["#ff7ab8", "#fff", "#ffd23a", "#c79aff", "#ff8a6a", "#ff7ab8", "#ffd23a"][k], Math.cos(a)*.3, H - .02, Math.sin(a)*.3, 0, 0, 0, 1, .6, 1); } add(new THREE.TorusGeometry(.3, .03, 6, 20), "#5ab84a", 0, H - .04, 0, Math.PI/2); break;
+    case "s1_pirate": add(new THREE.CylinderGeometry(.5, .5, .06, 3), "#1a1a24", 0, H - .02, 0, 0, Math.PI/6); add(new THREE.SphereGeometry(.32, 14, 8, 0, Math.PI*2, 0, Math.PI/2), "#1a1a24", 0, H - .04, 0); add(new THREE.SphereGeometry(.07, 8, 6), "#fff", 0, H + .12, .28); break;
+    case "s1_horns": [-1, 1].forEach(sd => add(new THREE.ConeGeometry(.08, .45, 10), "#ff8a2a", sd*.22, H + .08, -.02, -.25, 0, -sd*.35)); [0, .14, -.14].forEach(z => add(new THREE.ConeGeometry(.05, .14, 4), "#ffd23a", 0, H - .02, z - .1)); break;
+    case "s1_astro": add(new THREE.SphereGeometry(.66, 20, 16), new THREE.MeshStandardMaterial({ color:"#bfe6ff", transparent:true, opacity:.25, roughness:.05, metalness:.2, depthWrite:false }), 0, .78, 0); add(new THREE.TorusGeometry(.5, .06, 8, 24), "#e8eef8", 0, .3, 0, Math.PI/2); add(new THREE.SphereGeometry(.05, 8, 6), "#ff4a5a", 0, 1.5, 0); break;
+    case "s1_wizard": add(new THREE.CylinderGeometry(.5, .5, .04, 22), "#5a2ad8", 0, H - .04, 0); add(new THREE.ConeGeometry(.26, .75, 18), "#5a2ad8", 0, H + .34, 0, -.15); add(new THREE.SphereGeometry(.05, 6, 4), new THREE.MeshStandardMaterial({ color:"#ffe23a", emissive:"#ffc000", emissiveIntensity:.8 }), .06, H + .3, .2); break;
   }
+  if(b.face === "s1_star" || b.face === "s1_heart") [-1, 1].forEach(sd => add(new THREE.CylinderGeometry(.16, .16, .05, b.face === "s1_star" ? 5 : 16), b.face === "s1_star" ? "#ff4ab8" : "#ff2a5a", sd*.17, .84, .56, Math.PI/2));
+  if(b.face === "s1_goggles"){ add(new THREE.BoxGeometry(.66, .22, .08), new THREE.MeshStandardMaterial({ color:"#ff6a6a", emissive:"#ff3a8a", emissiveIntensity:.4, roughness:.1, metalness:.4 }), 0, .85, .52); add(new THREE.TorusGeometry(.5, .03, 6, 24), "#2a2a3a", 0, .85, 0, Math.PI/2); }
+  if(b.neck === "s1_lei") for(let k=0;k<10;k++){ const a = k/10*Math.PI*2; add(new THREE.SphereGeometry(.08, 8, 6), ["#ff4a8a", "#ffd23a", "#ff8a3a"][k % 3], Math.sin(a)*.5, .5, Math.cos(a)*.5); }
+  if(b.neck === "s1_jetpack"){ [-1, 1].forEach(sd => { add(new THREE.CylinderGeometry(.11, .11, .48, 12), "#b8c0d0", sd*.15, .56, -.52); const f = add(new THREE.ConeGeometry(.08, .28, 8), new THREE.MeshBasicMaterial({ color:"#ffa02a" }), sd*.15, .2, -.52, Math.PI); (g.userData.flames = g.userData.flames || []).push(f); }); }
   if(b.face === "shades") [-1, 1].forEach(sd => add(new THREE.BoxGeometry(.26, .16, .05), "#111", sd*.17, .84, .56));
   if(b.face === "nerd") [-1, 1].forEach(sd => add(new THREE.TorusGeometry(.15, .025, 6, 18), "#3a2a1a", sd*.17, .84, .55));
   if(b.face === "monocle") add(new THREE.TorusGeometry(.15, .025, 6, 18), "#d8a020", .17, .84, .55);
@@ -606,6 +690,7 @@ function animBean(g, speed, t, alive = true){
   U.body.position.y = Math.abs(sw) * .06; U.body.rotation.z = sw * .06;
   if(U.prop) U.prop.rotation.y = t * 20; if(U.cape) U.cape.rotation.x = .15 + Math.min(.9, speed * .15) + Math.sin(t*8)*.05;
   if(U.rainbow) U.rainbow.color.setHSL((t * .2) % 1, .8, .6);
+  if(U.flames) U.flames.forEach((f, i) => f.scale.y = .7 + Math.abs(Math.sin(t * 30 + i)) * .6);
 }
 
 // ===================== room connection =====================
@@ -805,19 +890,22 @@ let CM = { phase:"", game:null, view:null, S:null, info:null, round:0, total:0, 
 const isHost = () => NET.host;
 // ---------- host helpers ----------
 function hsend(k, d = {}){ const m = Object.assign({ k }, d); send("g", m); onG(m); }
-function enabledGames(){ const off = (NET.room && NET.room.off) || []; return Object.keys(GAMES).filter(id => !off.includes(id)); }
+function enabledGames(){ const off = (NET.room && NET.room.off) || []; return Object.keys(GAMES).filter(id => !off.includes(id) && !GAMES[id].solo); }
 function canPlay(id, ids){ const g = GAMES[id], humans = ids.filter(x => !playerOf(x)?.bot).length; return ids.length >= (g.min || 2) && humans >= (g.minHumans || 1); }
 function startMatch(){
   if(!isHost() || HM) return; const ids = players().map(p => p.id); if(ids.length < 2) return toast("You need at least 2 players. Add a bot!");
-  const pool = enabledGames().filter(id => canPlay(id, ids)); if(pool.length < 1) return toast("Turn on some games first");
-  HM = { round:0, total:NET.room.rounds || 10, scores:{}, played:[], records:{}, wins:{}, drawn:{}, inputs:{}, t:0 };
+  const single = NET.room.mode === "single", pick = NET.room.pick;
+  if(single){ if(!GAMES[pick]) return toast("Pick a game first"); if(!canPlay(pick, ids)) return toast(`${GAMES[pick].name} needs ${GAMES[pick].min || 2}+ players`); }
+  const pool = enabledGames().filter(id => canPlay(id, ids)); if(!single && pool.length < 1) return toast("Turn on some games first");
+  HM = { round:0, total:single ? 1 : NET.room.rounds || 10, single, scores:{}, played:[], records:{}, wins:{}, drawn:{}, inputs:{}, t:0 };
   ids.forEach(id => { HM.scores[id] = 0; HM.records[id] = []; HM.wins[id] = 0; });
-  send("status", { status:"playing" }); hsend("start", { total:HM.total, scores:HM.scores }); setTimeout(hVote, 600);
+  send("status", { status:"playing" }); hsend("start", { total:HM.total, scores:HM.scores });
+  if(single) setTimeout(() => { if(!HM) return; HM.round = 1; HM.phase = "vote"; CM.round = 1; CM.total = 1; hIntro(pick); }, 700); else setTimeout(hVote, 600);
 }
 function hVote(){
   if(!HM) return; if(HM.round >= HM.total) return hFinal();
   const ids = players().map(p => p.id); ids.forEach(id => { if(HM.scores[id] == null){ HM.scores[id] = 0; HM.records[id] = []; HM.wins[id] = 0; } });
-  let pool = enabledGames().filter(id => canPlay(id, ids)); if(!pool.length) pool = Object.keys(GAMES).filter(id => canPlay(id, ids));
+  let pool = enabledGames().filter(id => canPlay(id, ids)); if(!pool.length) pool = Object.keys(GAMES).filter(id => canPlay(id, ids) && !GAMES[id].solo);
   // never offer a game already played this match; also skip what was just on the last vote if there's enough left
   let fresh = pool.filter(id => !HM.played.includes(id)); if(fresh.length < 3) fresh = pool.filter(id => !HM.played.slice(-Math.max(0, pool.length - 3)).includes(id));
   const notLast = fresh.filter(id => !(HM.lastOpts || []).includes(id)), opts = shuffle(notLast.length >= 3 ? notLast : fresh.length >= 3 ? fresh : pool).slice(0, 3); HM.lastOpts = opts;
@@ -939,7 +1027,7 @@ function showFinal(m){
   stageClear(); CM.phase = "final"; SND.music("final"); const top = m.results.slice(0, 3), me = m.results.find(r => r.name === NET.me);
   const pod = [1, 0, 2].map(i => top[i] ? `<div class="pod p${i + 1}"><div class="pod-b">${beanOf(top[i].name, i === 0 ? 74 : 56, "happy")}</div><b>${esc(top[i].name)}</b><span>${top[i].pts} pts</span><div class="pod-step">${i + 1}</div></div>` : `<div class="pod p${i + 1} empty"></div>`).join("");
   ovl(`<div class="final"><h1>${esc(m.results[0].name)} wins!</h1><div class="podium">${pod}</div><div class="fin-list">${m.results.slice(3).map(r => `<div class="rr"><span class="rr-p">${r.place}</span>${beanOf(r.name, 24)}<b>${esc(r.name)}</b><span class="rr-g">${r.pts}</span></div>`).join("")}</div>
-    ${me && !playerOf(NET.me)?.bot ? `<p class="fin-me">You came <b>${ordinal(me.place)}</b>: +${[60, 40, 30, 20, 15, 12, 10, 10][me.place - 1] || 10} coins and XP</p>` : ""}<small class="muted">Back to the lobby soon…</small></div>`, "final-ovl");
+    ${me && !playerOf(NET.me)?.bot ? `<p class="fin-me">You came <b>${ordinal(me.place)}</b>: +${Math.round(([60, 40, 30, 20, 15, 12, 10, 10][me.place - 1] || 10) * Math.min(1, Math.max(.2, (me.rounds || []).length / 5)))} coins and XP</p>` : ""}<small class="muted">Back to the lobby soon…</small></div>`, "final-ovl");
   sfx.crown(); SND.say(`${m.results[0].name} wins!`); confetti();
 }
 const ordinal = n => n + (["th","st","nd","rd"][(n % 100 - 20) % 10] || ["th","st","nd","rd"][n % 100] || "th");
@@ -1844,6 +1932,95 @@ GAMES.likely = {
     v.destroy = () => {}; return v; }
 };
 
+// ---------- IMPOSTER (single game only) ----------
+// everyone gets the same word except one player, who gets a close-but-different word and doesn't know they're the imposter
+const IMP_PAIRS = [
+  ["pizza","burger",["cheese","slice","italy","oven","pepperoni"],["bun","beef","fries","patty","grill"]],
+  ["cat","dog",["purr","whiskers","meow","kitten","litter"],["bark","bone","walkies","puppy","fetch"]],
+  ["beach","pool",["sand","waves","shells","sea","seagull"],["chlorine","diving","lanes","goggles","lifeguard"]],
+  ["football","basketball",["goal","pitch","kick","striker","offside"],["hoop","dunk","court","bounce","nba"]],
+  ["coffee","tea",["beans","latte","espresso","barista","starbucks"],["teabag","kettle","biscuit","brew","british"]],
+  ["phone","laptop",["call","pocket","selfie","ringtone","text"],["keyboard","trackpad","charger","homework","typing"]],
+  ["snow","rain",["snowman","white","sledge","flakes","frozen"],["umbrella","puddle","wet","drizzle","drops"]],
+  ["vampire","zombie",["blood","fangs","bat","coffin","garlic"],["brains","undead","shuffle","groan","apocalypse"]],
+  ["pirate","ninja",["ship","treasure","parrot","eyepatch","arrr"],["sword","stealth","shadow","dojo","silent"]],
+  ["guitar","piano",["strings","strum","pick","amp","rock"],["keys","pedals","grand","ivory","sheet"]],
+  ["apple","orange",["crunch","pie","red","newton","core"],["juice","peel","citrus","segments","zest"]],
+  ["rocket","plane",["space","launch","astronaut","countdown","moon"],["airport","pilot","runway","holiday","seatbelt"]],
+  ["castle","palace",["knight","moat","drawbridge","siege","dungeon"],["queen","royal","ballroom","guards","chandelier"]],
+  ["youtube","tiktok",["subscribe","vlog","long","creator","thumbnail"],["dance","scroll","trend","short","fyp"]],
+  ["shark","dolphin",["teeth","jaws","bite","scary","hunt"],["clever","smile","flipper","friendly","clicks"]],
+  ["christmas","halloween",["santa","presents","elf","tinsel","reindeer"],["pumpkin","costume","spooky","ghost","trick"]],
+  ["netflix","cinema",["binge","series","sofa","remote","subscription"],["popcorn","tickets","seats","trailer","bigscreen"]],
+  ["minecraft","roblox",["blocks","creeper","mining","crafting","diamond"],["obby","robux","avatar","oof","tycoon"]],
+  ["train","bus",["tracks","station","carriage","tunnel","platform"],["busstop","doubledecker","driver","route","bell"]],
+  ["icecream","cake",["cone","scoop","melt","freezer","sprinkles"],["birthday","candles","icing","bake","slice"]],
+  ["dragon","dinosaur",["fire","myth","knight","treasure","wings"],["fossil","extinct","trex","bones","jurassic"]],
+  ["lion","tiger",["mane","pride","king","savanna","roar"],["stripes","jungle","india","prowl","orange"]],
+  ["gym","park",["weights","treadmill","muscles","protein","reps"],["swings","grass","bench","picnic","ducks"]],
+  ["wizard","witch",["wand","beard","robe","spellbook","staff"],["broom","cauldron","potion","cackle","pointy"]],
+  ["sun","moon",["hot","daytime","bright","summer","sunburn"],["night","craters","tide","werewolf","full"]],
+  ["tennis","badminton",["wimbledon","racket","serve","clay","yellow"],["shuttlecock","feather","birdie","smash","indoor"]],
+  ["sushi","sandwich",["rice","raw","chopsticks","japan","seaweed"],["bread","lunchbox","filling","crusts","toastie"]],
+  ["teacher","doctor",["lesson","homework","classroom","detention","marking"],["patient","stethoscope","medicine","surgery","appointment"]]
+];
+const IT = 15, IV = 32, IR = 10;
+GAMES.imposter = {
+  name:"Imposter", icon:"🤫", cat:"social", desc:"Who has the different word? It might be you…", dur:300, rate:5, min:3, minHumans:1, solo:true, noClock:true,
+  how:["Everyone gets a secret word, but one player's word is <b>slightly different</b>, and they don't know it!","Take turns typing ONE word clue. Too obvious and the imposter catches on…","Argue in 💬 chat, then vote. Wrong person gets fired out of the candy cannon!"],
+  init(ids, ctx){ const P = pick(IMP_PAIRS), flip = rand() < .5, main = flip ? 1 : 0, imp = pick(ids), order = shuffle(ids), rounds = ids.length <= 5 ? 2 : 1, turns = [];
+    for(let r=0;r<rounds;r++) order.forEach(id => turns.push(id)); const clues = {}; ids.forEach(id => clues[id] = []);
+    return { P, main, imp, turns, ti:0, tEnd:IT + .5, clues, votes:{}, ph:"clue", sent:false, bots:{}, used:{}, dur:turns.length*IT + IV + IR + 6, info:{ order, rounds } }; },
+  wordOf(G, id){ return G.P[id === G.imp ? 1 - G.main : G.main]; },
+  cluesOf(G, id){ return G.P[id === G.imp ? 3 - G.main : 2 + G.main]; },
+  introNote(){ return "You'll get your word when it starts. Remember: the imposter doesn't know it's them 👀"; },
+  tick(G, dt, inp, H){
+    if(!G.sent){ G.sent = true; G.ids.forEach(id => H.to(id, { t:"word", w:this.wordOf(G, id) })); }
+    if(G.ph === "clue"){ const cur = G.turns[G.ti];
+      if(cur && playerOf(cur)?.bot && !G.bots["c" + G.ti] && G.t > G.tEnd - IT + 1.8 + rand()*2){ G.bots["c" + G.ti] = 1; const list = this.cluesOf(G, cur).filter(c => !(G.used[cur] || []).includes(c)); this.onEvent(G, cur, { e:"clue", text:pick(list.length ? list : this.cluesOf(G, cur)) }, H); }
+      if(G.t >= G.tEnd || cur && !playerOf(cur)){ if(cur && playerOf(cur) && G.clues[cur].length < G.turns.slice(0, G.ti + 1).filter(x => x === cur).length){ G.clues[cur].push("🤐"); }
+        G.ti++; G.tEnd = G.t + IT; G.dirty = true; fxp(G, "turn", G.turns[G.ti] || ""); if(G.ti >= G.turns.length){ G.ph = "vote"; G.vStart = G.t; G.vEnd = G.t + IV; fxp(G, "vote"); } } }
+    if(G.ph === "vote"){
+      G.ids.forEach(id => { if(!playerOf(id)?.bot || G.votes[id] != null || G.t < G.vStart + 3 + (G.bots["v" + id] || (G.bots["v" + id] = rand()*9))) return;
+        const others = G.ids.filter(k => k !== id), decoy = G.P[id === G.imp ? 2 + G.main : 3 - G.main], sus = others.filter(k => G.clues[k].some(c => decoy.includes(normW(c))));
+        G.votes[id] = id !== G.imp && sus.length && rand() < .75 ? pick(sus) : pick(others); G.dirty = true; });
+      const all = G.ids.every(id => G.votes[id] != null || !playerOf(id));
+      if(G.t >= G.vEnd || all && G.t > G.vStart + 6){ G.ph = "rev"; G.rEnd = G.t + IR; const c = {}; Object.values(G.votes).forEach(v => c[v] = (c[v] || 0) + 1); const top = Math.max(0, ...Object.values(c)), most = Object.keys(c).filter(k => c[k] === top);
+        G.ej = most.length === 1 ? most[0] : null; G.caught = G.ej === G.imp; G.res = { ej:G.ej, imp:G.imp, caught:G.caught, main:G.P[G.main], decoy:G.P[1 - G.main], c }; G.dirty = true; fxp(G, "rev"); } }
+    if(G.ph === "rev" && G.t >= G.rEnd) H.end(this.rankOf(G)); },
+  onEvent(G, id, d, H){
+    if(d.e === "clue" && G.ph === "clue" && G.turns[G.ti] === id && G.said !== G.ti){ let w = String(d.text || "").trim().split(/\s+/)[0].slice(0, 20); if(!w) return;
+      const mine = normW(this.wordOf(G, id)); if(mine && normW(w).includes(mine)){ H.to(id, { t:"nope" }); return; }
+      G.said = G.ti; G.clues[id].push(w); (G.used[id] = G.used[id] || []).push(normW(w)); G.tEnd = Math.min(G.tEnd, G.t + .9); G.dirty = true; fxp(G, "clue", id); }
+    if(d.e === "vote" && G.ph === "vote" && G.ids.includes(d.who) && d.who !== id){ G.votes[id] = d.who; G.dirty = true; } },
+  rankOf(G){ if(G.caught == null) return [G.ids]; const civ = G.ids.filter(id => id !== G.imp); if(!G.caught) return [[G.imp], civ];
+    return [civ.filter(id => G.votes[id] === G.imp), civ.filter(id => G.votes[id] !== G.imp), [G.imp]].filter(g => g.length); },
+  timeout(G){ if(G.caught == null) G.caught = false; return this.rankOf(G); },
+  bot(){ return null; }, drop(G, id){},
+  snap(G){ return { ph:G.ph, cur:G.turns[G.ti] || null, ti:G.ti, n:G.turns.length, te:+(G.tEnd || 0).toFixed(1), ve:+(G.vEnd || 0).toFixed(1), clues:G.clues, votes:G.ph === "clue" ? {} : G.votes, res:G.res || null, fx:G.fx }; },
+  view(root, ctx){ ctlShow(null); const me = ctx.me, order = ctx.info.order, v = { fxSeen:0, word:null, k:"" };
+    root.innerHTML = `<div class="im"><div class="im-word" id="imWord">🤫 Getting your word…</div><div class="im-turn" id="imTurn"></div><div class="im-grid" id="imGrid"></div>
+      <form class="dg-in im-in" id="imForm" hidden><input id="imIn" maxlength="20" placeholder="Type ONE word clue…" autocomplete="off"><button class="btn small pink">Say it</button></form></div>`;
+    const grid = $("#imGrid");
+    $("#imForm").onsubmit = e => { e.preventDefault(); const t = $("#imIn").value.trim(); if(!t) return; ctx.input({ e:"clue", text:t }); $("#imIn").value = ""; };
+    grid.onclick = e => { const b = e.target.closest("[data-w]"); if(!b || v.ph !== "vote" || b.dataset.w === me) return; ctx.input({ e:"vote", who:b.dataset.w }); v.my = b.dataset.w; sfx.vote(); };
+    v.ev = e => { if(e.t === "word"){ v.word = e.w; $("#imWord").innerHTML = `Your word: <b class="dg-word">${esc(e.w)}</b><small>Someone has a different word… it could be you!</small>`; sfx.ding(); }
+      if(e.t === "nope"){ toast("You can't say your own word! 🙊"); sfx.wrong(); } };
+    v.update = s => { const tt = CM.phase === "play" ? now() - CM.playT : 0; v.ph = s.ph;
+      newFx(v, s.fx, (type, a) => { if(type === "turn" && a === me){ sfx.go(); toast("💬 Your turn! One word", 1500); setTimeout(() => { const i = $("#imIn"); if(i) i.focus(); }, 50); } if(type === "clue") sfx.pop(); if(type === "vote"){ sfx.whistle(); SND.say("Who's the imposter?"); } if(type === "rev") sfx.boom(); });
+      const myTurn = s.ph === "clue" && s.cur === me; $("#imForm").hidden = !myTurn;
+      const th = s.ph === "clue" ? (myTurn ? `<b>Your turn!</b> Give a clue · ${Math.max(0, Math.ceil(s.te - tt))}s` : s.cur ? `${nameChip(s.cur)} is thinking… ${Math.max(0, Math.ceil(s.te - tt))}s` : "") : s.ph === "vote" ? `🗳️ Vote for the imposter! Argue in 💬 chat · ${Math.max(0, Math.ceil(s.ve - tt))}s` : "";
+      const te = $("#imTurn"); if(te.dataset.h !== th){ te.dataset.h = th; te.innerHTML = th; }
+      const k = JSON.stringify([s.ph, s.cur, s.clues, s.votes, v.my]); if(k !== v.k){ v.k = k;
+        grid.innerHTML = order.filter(id => playerOf(id)).map(id => { const vs = Object.entries(s.votes).filter(([, w]) => w === id).map(([p]) => beanSVG(playerOf(p)?.bean, 16)).join("");
+          return `<button class="im-p ${s.cur === id && s.ph === "clue" ? "cur" : ""} ${id === me ? "self" : ""} ${v.my === id ? "mine" : ""} ${s.ph === "vote" && id !== me ? "votable" : ""}" data-w="${esc(id)}">${beanSVG(playerOf(id)?.bean, 40)}<div class="im-pi"><b>${esc(id)}${id === me ? " (you)" : ""}</b><div class="im-cl">${(s.clues[id] || []).map(c => `<span>${esc(c)}</span>`).join("") || `<i>…</i>`}</div>${vs ? `<div class="im-vs">${vs}</div>` : ""}</div></button>`; }).join(""); }
+      if(s.res && !v.shown){ v.shown = true; const R = s.res, ov = document.createElement("div"); ov.className = "im-rev";
+        ov.innerHTML = R.ej ? `<div class="im-cannon">🎉</div><div class="im-fly">${beanSVG(playerOf(R.ej)?.bean, 90, { mood:"sad" })}</div><h2>${esc(R.ej)} ${R.caught ? "WAS the imposter! 🚨" : "was NOT the imposter… 😬"}</h2>` : `<h2>It's a tie! Nobody got launched 🤷</h2>`;
+        ov.innerHTML += `<div class="im-words"><p>Everyone had <b class="dg-word">${esc(R.main)}</b></p><p>${nameChip(R.imp, 22)} had <b class="dg-word">${esc(R.decoy)}</b></p></div><p class="im-win">${R.caught ? "🎉 Crew wins!" : `😈 ${esc(R.imp)} wins!`}</p>`;
+        $(".im").appendChild(ov); } };
+    v.destroy = () => {}; return v; }
+};
+
 // ===================== quick games: Balloon Pump, Sprint 100m, Stop at 10.00, Whack-a-Mole, Quick Draw =====================
 const byScore = (ids, f, asc) => { const s = ids.slice().sort((a, b) => asc ? f(a) - f(b) : f(b) - f(a)), gs = []; s.forEach(id => { const l = gs[gs.length - 1]; if(l && f(l[0]) === f(id)) l.push(id); else gs.push([id]); }); return gs; };
 const beanImg = (cache, id, sz = 64) => cache[id] || (cache[id] = Object.assign(new Image(), { src:"data:image/svg+xml;charset=utf-8," + encodeURIComponent(beanSVG(playerOf(id)?.bean, sz).replace('<svg ', '<svg xmlns="http://www.w3.org/2000/svg" ')) }));
@@ -2027,6 +2204,7 @@ function renderHome(){
   $("#hCoins").textContent = `🪙 ${fmt(ME.coins)}`;
   $("#meCard").innerHTML = `<div class="mc-bean">${beanSVG(ME.bean, 78)}</div><div class="mc-info"><h2>${esc(ME.name)}</h2><span class="lvl">Level ${ME.lvl}</span><div class="xpbar"><i style="width:${ME.xp / need * 100}%"></i></div><small>${fmt(ME.xp)} / ${fmt(need)} XP · ${ME.wins} wins from ${ME.matches} matches</small></div>`;
   const reqs = (ME.reqs || []).length; $("#hReq").hidden = !reqs; $("#hReq").textContent = reqs;
+  const pc = passClaimable(); $("#hPassN").hidden = !pc; $("#hPassN").textContent = pc; $("#hSpinN").hidden = !!ME.spun;
   const on = FRIENDS.filter(f => f.online);
   $("#hFriendsMini").innerHTML = `<div class="label">Friends online (${on.length})</div>` + (on.length ? on.map(f => `<div class="fm">${beanSVG(f.bean, 28)}<b>${esc(f.name)}</b>${f.room ? `<button class="btn small blue" data-join="${f.room}">Join ${f.room}</button>` : `<span class="dot on">online</span>`}</div>`).join("") : `<p class="muted">Nobody online right now. Add friends from the Friends button.</p>`);
 }
@@ -2051,10 +2229,12 @@ function renderWard(){
   else items = [{ id:"", none:true }].concat(Object.keys(ITEMS).filter(k => ITEMS[k].s === wTab).map(k => ({ id:k })));
   $("#wGrid").innerHTML = items.map(it => { const owned = it.free || it.none || ME.own[it.id], on = wTab === "col" ? wSel.col === it.id : (wSel[wTab] || "") === it.id;
     const prevBean = Object.assign({}, wSel, wTab === "col" ? { col:it.id } : { [wTab]:it.id });
-    return `<button class="wi ${on ? "on" : ""} ${owned ? "" : "locked"}" data-id="${it.id}">${beanSVG(prevBean, 46)}<b>${it.none ? "None" : it.free ? "" : ITEMS[it.id].n}</b>${owned ? "" : `<span>🪙 ${fmt(PRICE(it.id) || 0)}</span>`}</button>`; }).join("");
+    const ex = !it.free && !it.none && ITEMS[it.id] && ITEMS[it.id].ex;
+    return `<button class="wi ${on ? "on" : ""} ${owned ? "" : "locked"} ${ex ? "ex" : ""}" data-id="${it.id}">${ex ? `<i class="wi-ex">S1</i>` : ""}${beanSVG(prevBean, 46)}<b>${it.none ? "None" : it.free ? "" : ITEMS[it.id].n}</b>${owned ? "" : `<span>${ex ? "🎟️ Pass" : `🪙 ${fmt(PRICE(it.id) || 0)}`}</span>`}</button>`; }).join("");
   $("#wSave").onclick = async () => { const j = await api("bean", { bean:wSel }); if(j.error) return toast(j.error); ME = j.me; sfx.win(); toast("Looking good!"); renderHome(); modal("#wardModal", false); if(NET.room) toast("Rejoin the room to show your new look to everyone"); };
 }
 $("#wGrid").onclick = async e => { const b = e.target.closest(".wi"); if(!b) return; const id = b.dataset.id;
+  if(b.classList.contains("locked") && ITEMS[id] && ITEMS[id].ex){ sfx.wrong(); return toast("Season 1 pass reward. Earn it in 🎟️ Season pass!"); }
   if(b.classList.contains("locked")){ if(b.dataset.sure !== "1"){ $$(".wi").forEach(x => delete x.dataset.sure); b.dataset.sure = "1"; b.querySelector("span").textContent = "Tap to buy"; sfx.click(); return; }
     const j = await api("buy", { item:id }); if(j.error){ sfx.wrong(); return toast(j.error); } ME = j.me; sfx.coin(); toast(`Bought ${ITEMS[id].n}!`); }
   if(wTab === "col") wSel.col = id; else wSel[wTab] = id; sfx.pop(); renderWard(); };
@@ -2099,17 +2279,24 @@ function renderRoom(){
   $("#rPlayers").innerHTML = r.players.map(p => `<button class="pl ${p.id === NET.me ? "me" : ""}" data-p="${esc(p.id)}">${p.id === r.host ? `<span class="crown">👑</span>` : ""}${beanSVG(p.bean, 54)}<b>${esc(p.name)}</b><small>${p.bot ? "🤖 bot" : "Lv " + p.lvl}</small></button>`).join("") + Array.from({ length:Math.max(0, 8 - r.players.length) }, () => `<div class="pl empty"><span>?</span></div>`).join("");
   $("#rHostRow").innerHTML = host ? `<button class="btn small blue" id="rBotAdd" ${r.players.length >= 8 ? "disabled" : ""}>🤖 Add bot</button><button class="btn small ghost" id="rBotRem" ${r.players.some(p => p.bot) ? "" : "disabled"}>Remove bot</button><button class="btn small ${r.locked ? "yellow" : "ghost"}" id="rLock">${r.locked ? "🔒 Locked" : "🔓 Open"}</button>` : `<small class="muted">${esc(r.host)} is the host · ${r.pub ? "🌍 public room" : "🔒 private room"}</small>`;
   $("#rSettings").hidden = !host;
+  const single = r.mode === "single", pg = GAMES[r.pick];
   if(host){ const off = r.off || [];
-    $("#rSettings").innerHTML = `<div class="label">Rounds</div><div class="seg" id="rRounds">${[5, 10, 15].map(n => `<button data-n="${n}" aria-pressed="${r.rounds === n}">${n}</button>`).join("")}</div>
+    $("#rSettings").innerHTML = `<div class="seg mode-seg" id="rMode"><button data-m="party" aria-pressed="${!single}">🎉 Party</button><button data-m="single" aria-pressed="${single}">🎯 Single game</button></div>` + (single ?
+      `<div class="label">Pick a game <small>play it once</small></div><div class="g-pick">${Object.entries(GAMES).map(([id, g]) => `<button class="gp cat-${g.cat} ${r.pick === id ? "on" : ""} ${g.solo ? "solo" : ""}" data-g="${id}"><span>${g.icon}</span>${g.name}${g.solo ? "<i>NEW</i>" : ""}</button>`).join("")}</div>
+      <div class="set"><span>🌍 Public room</span><button class="sw" id="rPub" aria-checked="${!!r.pub}"></button></div>` : `<div class="label">Rounds</div><div class="seg" id="rRounds">${[5, 10, 15].map(n => `<button data-n="${n}" aria-pressed="${r.rounds === n}">${n}</button>`).join("")}</div>
       <div class="set"><span>🌍 Public room</span><button class="sw" id="rPub" aria-checked="${!!r.pub}"></button></div>
-      <div class="label">Games (${Object.keys(GAMES).length - off.filter(x => GAMES[x]).length} on) <small>tap to turn off</small></div><div class="g-toggles">${Object.entries(GAMES).map(([id, g]) => `<button class="gt cat-${g.cat} ${off.includes(id) ? "off" : ""}" data-g="${id}">${g.icon} ${g.name}</button>`).join("")}</div>`;
+      <div class="label">Games (${Object.keys(GAMES).length - off.filter(x => GAMES[x]).length} on) <small>tap to turn off</small></div><div class="g-toggles">${Object.entries(GAMES).filter(([, g]) => !g.solo).map(([id, g]) => `<button class="gt cat-${g.cat} ${off.includes(id) ? "off" : ""}" data-g="${id}">${g.icon} ${g.name}</button>`).join("")}</div>`);
+    $$("#rMode button").forEach(b => b.onclick = () => { send("settings", { mode:b.dataset.m }); sfx.click(); });
+    $$(".gp").forEach(b => b.onclick = () => { send("settings", { pick:b.dataset.g }); sfx.pop(); });
     $$("#rRounds button").forEach(b => b.onclick = () => { send("settings", { rounds:+b.dataset.n }); sfx.click(); });
     $("#rPub").onclick = () => send("settings", { pub:!r.pub });
     $$(".gt").forEach(b => b.onclick = () => { const id = b.dataset.g, o = off.includes(id) ? off.filter(x => x !== id) : off.concat(id); if(Object.keys(GAMES).every(k => o.includes(k))) return toast("Leave at least one game on"); send("settings", { off:o }); sfx.click(); });
     $("#rBotAdd").onclick = () => send("bot", { add:true }); $("#rBotRem").onclick = () => send("bot", { add:false });
     $("#rLock").onclick = () => send("lock", { on:!r.locked }); }
   $("#rStart").hidden = !host; $("#rWait").hidden = host || r.status === "playing"; $("#rStart").disabled = r.players.length < 2 || r.status === "playing";
-  $("#rStart").textContent = r.players.length < 2 ? "Need 2+ players (add a bot!)" : "▶ Start the party";
+  $("#rStart").textContent = r.players.length < 2 ? "Need 2+ players (add a bot!)" : single ? (pg ? `▶ Play ${pg.name}` : "Pick a game above") : "▶ Start the party";
+  if(single && !pg && host) $("#rStart").disabled = true;
+  $("#rWait").textContent = single ? (pg ? `🎯 Next up: ${pg.icon} ${pg.name}. Waiting for the host…` : "🎯 The host is picking a game…") : "Waiting for the host to start…";
 }
 $("#rStart").onclick = () => { sfx.click(); startMatch(); };
 $("#rPlayers").onclick = e => { const b = e.target.closest("[data-p]"); if(!b) return; const id = b.dataset.p, p = playerOf(id); if(!p) return;
@@ -2142,5 +2329,44 @@ setInterval(() => { if(ME && !document.hidden) refreshMe(); }, 30000);
   if(!STORE.token){ if(linkCode){ STORE.pendingCode = linkCode; saveStore(); } showAuth(); return; }
   const j = await refreshMe(); if(j.error){ showAuth(); return; } afterLogin();
 })();
+
+// ---------- season pass ----------
+function passTier(){ return PASSI && ME.pass ? Math.min(PASSI.tiers, Math.floor(ME.pass.xp / PASSI.txp)) : 0; }
+function passClaimable(){ if(!PASSI || !ME.pass) return 0; const t = passTier(); return Math.max(0, t - ME.pass.cf) + (ME.pass.prem ? Math.max(0, t - ME.pass.cp) : 0); }
+function rewardHTML(r){ if(r.item){ const it = ITEMS[r.item], bean = Object.assign({}, ME.bean, it.s === "col" ? { col:r.item } : { [it.s]:r.item }); return `${beanSVG(bean, 40)}<b>${esc(it.n)}</b>`; }
+  if(r.pxp) return `<span class="ps-big">⭐</span><b>${r.pxp} pass XP</b>`; return `<span class="ps-big">🪙</span><b>${fmt(r.coins)}</b>`; }
+function renderPass(scroll){
+  if(!PASSI) return; const P = ME.pass, t = passTier(), into = P.xp - t * PASSI.txp, maxed = t >= PASSI.tiers, cl = passClaimable();
+  $("#psCoins").textContent = `🪙 ${fmt(ME.coins)}`;
+  const col = (r, tr, n) => { const reached = n <= t, got = tr === "free" ? n <= P.cf : P.prem && n <= P.cp, lock = tr === "prem" && !P.prem;
+    return `<div class="ps-r ${tr} ${reached ? "reach" : ""} ${got ? "got" : ""} ${lock ? "lock" : ""} ${r.item ? "item" : ""}">${rewardHTML(r)}${got ? `<i class="ps-ok">✓</i>` : lock ? `<i class="ps-lk">🔒</i>` : ""}</div>`; };
+  $("#passBody").innerHTML = `<div class="ps-head"><div class="ps-tier"><small>Tier</small><b>${t}</b><small>/ ${PASSI.tiers}</small></div>
+      <div class="ps-prog"><div class="xpbar"><i style="width:${maxed ? 100 : into / PASSI.txp * 100}%"></i></div><small>${maxed ? "Pass complete! 🎉" : `${fmt(into)} / ${PASSI.txp} XP to tier ${t + 1}. Play matches to earn XP`}</small></div>
+      ${cl ? `<button class="btn green" id="psClaim">Claim ${cl} reward${cl === 1 ? "" : "s"}</button>` : ""}</div>
+    ${P.prem ? `<p class="ps-prem on">⭐ Premium unlocked</p>` : `<div class="ps-buy"><div><b>⭐ Unlock Premium</b><small>9 exclusive items + loads more coins. Pays for itself!</small></div><button class="btn yellow" id="psBuy">🪙 ${fmt(PASSI.price)}</button></div>`}
+    <div class="ps-wrap"><div class="ps-labels"><span>Free</span><span>⭐ Premium</span></div><div class="ps-track" id="psTrack">${PASSI.free.map((r, i) => `<div class="ps-col ${i + 1 <= t ? "reach" : ""} ${i + 1 === t + 1 ? "next" : ""}"><div class="ps-n">${i + 1}</div>${col(r, "free", i + 1)}${col(PASSI.prem[i], "prem", i + 1)}</div>`).join("")}</div></div>
+    <p class="muted ps-note">Season 1 items will never come back after the season ends.</p>`;
+  if(scroll !== false){ const tr = $("#psTrack"), c = tr.children[Math.max(0, t - 1)]; if(c) tr.scrollLeft = c.offsetLeft - 60; }
+  const cb = $("#psClaim"); if(cb) cb.onclick = async () => { const j = await api("pass", { action:"claim" }); if(j.error) return toast(j.error); ME = j.me; sfx.coin(); confetti(); toast(gotText(j.got)); renderPass(false); renderHome(); };
+  const bb = $("#psBuy"); if(bb) bb.onclick = async () => { if(bb.dataset.sure !== "1"){ bb.dataset.sure = "1"; bb.textContent = "Tap again to buy"; sfx.click(); return; }
+    const j = await api("pass", { action:"buy" }); if(j.error){ sfx.wrong(); toast(j.error); return renderPass(false); } ME = j.me; sfx.crown(); confetti(); toast("⭐ Premium unlocked!" + (j.got.length ? " " + gotText(j.got) : "")); renderPass(false); renderHome(); };
+}
+function gotText(got){ const c = got.reduce((s, r) => s + (r.coins || 0), 0), items = got.filter(r => r.item).map(r => ITEMS[r.item].n); return [c ? `+${fmt(c)} coins` : "", items.length ? "New: " + items.join(", ") : ""].filter(Boolean).join(" · ") || "Claimed!"; }
+$("#hPass").onclick = async () => { sfx.click(); if(!PASSI) await refreshMe(); modal("#passModal"); renderPass(); };
+// ---------- daily spin ----------
+const SPIN_COLS = ["#ff4a8a", "#ffd23a", "#3ab8ff", "#5ae07a", "#9a6aff", "#ff8a3a", "#ff3a5a", "#2ad8c8"];
+function wheelSVG(){ const n = SPINL.length, a = 360 / n, P = (deg, r) => [100 + Math.sin(deg * Math.PI / 180) * r, 100 - Math.cos(deg * Math.PI / 180) * r];
+  return `<svg viewBox="0 0 200 200">${SPINL.map((x, i) => { const [x1, y1] = P(i * a, 96), [x2, y2] = P((i + 1) * a, 96), [tx, ty] = P(i * a + a/2, 64);
+    return `<path d="M100 100 L${x1} ${y1} A96 96 0 0 1 ${x2} ${y2} Z" fill="${SPIN_COLS[i % 8]}" stroke="#fff" stroke-width="2"/><text x="${tx}" y="${ty}" transform="rotate(${i * a + a/2} ${tx} ${ty})" text-anchor="middle" dominant-baseline="middle" font-family="Lilita One, sans-serif" font-size="${x.pxp ? 11 : 14}" fill="#fff" stroke="rgba(0,0,0,.25)" stroke-width=".6">${x.pxp ? "⭐ " + x.pxp + "XP" : "🪙" + x.coins}</text>`; }).join("")}<circle cx="100" cy="100" r="16" fill="#fff" stroke="#2a1a4a" stroke-width="3"/><text x="100" y="101" text-anchor="middle" dominant-baseline="middle" font-size="13">🎉</text></svg>`; }
+let spinRot = 0;
+function renderSpin(){ $("#spinWheel").innerHTML = wheelSVG(); const done = !!ME.spun; $("#spinGo").disabled = done;
+  if(done){ const n = new Date(), m = (24*60) - (n.getUTCHours()*60 + n.getUTCMinutes()); $("#spinNote").textContent = `Next spin in ${Math.floor(m / 60)}h ${m % 60}m`; } else $("#spinNote").textContent = "One free spin every day!"; }
+$("#hSpin").onclick = async () => { sfx.click(); if(!SPINL.length) await refreshMe(); modal("#spinModal"); renderSpin(); };
+$("#spinGo").onclick = async () => { const go = $("#spinGo"); if(go.disabled) return; go.disabled = true;
+  const j = await api("spin"); if(j.error){ toast(j.error); go.disabled = false; return; }
+  const n = SPINL.length, a = 360 / n, w = $("#spinWheel"); spinRot += 360 * 6 + (360 - (j.i * a + a/2) - (spinRot % 360)) + (rand() - .5) * a * .6;
+  w.style.transition = "transform 4.2s cubic-bezier(.17,.67,.2,1)"; w.style.transform = `rotate(${spinRot}deg)`;
+  let tk = 0; const tick = () => { if(tk > 4100) return; sfx.tick(); tk += 60 + tk * .08; setTimeout(tick, 60 + tk * .08); }; tick();
+  setTimeout(() => { ME = j.me; const p = SPINL[j.i]; sfx.win(); confetti(); toast(p.pxp ? `⭐ +${p.pxp} season pass XP!` : `🪙 You won ${p.coins} coins!`, 3200); SND.say(p.coins >= 250 ? "Jackpot!" : "Nice!"); renderSpin(); renderHome(); }, 4400); };
 
 })();</script></body></html>

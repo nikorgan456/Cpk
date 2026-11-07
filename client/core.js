@@ -13,14 +13,14 @@ const STORE = (() => { let s = {}; try{ s = JSON.parse(localStorage.getItem("cpk
 function saveStore(){ try{ localStorage.setItem("cpk", JSON.stringify(STORE)); }catch(e){} }
 if(STORE.music === undefined) STORE.music = true; if(STORE.sound === undefined) STORE.sound = true; if(STORE.voice === undefined) STORE.voice = true; if(STORE.vol === undefined) STORE.vol = .7;
 
-let ME = null, FRIENDS = [], SHOP = {}, FREE_COLS = [];
+let ME = null, FRIENDS = [], SHOP = {}, FREE_COLS = [], PASSI = null, SPINL = [];
 async function api(op, body = {}){
   try{
     const r = await fetch("/api", { method:"POST", headers:{ "content-type":"application/json" }, body:JSON.stringify(Object.assign({ op, token:STORE.token }, body)) });
     const j = await r.json(); if(j.auth){ STORE.token = null; saveStore(); showAuth(); } return j;
   }catch(e){ return { error:"Can't reach the server. Check your internet." }; }
 }
-async function refreshMe(away){ const j = await api("me", away ? { away:true } : {}); if(j.me){ ME = j.me; FRIENDS = j.friends || []; SHOP = j.shop || SHOP; FREE_COLS = j.free || FREE_COLS; renderHome(); } return j; }
+async function refreshMe(away){ const j = await api("me", away ? { away:true } : {}); if(j.me){ ME = j.me; FRIENDS = j.friends || []; SHOP = j.shop || SHOP; FREE_COLS = j.free || FREE_COLS; PASSI = j.passInfo || PASSI; SPINL = j.spin || SPINL; renderHome(); } return j; }
 
 function toast(msg, ms = 2600){ const t = $("#toast"); t.textContent = msg; t.hidden = false; t.classList.remove("show"); void t.offsetWidth; t.classList.add("show"); clearTimeout(toast._t); toast._t = setTimeout(() => { t.hidden = true; }, ms); }
 function show(id){ $$(".screen").forEach(s => s.hidden = s.id !== id); window.scrollTo(0, 0); }

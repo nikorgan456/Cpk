@@ -7,19 +7,22 @@ let CM = { phase:"", game:null, view:null, S:null, info:null, round:0, total:0, 
 const isHost = () => NET.host;
 // ---------- host helpers ----------
 function hsend(k, d = {}){ const m = Object.assign({ k }, d); send("g", m); onG(m); }
-function enabledGames(){ const off = (NET.room && NET.room.off) || []; return Object.keys(GAMES).filter(id => !off.includes(id)); }
+function enabledGames(){ const off = (NET.room && NET.room.off) || []; return Object.keys(GAMES).filter(id => !off.includes(id) && !GAMES[id].solo); }
 function canPlay(id, ids){ const g = GAMES[id], humans = ids.filter(x => !playerOf(x)?.bot).length; return ids.length >= (g.min || 2) && humans >= (g.minHumans || 1); }
 function startMatch(){
   if(!isHost() || HM) return; const ids = players().map(p => p.id); if(ids.length < 2) return toast("You need at least 2 players. Add a bot!");
-  const pool = enabledGames().filter(id => canPlay(id, ids)); if(pool.length < 1) return toast("Turn on some games first");
-  HM = { round:0, total:NET.room.rounds || 10, scores:{}, played:[], records:{}, wins:{}, drawn:{}, inputs:{}, t:0 };
+  const single = NET.room.mode === "single", pick = NET.room.pick;
+  if(single){ if(!GAMES[pick]) return toast("Pick a game first"); if(!canPlay(pick, ids)) return toast(`${GAMES[pick].name} needs ${GAMES[pick].min || 2}+ players`); }
+  const pool = enabledGames().filter(id => canPlay(id, ids)); if(!single && pool.length < 1) return toast("Turn on some games first");
+  HM = { round:0, total:single ? 1 : NET.room.rounds || 10, single, scores:{}, played:[], records:{}, wins:{}, drawn:{}, inputs:{}, t:0 };
   ids.forEach(id => { HM.scores[id] = 0; HM.records[id] = []; HM.wins[id] = 0; });
-  send("status", { status:"playing" }); hsend("start", { total:HM.total, scores:HM.scores }); setTimeout(hVote, 600);
+  send("status", { status:"playing" }); hsend("start", { total:HM.total, scores:HM.scores });
+  if(single) setTimeout(() => { if(!HM) return; HM.round = 1; HM.phase = "vote"; CM.round = 1; CM.total = 1; hIntro(pick); }, 700); else setTimeout(hVote, 600);
 }
 function hVote(){
   if(!HM) return; if(HM.round >= HM.total) return hFinal();
   const ids = players().map(p => p.id); ids.forEach(id => { if(HM.scores[id] == null){ HM.scores[id] = 0; HM.records[id] = []; HM.wins[id] = 0; } });
-  let pool = enabledGames().filter(id => canPlay(id, ids)); if(!pool.length) pool = Object.keys(GAMES).filter(id => canPlay(id, ids));
+  let pool = enabledGames().filter(id => canPlay(id, ids)); if(!pool.length) pool = Object.keys(GAMES).filter(id => canPlay(id, ids) && !GAMES[id].solo);
   // never offer a game already played this match; also skip what was just on the last vote if there's enough left
   let fresh = pool.filter(id => !HM.played.includes(id)); if(fresh.length < 3) fresh = pool.filter(id => !HM.played.slice(-Math.max(0, pool.length - 3)).includes(id));
   const notLast = fresh.filter(id => !(HM.lastOpts || []).includes(id)), opts = shuffle(notLast.length >= 3 ? notLast : fresh.length >= 3 ? fresh : pool).slice(0, 3); HM.lastOpts = opts;
@@ -141,7 +144,7 @@ function showFinal(m){
   stageClear(); CM.phase = "final"; SND.music("final"); const top = m.results.slice(0, 3), me = m.results.find(r => r.name === NET.me);
   const pod = [1, 0, 2].map(i => top[i] ? `<div class="pod p${i + 1}"><div class="pod-b">${beanOf(top[i].name, i === 0 ? 74 : 56, "happy")}</div><b>${esc(top[i].name)}</b><span>${top[i].pts} pts</span><div class="pod-step">${i + 1}</div></div>` : `<div class="pod p${i + 1} empty"></div>`).join("");
   ovl(`<div class="final"><h1>${esc(m.results[0].name)} wins!</h1><div class="podium">${pod}</div><div class="fin-list">${m.results.slice(3).map(r => `<div class="rr"><span class="rr-p">${r.place}</span>${beanOf(r.name, 24)}<b>${esc(r.name)}</b><span class="rr-g">${r.pts}</span></div>`).join("")}</div>
-    ${me && !playerOf(NET.me)?.bot ? `<p class="fin-me">You came <b>${ordinal(me.place)}</b>: +${[60, 40, 30, 20, 15, 12, 10, 10][me.place - 1] || 10} coins and XP</p>` : ""}<small class="muted">Back to the lobby soon…</small></div>`, "final-ovl");
+    ${me && !playerOf(NET.me)?.bot ? `<p class="fin-me">You came <b>${ordinal(me.place)}</b>: +${Math.round(([60, 40, 30, 20, 15, 12, 10, 10][me.place - 1] || 10) * Math.min(1, Math.max(.2, (me.rounds || []).length / 5)))} coins and XP</p>` : ""}<small class="muted">Back to the lobby soon…</small></div>`, "final-ovl");
   sfx.crown(); SND.say(`${m.results[0].name} wins!`); confetti();
 }
 const ordinal = n => n + (["th","st","nd","rd"][(n % 100 - 20) % 10] || ["th","st","nd","rd"][n % 100] || "th");

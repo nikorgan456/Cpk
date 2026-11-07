@@ -29,6 +29,8 @@
       <button class="tile t2" id="hWardrobe"><span>👕</span>Wardrobe</button>
       <button class="tile t3" id="hFriends"><span>👯</span>Friends<em id="hReq" hidden></em></button>
       <button class="tile t4" id="hStats"><span>📊</span>Stats</button>
+      <button class="tile t5" id="hPass"><span>🎟️</span>Season pass<em id="hPassN" hidden></em></button>
+      <button class="tile t6" id="hSpin"><span>🎡</span>Daily spin<em id="hSpinN" hidden>!</em></button>
     </div>
     <div class="card" id="hFriendsMini"></div>
   </div>
@@ -76,6 +78,8 @@
   <div class="set"><span>Announcer voice</span><button class="sw" id="sVoice"></button></div>
   <div class="set"><span>Volume</span><input type="range" id="sVol" min="0" max="100"></div>
   <button class="btn red" id="sLogout">Log out</button></div></div>
+<div class="modal" id="passModal" hidden><div class="panel wide"><div class="ph"><h2>🎟️ Season 1 pass</h2><span class="coins" id="psCoins"></span><button class="icon sm" data-close>✕</button></div><div id="passBody"></div></div></div>
+<div class="modal" id="spinModal" hidden><div class="panel"><div class="ph"><h2>🎡 Daily spin</h2><button class="icon sm" data-close>✕</button></div><div class="spin-wrap"><div class="spin-ptr">▼</div><div class="spin-wheel" id="spinWheel"></div></div><button class="btn big pink" id="spinGo">SPIN!</button><p class="muted spin-note" id="spinNote"></p></div></div>
 <div class="modal" id="pMenu" hidden><div class="panel"><div id="pMenuBody"></div></div></div>
 
 <div class="toast" id="toast" hidden></div>
