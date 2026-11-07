@@ -46,7 +46,7 @@ GAMES.hideseek = {
     P.forEach(p => { const m = propMesh(p.t); m.position.set(p.x, 0, p.z); m.rotation.y = p.x * 3; S.scene.add(m); });
     const disg = {}, blind = document.createElement("div"); blind.className = "hs-blind"; blind.hidden = true; root.appendChild(blind); const hud = raceHud(root);
     v.extra = (id, b, s) => { const seeker = v.seek && v.seek.has(id), tag = S.tags.get(id);
-      b.userData.body.visible = seeker; b.userData.feet.forEach(f => f.visible = seeker); if(tag) tag.style.display = seeker || id === me ? "" : "none";
+      b.userData.body.visible = seeker; b.userData.feet.forEach(f => f.visible = seeker); if(b.userData.blob) b.userData.blob.visible = seeker; if(tag) tag.style.display = seeker || id === me ? "" : "none";
       const t = v.prop ? v.prop[id] : 0; if(!seeker){ if(!disg[id] || disg[id].userData.t !== t){ if(disg[id]) b.remove(disg[id]); disg[id] = propMesh(t); disg[id].userData.t = t; b.add(disg[id]); if(id === me) disg[id].traverse(o => { if(o.material){ o.material = o.material.clone(); o.material.transparent = true; o.material.opacity = .75; } }); } disg[id].visible = true; }
       else if(disg[id]) disg[id].visible = false; };
     v.tick = (s, dt) => { v.seek = new Set(s.seek); v.prop = s.prop; const amSeek = v.seek.has(me), tt = CM.phase === "play" ? now() - CM.playT : 0;

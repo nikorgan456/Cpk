@@ -73,8 +73,9 @@ function renderStats(){
     <div class="label">Recent matches</div><div class="hist">${(ME.hist || []).length ? ME.hist.map(h => `<div class="h-row"><span class="h-place p${Math.min(h.place, 4)}">${ordinal(h.place)}</span><div><b>${h.place === 1 ? "Won" : "Played"} vs ${h.n - 1} other${h.n === 2 ? "" : "s"}</b><small>${(h.board || []).slice(0, 4).map(b => `${esc(b.name)} ${b.pts}`).join(" · ")}</small></div><span class="h-r">+${h.coins}🪙<small>${timeAgo(h.t)}</small></span></div>`).join("") : `<p class="muted">No matches yet. Go play!</p>`}</div>`;
 }
 // ---------- settings ----------
-function syncSet(){ $("#sDark").setAttribute("aria-checked", isDark()); $("#sMusic").setAttribute("aria-checked", !!STORE.music); $("#sSound").setAttribute("aria-checked", !!STORE.sound); $("#sVoice").setAttribute("aria-checked", !!STORE.voice); $("#sVol").value = Math.round(STORE.vol * 100); }
+function syncSet(){ $$("#sGfx button").forEach(b => b.setAttribute("aria-pressed", (STORE.gfx || "high") === b.dataset.q)); $("#sDark").setAttribute("aria-checked", isDark()); $("#sMusic").setAttribute("aria-checked", !!STORE.music); $("#sSound").setAttribute("aria-checked", !!STORE.sound); $("#sVoice").setAttribute("aria-checked", !!STORE.voice); $("#sVol").value = Math.round(STORE.vol * 100); }
 $("#hSettings").onclick = () => { syncSet(); modal("#setModal"); };
+$("#sGfx").onclick = e => { const b = e.target.closest("[data-q]"); if(!b) return; STORE.gfx = b.dataset.q; saveStore(); syncSet(); sfx.click(); toast(b.dataset.q === "high" ? "✨ High graphics" : "🔋 Low graphics: smoother on older phones"); };
 $("#sDark").onclick = () => { STORE.dark = !isDark(); saveStore(); applyDark(); syncSet(); sfx.click(); };
 [["#sMusic", "music"], ["#sSound", "sound"], ["#sVoice", "voice"]].forEach(([s, k]) => $(s).onclick = () => { STORE[k] = !STORE[k]; saveStore(); syncSet(); sfx.click(); });
 $("#sVol").oninput = e => SND.setVol(e.target.value / 100);

@@ -82,11 +82,13 @@ function beanMesh(bean, name){
   if(!BEAN3D.geo){ const P = [[.001,0],[.36,.02],[.48,.1],[.53,.25],[.53,.42],[.49,.65],[.41,.88],[.29,1.07],[.14,1.2],[.001,1.25]];
     BEAN3D.geo = new THREE.LatheGeometry(P.map(p => new THREE.Vector2(p[0], p[1])), 28); BEAN3D.foot = new THREE.SphereGeometry(.14, 12, 8); BEAN3D.eye = new THREE.SphereGeometry(.17, 16, 12); BEAN3D.pupil = new THREE.SphereGeometry(.085, 12, 8); }
   const s = SPECIAL[b.col], col = s ? (b.col === "c_candy" ? s[0] : s[1]) : (b.col || "#3ab8ff");
-  const mat = new THREE.MeshStandardMaterial({ color:col, roughness:.4, metalness: b.col === "c_gold" ? .7 : b.col === "c_ice" ? .3 : .05, emissive: b.col === "c_lava" ? "#ff3a00" : b.col === "c_galaxy" ? "#3a1aa8" : b.col === "c_neon" ? "#3aff6a" : "#000", emissiveIntensity: b.col === "c_lava" ? .4 : b.col === "c_neon" ? .55 : .25, transparent: b.col === "c_ghost", opacity: b.col === "c_ghost" ? .7 : 1 });
+  const mat = new THREE.MeshPhysicalMaterial({ clearcoat:1, clearcoatRoughness:.18, color:col, roughness:.38, metalness: b.col === "c_gold" ? .7 : b.col === "c_ice" ? .3 : .05, emissive: b.col === "c_lava" ? "#ff3a00" : b.col === "c_galaxy" ? "#3a1aa8" : b.col === "c_neon" ? "#3aff6a" : "#000", emissiveIntensity: b.col === "c_lava" ? .4 : b.col === "c_neon" ? .55 : .25, transparent: b.col === "c_ghost", opacity: b.col === "c_ghost" ? .7 : 1 });
   if(b.col === "c_rainbow") g.userData.rainbow = mat;
   const m = new THREE.Mesh(BEAN3D.geo, mat); m.castShadow = true; m.position.y = .08; body.add(m);
+  // cartoon outline: a slightly bigger, inside-out copy in a darker shade
+  const ol = new THREE.Mesh(BEAN3D.geo, new THREE.MeshBasicMaterial({ color:shade(s ? s[s.length - 1] : (b.col || "#3ab8ff"), -.55), side:THREE.BackSide, transparent:b.col === "c_ghost", opacity:b.col === "c_ghost" ? .5 : 1 })); ol.scale.set(1.055, 1.035, 1.055); ol.position.y = .065; body.add(ol); g.userData.outline = ol;
   if(b.face === "visor"){ const vz = new THREE.Mesh(new THREE.BoxGeometry(.62, .16, .1), new THREE.MeshStandardMaterial({ color:"#2affd8", emissive:"#1a8a7a", roughness:.1 })); vz.position.set(0, .82, .44); body.add(vz); }
-  else { const white = new THREE.MeshStandardMaterial({ color:"#fff", roughness:.2 }), black = new THREE.MeshStandardMaterial({ color:"#1a1030", roughness:.3 });
+  else { const white = new THREE.MeshPhysicalMaterial({ color:"#ffffff", roughness:.15, clearcoat:1, clearcoatRoughness:.05 }), black = new THREE.MeshPhysicalMaterial({ color:"#1a1030", roughness:.2, clearcoat:1, clearcoatRoughness:.05 });
     [-1, 1].forEach(sd => { const e = new THREE.Mesh(BEAN3D.eye, white); e.position.set(sd*.17, .84, .38); e.scale.z = .8; body.add(e); const p = new THREE.Mesh(BEAN3D.pupil, black); p.position.set(sd*.17, .82, .5); body.add(p); }); }
   const mouth = new THREE.Mesh(new THREE.TorusGeometry(.1, .035, 8, 14, Math.PI), new THREE.MeshStandardMaterial({ color:"#1a1030" })); mouth.position.set(0, .64, .5); mouth.rotation.z = Math.PI; body.add(mouth);
   g.userData.feet = [-1, 1].map(sd => { const f = new THREE.Mesh(BEAN3D.foot, mat); f.scale.set(1, .6, 1.3); f.position.set(sd*.2, .06, .05); g.add(f); return f; });

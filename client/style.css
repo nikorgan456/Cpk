@@ -535,3 +535,4 @@ body.dark .modal{background:rgba(5,3,12,.6)}
 .ww-p{position:relative;background:var(--card);color:var(--ink);border-radius:16px;padding:8px 4px;display:flex;flex-direction:column;align-items:center;gap:2px;font-weight:900;font-size:.82rem;border:3px solid transparent;box-shadow:0 4px 0 rgba(0,0,0,.2)}
 .ww-p small{font-size:.7rem;color:var(--muted);min-height:1em}.ww-p.dead{opacity:.45;filter:grayscale(.8)}.ww-p.mine{border-color:var(--pink)}.ww-v{display:flex;flex-wrap:wrap;justify-content:center}
 .ww-log{width:min(640px,100%);background:rgba(0,0,0,.35);color:#fff;border-radius:14px;padding:6px 12px;font-size:.88rem}.ww-log p{margin:4px 0}.ww-log:empty{display:none}
+.gfx-seg{width:140px}
